@@ -1,0 +1,188 @@
+# Sistema de Pedidos Fosfo — Regras do Projeto
+
+## Identidade
+- **Nome:** Sistema de Pedidos Fosfo
+- **Tipo:** Plataforma multi-tenant SaaS para lojas receberem pedidos online
+- **Stack:** Next.js 16 (App Router) + React 19 + TypeScript + Tailwind CSS 4 + Supabase
+- **Deploy:** Vercel
+
+## Documento Mestre
+Antes de qualquer alteração, leia o arquivo `PROJECT_CONTEXT.md` na raiz do projeto. Ele contém a especificação completa do sistema: módulos, fluxos, tipos, regras de negócio e fases de desenvolvimento.
+
+---
+
+## Regras de Arquitetura
+
+### Multi-Tenant
+- TODA query ao banco DEVE filtrar por `store_id`
+- NUNCA expor dados de uma loja para outra
+- RLS (Row Level Security) é a última linha de defesa, mas o código DEVE validar também
+- O carrinho NUNCA pode misturar produtos de lojas diferentes
+
+### Estrutura de Pastas
+```
+src/
+├── app/           → Páginas (App Router)
+├── components/
+│   ├── ui/        → Design system (Button, Card, Input, etc)
+│   ├── store/     → Componentes da loja pública
+│   ├── admin/     → Componentes do admin da loja
+│   └── master/    → Componentes do master admin
+├── lib/           → Supabase clients, utilitários
+├── services/      → Camada de dados (queries ao Supabase)
+├── types/         → TypeScript types (index.ts)
+└── hooks/         → Custom hooks (useAuth, useCart, etc)
+```
+
+### Rotas
+- `/` → Landing Page pública
+- `/login` → Login
+- `/register` → Registro (cria conta + loja)
+- `/demo` → Redireciona para loja demo
+- `/[slug]` → Loja pública dinâmica
+- `/[slug]/checkout` → Checkout da loja
+- `/admin/*` → Painel do dono da loja (protegido por middleware)
+- `/master/*` → Painel master/Diego (protegido por middleware + role check)
+
+### Supabase
+- Cliente browser: `src/lib/supabase.ts` → usar `createClient()`
+- Cliente server: `src/lib/supabase-server.ts` → usar `createServerSupabase()`
+- NUNCA usar a service_role key no client-side
+- Storage buckets: `store-assets` (logos, banners), `product-images` (fotos de produtos)
+- Ambos buckets são públicos para leitura
+
+---
+
+## Regras de Código
+
+### TypeScript
+- Strict mode — tipos definidos para TUDO
+- Tipos centralizados em `src/types/index.ts`
+- NUNCA usar `any` sem justificativa
+- Preferir `type` sobre `interface` para consistência
+
+### Componentes
+- Usar `'use client'` apenas quando necessário (hooks, eventos, estado)
+- Server Components por padrão (App Router)
+- Props tipadas explicitamente
+- Exportar via barrel files (`index.ts`)
+
+### Estilização
+- Tailwind CSS 4 — NUNCA CSS inline ou arquivos CSS separados por componente
+- Usar a função `cn()` de `src/lib/utils.ts` para classes condicionais
+- Design system via `src/components/ui/` — SEMPRE usar os componentes base
+- NUNCA usar `alert()` — usar o componente Toast via `useToast()`
+
+### Formulários
+- Usar componentes `Input`, `Textarea`, `Button` do design system
+- Loading states com prop `loading` no Button
+- Tratamento de erros com feedback visual (toast ou mensagem inline)
+- Validação no submit, nunca no onChange
+
+### Dados
+- Services em `src/services/` — um arquivo por entidade
+- Services retornam dados tipados, NUNCA `any`
+- Tratamento de erros com try/catch em toda operação Supabase
+- Loading states em toda listagem (usar Skeleton components)
+
+---
+
+## Regras de Design
+
+### Filosofia
+- Premium, moderno, limpo
+- Mobile-first, 100% responsivo
+- Muito espaço em branco
+- Animações sutis (hover, transições)
+- NUNCA parecer "template Bootstrap"
+
+### Cores
+- Fundo: branco / gray-50
+- Texto: gray-900 (títulos), gray-500 (secundário)
+- Accent: configurável por loja via `primary_color`
+- Status: emerald (sucesso), amber (alerta), red (erro), blue (info)
+
+### Componentes UI Disponíveis
+- `Button` (primary, secondary, outline, ghost, danger) + prop `loading`
+- `Input` + `Textarea` com label e error
+- `Card`, `CardHeader`, `CardTitle`, `CardDescription`
+- `Badge` (default, success, warning, danger, info, outline)
+- `Modal`, `ModalTrigger`, `ModalContent`, `ModalClose`
+- `Skeleton`, `ProductCardSkeleton`, `TableRowSkeleton`, `MetricCardSkeleton`
+- `ToastProvider` + `useToast()` para notificações
+
+### Admin
+- Sidebar escura (gray-950)
+- Cards de métricas com ícones coloridos
+- Tabelas com hover e ações inline
+- Botões de ação alinhados à direita
+
+### Loja Pública
+- Header sticky com logo + nome + carrinho
+- Grid de produtos responsivo (2 cols mobile, 4 cols desktop)
+- Cards com sombra suave, rounded-2xl
+- Categorias como pills/tabs horizontais
+- Carrinho como drawer lateral
+- Rodapé com "Powered by Fosfo"
+
+---
+
+## Regras de Negócio
+
+### Registro
+1. Usuário preenche: nome, email, senha, telefone, nome da loja
+2. Sistema cria: auth user → profile (trigger) → store → store_users
+3. Tudo em uma tela, redirecionamento automático para /admin
+
+### Variações de Produto
+- Dono cria "tipos" de variação livremente (Tamanho, Sabor, Cor)
+- Cada tipo tem opções com preço específico (P=R$25, M=R$40, G=R$60)
+- Produto pode ter múltiplos tipos ou nenhum
+- Na loja: preço atualiza ao selecionar opção
+
+### Pedidos
+- Cliente preenche: nome, telefone, endereço (opcional), observações
+- Pedido grava no banco com status "pending"
+- Se WhatsApp ativo: abre wa.me com mensagem pré-formatada
+- Status flow: pending → accepted → preparing → ready → delivered | cancelled
+
+### Trial
+- Loja criada com trial de 14 dias (configurável pelo master)
+- Quando expira: loja visível mas pedidos bloqueados
+- Aviso sutil quando faltam ≤7 dias
+- Master pode ligar/desligar e estender trial manualmente
+
+### Personalização da Loja
+- Logo (upload para store-assets)
+- Cor primária (color picker)
+- Banner (upload para store-assets)
+- Nome, slug, descrição
+- WhatsApp: número + toggle ativar/desativar
+
+---
+
+## Coisas que NÃO existem neste projeto
+- Sistema de pagamento online (cobrança é pessoal)
+- Sistema de entrega/frete
+- API de WhatsApp (é via link wa.me)
+- Múltiplas lojas por usuário (MVP = 1 loja por conta)
+- Dark mode
+- i18n (apenas pt-BR)
+
+---
+
+## Padrão de Commits
+- `feat:` nova funcionalidade
+- `fix:` correção de bug
+- `style:` mudanças visuais
+- `refactor:` refatoração sem mudança de comportamento
+- `docs:` documentação
+
+---
+
+## Antes de Qualquer Mudança
+1. Leia `PROJECT_CONTEXT.md`
+2. Verifique se a mudança respeita o multi-tenant (store_id)
+3. Use os componentes UI existentes
+4. Teste o build (`npm run build`) antes de commitar
+5. NUNCA modifique o schema SQL sem autorização explícita
