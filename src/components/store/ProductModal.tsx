@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Plus, Minus, ShoppingCart } from 'lucide-react'
+import { X, Plus, Minus, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { Product, ProductVariant, VariantOption } from '@/types'
 
@@ -25,6 +25,8 @@ export default function ProductModal({ product, isOpen, onClose, onAddToCart, pr
   const [selectedImage, setSelectedImage] = useState(0)
   const [selectedOptions, setSelectedOptions] = useState<Record<string, VariantOption>>({})
   const [quantity, setQuantity] = useState(1)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
 
   useEffect(() => {
     if (product) {
@@ -70,38 +72,105 @@ export default function ProductModal({ product, isOpen, onClose, onAddToCart, pr
     }))
   }
 
+  // Swipe handlers for mobile carousel
+  const minSwipeDistance = 50
+  
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+  
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+  
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+    
+    if (isLeftSwipe && selectedImage < images.length - 1) {
+      setSelectedImage(selectedImage + 1)
+    }
+    if (isRightSwipe && selectedImage > 0) {
+      setSelectedImage(selectedImage - 1)
+    }
+  }
+
+  const nextImage = () => {
+    if (selectedImage < images.length - 1) {
+      setSelectedImage(selectedImage + 1)
+    }
+  }
+
+  const prevImage = () => {
+    if (selectedImage > 0) {
+      setSelectedImage(selectedImage - 1)
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md transition-all" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 h-10 w-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all hover:scale-110 border border-gray-200"
-        >
-          <X className="h-5 w-5 text-gray-600" />
-        </button>
-        <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10">
-          <h2 className="text-xl font-bold text-gray-900">{product.name}</h2>
+        {/* Header - only on mobile */}
+        <div className="md:hidden sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3 flex items-center justify-between z-10">
+          <h2 className="text-lg font-bold text-gray-900 truncate flex-1 mr-3">{product.name}</h2>
           <button
             onClick={onClose}
-            className="h-10 w-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-all hover:scale-110"
+            className="h-8 w-8 rounded-full hover:bg-gray-100 flex items-center justify-center transition-all hover:scale-105 shrink-0"
           >
-            <X className="h-5 w-5 text-gray-500" />
+            <X className="h-4 w-4 text-gray-500" />
           </button>
         </div>
 
-        <div className="p-6">
-          <div className="grid md:grid-cols-2 gap-8">
+        {/* Close button - only on desktop */}
+        <button
+          onClick={onClose}
+          className="hidden md:flex absolute top-4 right-4 z-10 h-10 w-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg items-center justify-center hover:bg-white transition-all hover:scale-110 border border-gray-200"
+        >
+          <X className="h-5 w-5 text-gray-600" />
+        </button>
+
+        <div className="p-4 md:p-6">
+          <div className="grid md:grid-cols-2 gap-4 md:gap-8">
             {/* Images */}
             <div className="space-y-4">
               {images.length > 0 ? (
-                <>
-                  <div className="aspect-square bg-gray-100 rounded-2xl overflow-hidden shadow-inner group">
+                <div className="relative">
+                  <div 
+                    className="aspect-square bg-gray-100 rounded-xl md:rounded-2xl overflow-hidden shadow-inner group"
+                    onTouchStart={onTouchStart}
+                    onTouchMove={onTouchMove}
+                    onTouchEnd={onTouchEnd}
+                  >
                     <img
                       src={images[selectedImage]?.url}
                       alt={product.name}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
+                    
+                    {/* Navigation arrows - mobile */}
+                    {images.length > 1 && (
+                      <>
+                        <button
+                          onClick={prevImage}
+                          className="md:hidden absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all hover:scale-110 border border-gray-200"
+                          disabled={selectedImage === 0}
+                        >
+                          <ChevronLeft className="h-4 w-4 text-gray-600" />
+                        </button>
+                        <button
+                          onClick={nextImage}
+                          className="md:hidden absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white transition-all hover:scale-110 border border-gray-200"
+                          disabled={selectedImage === images.length - 1}
+                        >
+                          <ChevronRight className="h-4 w-4 text-gray-600" />
+                        </button>
+                      </>
+                    )}
+                    
                     {/* Image indicator dots */}
                     {images.length > 1 && (
                       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
@@ -116,8 +185,10 @@ export default function ProductModal({ product, isOpen, onClose, onAddToCart, pr
                       </div>
                     )}
                   </div>
+                  
+                  {/* Desktop thumbnails */}
                   {images.length > 1 && (
-                    <div className="flex gap-2 overflow-x-auto pb-2 px-1">
+                    <div className="hidden md:flex gap-2 overflow-x-auto pb-2 px-1">
                       {images.map((img, idx) => (
                         <button
                           key={img.id}
@@ -133,7 +204,7 @@ export default function ProductModal({ product, isOpen, onClose, onAddToCart, pr
                       ))}
                     </div>
                   )}
-                </>
+                </div>
               ) : (
                 <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center">
                   <ShoppingCart className="h-16 w-16 text-gray-300" />
@@ -213,8 +284,39 @@ export default function ProductModal({ product, isOpen, onClose, onAddToCart, pr
                 </div>
               </div>
 
-              {/* Add to cart */}
-              <div className="space-y-3">
+              {/* Add to cart - sticky on mobile */}
+              <div className="md:hidden sticky bottom-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 p-4 -mx-4 mt-4">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={!canAddToCart()}
+                  className={`w-full py-3 text-base font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center justify-center gap-3 ${
+                    canAddToCart()
+                      ? 'text-white'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
+                  style={{ 
+                    backgroundColor: canAddToCart() ? primaryColor : undefined,
+                    boxShadow: canAddToCart() ? `0 8px 24px ${primaryColor}40` : undefined
+                  }}
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {canAddToCart() ? 'Adicionar ao carrinho' : 'Selecione as opções'}
+                </button>
+              </div>
+
+              {/* Total preview - mobile */}
+                {canAddToCart() && (
+                  <div className="text-center bg-gray-50 rounded-lg p-2 -mx-4">
+                    <div className="text-xs text-gray-500">Total</div>
+                    <div className="text-lg font-bold text-gray-900">
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(calculatePrice() * quantity)}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Add to cart - desktop version */}
+              <div className="hidden md:block space-y-3">
                 <button
                   onClick={handleAddToCart}
                   disabled={!canAddToCart()}
@@ -245,7 +347,6 @@ export default function ProductModal({ product, isOpen, onClose, onAddToCart, pr
             </div>
           </div>
         </div>
-      </div>
     </div>
   )
 }

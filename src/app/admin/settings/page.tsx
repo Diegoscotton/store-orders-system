@@ -282,8 +282,8 @@ export default function SettingsPage() {
       </div>
 
       {/* Fixed Footer Actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-30">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-end gap-3">
+      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-gray-200 shadow-lg z-30">
+        <div className="px-6 py-4 flex items-center justify-end gap-3">
           <Button variant="outline" onClick={() => window.location.reload()}>
             Cancelar
           </Button>

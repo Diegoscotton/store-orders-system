@@ -45,9 +45,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-950 text-white flex flex-col shrink-0">
+      <aside className="w-64 bg-gray-950 text-white flex flex-col shrink-0 h-screen sticky top-0">
         {/* Logo */}
-        <div className="p-5 border-b border-white/10">
+        <div className="p-5 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 bg-white/10 rounded-lg flex items-center justify-center">
               <Store className="h-5 w-5 text-white" />
@@ -60,7 +60,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const active = isActive(item.href, item.exact)
             return (
@@ -80,8 +80,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        {/* Bottom */}
-        <div className="p-3 border-t border-white/10 space-y-1">
+        {/* Bottom - Fixed */}
+        <div className="p-3 border-t border-white/10 space-y-1 shrink-0">
           {store?.slug && (
             <Link
               href={`/${store.slug}`}
@@ -109,8 +109,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <main className="flex-1 p-6 lg:p-8">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
           {children}
         </main>
       </div>

@@ -113,86 +113,150 @@ export default function ProductsPage() {
 
       {!loading && products.length > 0 && (
         <Card className="p-0 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {products.map((product) => {
-                const mainImage = product.images?.[0]?.url
-                return (
-                  <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 bg-gray-100 rounded-xl overflow-hidden shrink-0">
-                          {mainImage ? (
-                            <img src={mainImage} alt="" className="h-full w-full object-cover" />
-                          ) : (
-                            <div className="h-full w-full flex items-center justify-center">
-                              <Package className="h-5 w-5 text-gray-300" />
-                            </div>
-                          )}
+          {/* Desktop/Tablet Table */}
+          <div className="hidden md:block">
+            <table className="w-full table-fixed">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
+                  <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[120px]">Categoria</th>
+                  <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">Preço</th>
+                  <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">Status</th>
+                  <th className="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[120px]">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {products.map((product) => {
+                  const mainImage = product.images?.[0]?.url
+                  return (
+                    <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                            {mainImage ? (
+                              <img src={mainImage} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center">
+                                <Package className="h-3 w-3 text-gray-300" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
+                            {product.description && (
+                              <p className="text-xs text-gray-500 truncate">{product.description}</p>
+                            )}
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-gray-900 truncate">{product.name}</p>
-                          {product.description && (
-                            <p className="text-sm text-gray-500 truncate max-w-xs">{product.description}</p>
-                          )}
+                      </td>
+                      <td className="px-2 py-4">
+                        {product.category ? (
+                          <Badge variant="default" className="text-xs truncate block">{product.category.name}</Badge>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-2 py-4">
+                        <span className="font-semibold text-gray-900 text-sm truncate block">{formatCurrency(product.price)}</span>
+                      </td>
+                      <td className="px-2 py-4">
+                        {product.is_active ? (
+                          <Badge variant="success" className="text-xs">
+                            <Eye className="h-2 w-2 mr-1" />
+                            Ativo
+                          </Badge>
+                        ) : (
+                          <Badge variant="warning" className="text-xs">
+                            <EyeOff className="h-2 w-2 mr-1" />
+                            Inativo
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="px-2 py-4">
+                        <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => router.push(`/admin/products/${product.id}/edit`)} title="Editar">
+                        <Pencil className="h-4 w-4 text-gray-500" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(product)} title="Excluir">
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden divide-y divide-gray-100">
+            {products.map((product) => {
+              const mainImage = product.images?.[0]?.url
+              return (
+                <div key={product.id} className="p-4 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="h-14 w-14 bg-gray-100 rounded-xl overflow-hidden shrink-0">
+                      {mainImage ? (
+                        <img src={mainImage} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center">
+                          <Package className="h-6 w-6 text-gray-300" />
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      {product.category ? (
-                        <Badge variant="default">{product.category.name}</Badge>
-                      ) : (
-                        <span className="text-sm text-gray-400">—</span>
                       )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="font-semibold text-gray-900">{formatCurrency(product.price)}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {product.is_active ? (
-                        <Badge variant="success">
-                          <Eye className="h-3 w-3 mr-1" />
-                          Ativo
-                        </Badge>
-                      ) : (
-                        <Badge variant="warning">
-                          <EyeOff className="h-3 w-3 mr-1" />
-                          Inativo
-                        </Badge>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 truncate">{product.name}</h3>
+                      {product.description && (
+                        <p className="text-sm text-gray-500 line-clamp-2 mt-1">{product.description}</p>
                       )}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => router.push(`/admin/products/${product.id}/edit`)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(product)}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-2">
+                    {product.category ? (
+                      <Badge variant="default" className="text-xs">{product.category.name}</Badge>
+                    ) : (
+                      <span className="text-xs text-gray-400">Sem categoria</span>
+                    )}
+                    <span className="font-semibold text-gray-900 text-sm">{formatCurrency(product.price)}</span>
+                    {product.is_active ? (
+                      <Badge variant="success" className="text-xs">
+                        <Eye className="h-3 w-3 mr-1" />
+                        Ativo
+                      </Badge>
+                    ) : (
+                      <Badge variant="warning" className="text-xs">
+                        <EyeOff className="h-3 w-3 mr-1" />
+                        Inativo
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+                      className="flex items-center gap-2"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Editar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(product)}
+                      className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:border-red-200"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Excluir
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </Card>
       )}
     </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Store as StoreIcon, ShoppingCart } from 'lucide-react'
 import BannerCarousel from '@/components/store/BannerCarousel'
 import ProductModal from '@/components/store/ProductModal'
@@ -28,9 +28,24 @@ function StoreContent({ store, products, banners, categories }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [cartAnimation, setCartAnimation] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [hasOverflow, setHasOverflow] = useState(false)
   const { addItem, itemCount, openCart } = useCart()
 
   const primaryColor = store.primary_color || '#000000'
+
+  // Check if filters overflow
+  const checkOverflow = () => {
+    const container = document.getElementById('filters-container')
+    if (container) {
+      setHasOverflow(container.scrollWidth > container.clientWidth)
+    }
+  }
+
+  useEffect(() => {
+    checkOverflow()
+    window.addEventListener('resize', checkOverflow)
+    return () => window.removeEventListener('resize', checkOverflow)
+  }, [categories])
 
   const handleProductClick = (product: ProductWithDetails) => {
     setSelectedProduct(product)
@@ -89,7 +104,7 @@ function StoreContent({ store, products, banners, categories }: Props) {
       )}
 
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+      <header className="bg-white border-b border-gray-200/60 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
             {store.logo_url ? (
@@ -133,17 +148,17 @@ function StoreContent({ store, products, banners, categories }: Props) {
 
       {/* Banners */}
       {banners && banners.length > 0 && (
-        <div className="max-w-6xl mx-auto px-4 pt-6">
+        <div className="max-w-6xl mx-auto px-4 pt-6 pb-4">
           <BannerCarousel banners={banners} />
         </div>
       )}
 
       {/* Content */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 pt-4 pb-8">
         {/* Categories */}
         {categories && categories.length > 0 && (
-          <div className="mb-8">
-            <div className="flex gap-2 overflow-x-auto pb-2 px-1">
+          <div className="mb-6">
+            <div id="filters-container" className="flex gap-2 overflow-x-auto py-2 pb-4 px-3 relative">
               <button 
                 onClick={() => setSelectedCategory(null)}
                 className={`px-4 py-2.5 rounded-full text-sm font-medium shrink-0 transition-all duration-200 transform hover:scale-105 ${
@@ -168,17 +183,10 @@ function StoreContent({ store, products, banners, categories }: Props) {
                 </button>
               ))}
             </div>
-            {/* Category indicator */}
-            <div className="mt-3 h-1 bg-gray-200 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-gray-900 to-gray-700 rounded-full transition-all duration-300"
-                style={{ 
-                  width: selectedCategory 
-                    ? `${((categories.findIndex(c => c.id === selectedCategory) + 1) / (categories.length + 1)) * 100}%`
-                    : '0%' 
-                }}
-              />
-            </div>
+            {/* Fade indicator for scroll - only shows when there's overflow */}
+            {hasOverflow && (
+              <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white via-gray-50/90 to-transparent pointer-events-none" />
+            )}
           </div>
         )}
 

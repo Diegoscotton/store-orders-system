@@ -218,13 +218,6 @@ async function createDemoStore() {
         category: 'salgados',
         image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800'
       },
-      {
-        name: 'Empada de Palmito',
-        description: 'Empada artesanal com recheio cremoso de palmito.',
-        price: 8.50,
-        category: 'salgados',
-        image: 'https://images.unsplash.com/photo-1619740455993-9e0c797bfb0e?w=800'
-      },
       // BEBIDAS
       {
         name: 'Refrigerante',

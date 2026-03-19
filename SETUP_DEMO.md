@@ -112,11 +112,6 @@ Faça login como master e acesse `/admin` da loja demo:
 - Categoria: Salgados
 - Imagem: https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800
 
-**Empada de Palmito** (R$ 8,50)
-- Descrição: Empada artesanal com recheio cremoso de palmito.
-- Categoria: Salgados
-- Imagem: https://images.unsplash.com/photo-1619740455993-9e0c797bfb0e?w=800
-
 #### BEBIDAS
 
 **Refrigerante** (R$ 5,00)

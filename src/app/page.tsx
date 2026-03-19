@@ -34,7 +34,7 @@ export default function HomePage() {
               href="/register"
               className="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-gray-800 transition-colors"
             >
-              Criar loja grátis
+              Começar agora
             </Link>
           </div>
         </div>
@@ -111,24 +111,23 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center relative">
           <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-emerald-50 text-emerald-700 text-xs sm:text-sm font-medium px-3 sm:px-4 py-1.5 rounded-full mb-4 sm:mb-6 border border-emerald-200">
             <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-            <span className="hidden xs:inline">Pronto em 2 minutos •</span>
-            <span>100% gratuito</span>
+            <span className="hidden xs:inline">Pronto em poucos minutos •</span>
+            <span>Acesso liberado</span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 tracking-tight leading-tight mb-4 sm:mb-6">
-            Transforme seu negócio
+            Seu sistema de pedidos,
             <br />
-            <span className="bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">em uma loja online</span>
+            <span className="bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">com cara de loja</span>
           </h1>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto mb-8 sm:mb-10 px-2">
-            Sistema completo para receber pedidos: catálogo profissional, carrinho inteligente, 
-            integração com WhatsApp e painel de gestão.
+            Sistema completo para receber e organizar pedidos: catálogo de produtos com preço e variações, carrinho e gestão em um só lugar.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-6 sm:mb-8">
             <Link
               href="/register"
               className="inline-flex items-center justify-center gap-2 bg-gray-900 text-white font-medium px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl hover:bg-gray-800 transition-all text-sm sm:text-base shadow-lg shadow-gray-900/20 w-full sm:w-auto"
             >
-              Criar minha loja grátis
+              Começar agora
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
@@ -141,7 +140,7 @@ export default function HomePage() {
           <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-500">
             <div className="flex items-center gap-1.5 sm:gap-2">
               <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600" />
-              <span>Sem cartão</span>
+              <span>Sem burocracia</span>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
               <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600" />
@@ -182,13 +181,13 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-3">Como funciona</h2>
-            <p className="text-gray-500 text-lg">Três passos para começar a vender online</p>
+            <p className="text-gray-500 text-lg">Três passos para começar a receber pedidos</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 step: '01',
-                title: 'Crie sua loja',
+                title: 'Configure seu sistema de pedidos',
                 desc: 'Cadastre-se, escolha o nome da loja e personalize com sua marca.',
                 icon: Store,
               },
@@ -249,8 +248,8 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="text-center">
-                <h3 className="font-semibold text-gray-900 mb-1">Loja Pública</h3>
-                <p className="text-sm text-gray-600 mb-3">Seus clientes navegam e fazem pedidos</p>
+                <h3 className="font-semibold text-gray-900 mb-1">Página de pedidos</h3>
+                <p className="text-sm text-gray-600 mb-3">Seus clientes escolhem e enviam pedidos</p>
                 <Link
                   href="/demo"
                   className="inline-flex items-center gap-1 text-sm font-medium text-gray-900 hover:gap-2 transition-all"
@@ -371,7 +370,7 @@ export default function HomePage() {
             {[
               {
                 q: 'Preciso pagar para começar?',
-                a: 'Não! O sistema é 100% gratuito para testar. Você pode criar sua loja, adicionar produtos e começar a receber pedidos sem nenhum custo inicial.'
+                a: 'Não! Você pode começar sem custo e testar o sistema na prática. Durante esse período, é possível criar sua página, adicionar produtos e receber pedidos normalmente.'
               },
               {
                 q: 'Quanto tempo leva para criar minha loja?',
@@ -418,7 +417,7 @@ export default function HomePage() {
       <section className="py-20 px-4 sm:px-6">
         <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-12 sm:p-16 shadow-2xl">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Comece a vender online hoje
+            Comece a organizar seus pedidos hoje
           </h2>
           <p className="text-gray-300 text-lg mb-8 max-w-xl mx-auto">
             Junte-se a centenas de empreendedores que já estão usando o Fosfo Pedidos para crescer seus negócios.
@@ -428,7 +427,7 @@ export default function HomePage() {
               href="/register"
               className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 font-medium px-8 py-3.5 rounded-xl hover:bg-gray-100 transition-all text-base shadow-lg"
             >
-              Criar minha loja grátis
+              Começar agora
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
@@ -439,7 +438,7 @@ export default function HomePage() {
             </Link>
           </div>
           <p className="text-sm text-gray-400">
-            Sem cartão de crédito • Configuração em minutos • Suporte incluído
+            Sem burocracia • Configuração em minutos • Suporte incluído
           </p>
         </div>
       </section>

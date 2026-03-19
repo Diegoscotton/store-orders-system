@@ -101,15 +101,6 @@ export default function AdminDashboard() {
         <p className="text-gray-500 mt-1">Bem-vindo de volta, {store.name}</p>
       </div>
 
-      {/* Trial notice */}
-      {trialDays > 0 && trialDays <= 7 && (
-        <div className="mb-6 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl">
-          <p className="text-sm text-amber-800">
-            Seu período de teste termina em <strong>{trialDays} dia{trialDays > 1 ? 's' : ''}</strong>. Entre em contato para continuar usando.
-          </p>
-        </div>
-      )}
-
       {/* Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {metricCards.map((m, index) => (
