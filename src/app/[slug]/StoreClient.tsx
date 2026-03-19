@@ -199,11 +199,11 @@ function StoreContent({ store, products, banners, categories }: Props) {
               return (
                 <div
                   key={product.id}
-                  className="group bg-white rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                  className="group bg-white rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col h-full"
                   onClick={() => handleProductClick(product)}
                 >
                   {/* Image */}
-                  <div className="aspect-square bg-gray-100 relative overflow-hidden">
+                  <div className="aspect-square bg-gray-100 relative overflow-hidden flex-shrink-0">
                     {mainImage ? (
                       <img 
                         src={mainImage} 
@@ -229,10 +229,10 @@ function StoreContent({ store, products, banners, categories }: Props) {
                   </div>
 
                   {/* Info */}
-                  <div className="p-3 sm:p-4">
+                  <div className="p-3 sm:p-4 flex flex-col flex-1">
                     <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1 text-sm sm:text-base group-hover:text-gray-800 transition-colors">{product.name}</h3>
                     {product.description && (
-                      <p className="text-xs text-gray-500 mb-2 sm:mb-3 line-clamp-2 hidden sm:block">{product.description}</p>
+                      <p className="text-xs text-gray-500 mb-2 sm:mb-3 line-clamp-2 hidden sm:block flex-1">{product.description}</p>
                     )}
 
                     {/* Price */}
@@ -244,7 +244,7 @@ function StoreContent({ store, products, banners, categories }: Props) {
 
                     {/* Add to cart button */}
                     <button
-                      className="w-full py-2.5 rounded-xl text-sm font-medium text-white transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+                      className="w-full py-2.5 rounded-xl text-sm font-medium text-white transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg flex-shrink-0"
                       style={{ 
                         backgroundColor: primaryColor,
                         boxShadow: `0 4px 12px ${primaryColor}40`

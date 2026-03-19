@@ -68,6 +68,29 @@ export default function CheckoutPage() {
     setLoading(true)
 
     try {
+      // Verificar se é loja demo
+      if (params.slug === 'demo') {
+        // Simular pedido para loja demo
+        const mockOrderData = {
+          id: 'demo-' + Date.now(),
+          created_at: new Date().toISOString()
+        }
+        
+        // Store order data for WhatsApp message (simulado)
+        setOrderData({
+          order: mockOrderData,
+          formData,
+          items,
+          total,
+          needsDelivery
+        })
+        
+        // Clear cart and show success modal
+        clearCart()
+        setShowSuccessModal(true)
+        return
+      }
+
       // Create order in database
       const supabase = createClient()
       
@@ -365,6 +388,7 @@ export default function CheckoutPage() {
         onSendWhatsApp={handleSendWhatsApp}
         storeName={store?.name || 'Loja'}
         hasWhatsApp={!!(store?.whatsapp_number && store?.whatsapp_enabled)}
+        isDemo={params.slug === 'demo'}
       />
     </div>
   )

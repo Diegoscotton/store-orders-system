@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button, Input, Textarea, Card, Badge, useToast, CurrencyInput } from '@/components/ui'
 import {
@@ -9,8 +9,28 @@ import {
   addVariantOption, updateVariantOption, deleteVariantOption,
 } from '@/services/productService'
 import { formatCurrency } from '@/lib/utils'
-import { Upload, X, Plus, Trash2, GripVertical, Image as ImageIcon, Package } from 'lucide-react'
+import { createClient } from '@/lib/supabase'
+import { Upload, X, Plus, Trash2, GripVertical, Image as ImageIcon, Package, Star } from 'lucide-react'
 import type { Product, Category, ProductVariant, VariantOption } from '@/types'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import {
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 type Props = {
   storeId: string
@@ -43,11 +63,58 @@ export default function ProductForm({ storeId, categories, product }: Props) {
   const [newVariantName, setNewVariantName] = useState('')
 
   const [saving, setSaving] = useState(false)
+  const [showVariantAlert, setShowVariantAlert] = useState(false)
   const isEditing = !!product
+
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  // Limpar alerta quando variantes mudarem
+  useEffect(() => {
+    const hasAllVariantsWithOptions = variants.every(v => v.options && v.options.length > 0)
+    if (hasAllVariantsWithOptions) {
+      setShowVariantAlert(false)
+    }
+  }, [variants])
+
+  // Handle drag end for images
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (active.id !== over?.id) {
+      const oldIndex = images.findIndex((img) => img.id === active.id)
+      const newIndex = images.findIndex((img) => img.id === over?.id)
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newImages = arrayMove(images, oldIndex, newIndex)
+        setImages(newImages)
+        toast({ type: 'success', title: 'Ordem atualizada visualmente' })
+      }
+    }
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
+
+    // Verificar se há variantes sem opções
+    const variantsWithoutOptions = variants.filter(v => !v.options || v.options.length === 0)
+    if (variantsWithoutOptions.length > 0) {
+      setShowVariantAlert(true)
+      // Scroll para a primeira variação sem opções
+      setTimeout(() => {
+        const firstVariantElement = document.getElementById(`variant-${variantsWithoutOptions[0].id}`)
+        if (firstVariantElement) {
+          firstVariantElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
+      return
+    }
 
     setSaving(true)
     try {
@@ -59,7 +126,46 @@ export default function ProductForm({ storeId, categories, product }: Props) {
           category_id: categoryId || null,
           is_active: isActive,
         })
+
+        // Save image positions - simplified approach
+        try {
+          console.log('=== SALVANDO POSIÇÕES DAS IMAGENS ===')
+          
+          // Update all images in batch using Supabase directly
+          const supabase = createClient()
+          const updates = images.map((img, index) => ({
+            id: img.id,
+            position: index
+          }))
+          
+          console.log('Updates to perform:', updates)
+          
+          // Update each image individually
+          for (const update of updates) {
+            const { error } = await supabase
+              .from('product_images')
+              .update({ position: update.position })
+              .eq('id', update.id)
+              
+            if (error) {
+              console.error(`Error updating image ${update.id}:`, error)
+              throw error
+            }
+          }
+          
+          console.log('=== POSIÇÕES SALVAS COM SUCESSO ===')
+          toast({ type: 'success', title: 'Ordem das imagens salva' })
+        } catch (posError) {
+          console.error('Error saving image positions:', posError)
+          toast({ type: 'error', title: 'Erro ao salvar ordem das imagens' })
+        }
+
         toast({ type: 'success', title: 'Produto atualizado' })
+        
+        // Força reload da página de produtos para garantir dados atualizados
+        setTimeout(() => {
+          router.push('/admin/products')
+        }, 100)
       } else {
         const newProduct = await createProduct({
           name: name.trim(),
@@ -73,7 +179,6 @@ export default function ProductForm({ storeId, categories, product }: Props) {
         router.push(`/admin/products/${newProduct.id}/edit`)
         return
       }
-      router.push('/admin/products')
     } catch (err: any) {
       toast({ type: 'error', title: 'Erro ao salvar', description: err.message })
     } finally {
@@ -209,36 +314,52 @@ export default function ProductForm({ storeId, categories, product }: Props) {
           {/* Images - only for editing */}
           {isEditing && (
             <Card>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Imagens</h2>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
-                {images.map((img) => (
-                  <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
-                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">Imagens</h2>
+                <p className="text-xs text-gray-400">
+                  <GripVertical className="h-3 w-3 inline mr-1" />
+                  Arraste para reorganizar
+                </p>
+              </div>
+              
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={images.map(img => img.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
+                    {images.map((img, index) => (
+                      <SortableImageItem
+                        key={img.id}
+                        image={img}
+                        isFirst={index === 0}
+                        onDelete={() => handleDeleteImage(img.id)}
+                      />
+                    ))}
+                    {/* Upload button */}
                     <button
-                      onClick={() => handleDeleteImage(img.id)}
-                      className="absolute top-1.5 right-1.5 h-7 w-7 bg-red-600 text-white rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors"
                     >
-                      <X className="h-4 w-4" />
+                      {uploading ? (
+                        <div className="h-5 w-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <Upload className="h-5 w-5" />
+                          <span className="text-xs">Upload</span>
+                        </>
+                      )}
                     </button>
                   </div>
-                ))}
-                {/* Upload button */}
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                  className="aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors"
-                >
-                  {uploading ? (
-                    <div className="h-5 w-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <Upload className="h-5 w-5" />
-                      <span className="text-xs">Upload</span>
-                    </>
-                  )}
-                </button>
-              </div>
+                </SortableContext>
+              </DndContext>
+              
               <input
                 ref={fileInputRef}
                 type="file"
@@ -284,6 +405,7 @@ export default function ProductForm({ storeId, categories, product }: Props) {
                     onDelete={() => handleDeleteVariant(variant.id)}
                     onAddOption={(name, price) => handleAddOption(variant.id, name, price)}
                     onDeleteOption={(optId) => handleDeleteOption(variant.id, optId)}
+                    showAlert={showVariantAlert && (!variant.options || variant.options.length === 0)}
                   />
                 ))}
               </div>
@@ -394,6 +516,70 @@ export default function ProductForm({ storeId, categories, product }: Props) {
   )
 }
 
+// --- Sortable Image Component ---
+
+function SortableImageItem({ 
+  image, 
+  isFirst, 
+  onDelete 
+}: { 
+  image: any
+  isFirst: boolean
+  onDelete: () => void 
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: image.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`relative aspect-square rounded-xl overflow-hidden bg-gray-100 group ${
+        isDragging ? 'opacity-50' : ''
+      }`}
+    >
+      {/* Drag handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="absolute top-1 left-1 z-10 h-8 w-8 bg-black/50 text-white rounded-lg flex items-center justify-center cursor-move opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <GripVertical className="h-4 w-4" />
+      </div>
+
+      {/* Principal badge */}
+      {isFirst && (
+        <div className="absolute top-1 right-1 z-10 bg-emerald-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+          <Star className="h-3 w-3 fill-current" />
+          Principal
+        </div>
+      )}
+
+      {/* Image */}
+      <img src={image.url} alt="" className="w-full h-full object-cover" />
+
+      {/* Delete button */}
+      <button
+        onClick={onDelete}
+        className="absolute bottom-1 right-1 z-10 h-7 w-7 bg-red-600 text-white rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  )
+}
+
 // --- Variant Block Component ---
 
 function VariantBlock({
@@ -401,11 +587,13 @@ function VariantBlock({
   onDelete,
   onAddOption,
   onDeleteOption,
+  showAlert,
 }: {
   variant: ProductVariant & { options?: VariantOption[] }
   onDelete: () => void
   onAddOption: (name: string, price: number) => void
   onDeleteOption: (optionId: string) => void
+  showAlert: boolean
 }) {
   const [optName, setOptName] = useState('')
   const [optPrice, setOptPrice] = useState(0)
@@ -420,7 +608,7 @@ function VariantBlock({
   const hasOptions = variant.options && variant.options.length > 0
 
   return (
-    <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+    <div id={`variant-${variant.id}`} className="border border-gray-200 rounded-xl p-4 bg-gray-50">
       <div className="flex items-center justify-between mb-3">
         <div>
           <h3 className="font-semibold text-gray-900">{variant.name}</h3>
@@ -433,13 +621,13 @@ function VariantBlock({
         </Button>
       </div>
 
-      {/* Instructions when no options */}
-      {!hasOptions && (
-        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-3 mb-3">
-          <p className="text-sm font-semibold text-red-800 mb-1">
+      {/* Instructions when no options - aparece apenas com alerta */}
+      {!hasOptions && showAlert && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3 animate-in fade-in duration-300 slide-in-from-top-2">
+          <p className="text-sm font-semibold text-amber-800 mb-1">
             ⚠️ Atenção: Esta variação não tem opções!
           </p>
-          <p className="text-xs text-red-700">
+          <p className="text-xs text-amber-700">
             Adicione pelo menos uma opção abaixo (ex: Pequeno, Médio, Grande) ou delete esta variação.
           </p>
         </div>
@@ -491,8 +679,9 @@ function VariantBlock({
               placeholder="Preço"
             />
           </div>
-          <Button variant="outline" size="sm" onClick={handleAdd} disabled={!optName.trim()} title="Adicionar opção">
-            <Plus className="h-4 w-4" />
+          <Button variant="outline" onClick={handleAdd} disabled={!optName.trim()} title="Adicionar opção">
+            <Plus className="h-4 w-4 mr-2" />
+            Adicionar
           </Button>
         </div>
       </div>

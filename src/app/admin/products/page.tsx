@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { getProducts, deleteProduct } from '@/services/productService'
 import { Button, Card, Badge, useToast, Skeleton } from '@/components/ui'
-import { Plus, Pencil, Trash2, Package, Eye, EyeOff } from 'lucide-react'
+import { Plus, Pencil, Trash2, Package, Eye, EyeOff, RefreshCw } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { Product } from '@/types'
 
@@ -20,11 +20,29 @@ export default function ProductsPage() {
     if (store) loadProducts()
   }, [store])
 
+  // Reload products when page becomes visible (when coming back from edit)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && store) {
+        loadProducts()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [store])
+
   async function loadProducts() {
     if (!store) return
     try {
       setLoading(true)
+      console.log('Loading products for store:', store.id)
       const data = await getProducts(store.id)
+      console.log('Products loaded:', data.map(p => ({
+        id: p.id,
+        name: p.name,
+        images: p.images?.map(i => ({ id: i.id, position: i.position, url: i.url.substring(0, 50) }))
+      })))
       setProducts(data)
     } catch {
       toast({ type: 'error', title: 'Erro ao carregar produtos' })
@@ -51,10 +69,16 @@ export default function ProductsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Produtos</h1>
           <p className="text-gray-500 mt-1">{products.length} produto{products.length !== 1 ? 's' : ''} cadastrado{products.length !== 1 ? 's' : ''}</p>
         </div>
-        <Button onClick={() => router.push('/admin/products/create')}>
-          <Plus className="h-4 w-4" />
-          Novo produto
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={() => loadProducts()} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
+          <Button onClick={() => router.push('/admin/products/create')}>
+            <Plus className="h-4 w-4" />
+            Novo produto
+          </Button>
+        </div>
       </div>
 
       {loading && (

@@ -10,9 +10,10 @@ type Props = {
   onSendWhatsApp?: () => void
   storeName: string
   hasWhatsApp: boolean
+  isDemo?: boolean
 }
 
-export default function SuccessModal({ isOpen, onClose, onSendWhatsApp, storeName, hasWhatsApp }: Props) {
+export default function SuccessModal({ isOpen, onClose, onSendWhatsApp, storeName, hasWhatsApp, isDemo }: Props) {
   useEffect(() => {
     if (isOpen) {
 
@@ -75,14 +76,17 @@ export default function SuccessModal({ isOpen, onClose, onSendWhatsApp, storeNam
         {/* Content */}
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold text-gray-900">
-            Pedido salvo com sucesso! 🎉
+            {isDemo ? 'Demonstração concluída! 🎉' : 'Pedido salvo com sucesso! 🎉'}
           </h2>
           
           <p className="text-gray-600 leading-relaxed">
-            Seu pedido já está registrado no sistema de <span className="font-semibold text-gray-900">{storeName}</span>.
+            {isDemo 
+              ? `Esta é uma demonstração do sistema. Em um ambiente real, seu pedido seria registrado no sistema de ${storeName}.`
+              : `Seu pedido já está registrado no sistema de ${storeName}.`
+            }
           </p>
           
-          {hasWhatsApp && (
+          {hasWhatsApp && !isDemo && (
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
               <p className="text-sm text-emerald-800 leading-relaxed">
                 💬 Você pode enviar os detalhes via WhatsApp agora para agilizar o atendimento.
@@ -90,8 +94,16 @@ export default function SuccessModal({ isOpen, onClose, onSendWhatsApp, storeNam
             </div>
           )}
 
+          {isDemo && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <p className="text-sm text-blue-800 leading-relaxed">
+                🛍️ Este é um ambiente de demonstração. Nenhum dado foi persistido.
+              </p>
+            </div>
+          )}
+
           <div className="pt-4 space-y-3">
-            {hasWhatsApp && (
+            {hasWhatsApp && !isDemo && (
               <button
                 onClick={handleWhatsAppClick}
                 className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
@@ -106,7 +118,7 @@ export default function SuccessModal({ isOpen, onClose, onSendWhatsApp, storeNam
               className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
             >
               <ArrowLeft className="h-5 w-5" />
-              Voltar para loja
+              {isDemo ? 'Continuar demonstração' : 'Voltar para loja'}
             </button>
           </div>
         </div>

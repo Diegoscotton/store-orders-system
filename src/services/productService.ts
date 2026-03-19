@@ -242,3 +242,12 @@ export async function deleteVariantOption(optionId: string) {
 
   return response.json()
 }
+
+export async function updateProductImage(imageId: string, updates: { position?: number }) {
+  const supabase = createClient()
+  const { error } = await supabase
+    .from('product_images')
+    .update(updates)
+    .eq('id', imageId)
+  if (error) throw error
+}

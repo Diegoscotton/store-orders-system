@@ -197,7 +197,11 @@ async function createDemoStore() {
         description: 'Brownie de chocolate com pedaços de nozes. Crocante por fora, macio por dentro.',
         price: 8.00,
         category: 'doces',
-        image: 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=800'
+        image: 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=800',
+        additionalImages: [
+          'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=800',
+          'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800'
+        ]
       },
       // SALGADOS
       {
@@ -267,13 +271,24 @@ async function createDemoStore() {
       if (prodError) throw prodError
       console.log(`✅ Produto criado: ${prod.name}`)
 
-      // Adicionar imagem
+      // Adicionar imagem principal
       if (prod.image) {
         await supabase.from('product_images').insert({
           product_id: product.id,
           url: prod.image,
           position: 1
         })
+      }
+
+      // Adicionar imagens adicionais
+      if (prod.additionalImages && prod.additionalImages.length > 0) {
+        for (let i = 0; i < prod.additionalImages.length; i++) {
+          await supabase.from('product_images').insert({
+            product_id: product.id,
+            url: prod.additionalImages[i],
+            position: i + 2 // Começa na posição 2 (já tem a principal na 1)
+          })
+        }
       }
 
       // Adicionar variações
