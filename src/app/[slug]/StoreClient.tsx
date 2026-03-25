@@ -183,10 +183,6 @@ function StoreContent({ store, products, banners, categories }: Props) {
                 </button>
               ))}
             </div>
-            {/* Fade indicator for scroll - only shows when there's overflow */}
-            {hasOverflow && (
-              <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white via-gray-50/90 to-transparent pointer-events-none" />
-            )}
           </div>
         )}
 

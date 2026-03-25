@@ -181,11 +181,7 @@ function TrustPill({ icon, children }) {
       fontSize: 13, color: "#374151", fontWeight: 500,
       background: "#fff", border: "1px solid #E5E7EB",
       borderRadius: 100, padding: "6px 14px" }}>
-      <span style={{ width: 20, height: 20, borderRadius: "50%",
-        background: "#F0FDF4", border: "1px solid #BBF7D0",
-        display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        {icon}
-      </span>
+      {icon}
       {children}
     </span>
   );
@@ -242,11 +238,22 @@ function FaqItem({ q, a }) {
 
 export default function FosfoHome() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
   }, []);
+
+  const handleSmoothScroll = (e, targetId) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <div style={{ fontFamily: "'DM Sans','Helvetica Neue',sans-serif", background: "#fff", color: "#111827", overflowX: "hidden" }}>
@@ -279,7 +286,24 @@ export default function FosfoHome() {
         .section-label { font-size:11.5px; font-weight:600; color:#16A34A; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; }
         .section-title { font-size:clamp(26px,3vw,34px); font-weight:800; color:#111827; letter-spacing:-.03em; line-height:1.15; }
         @media(max-width:860px){.hero-grid,.demo-grid,.faq-grid{grid-template-columns:1fr!important} .visual-col{display:none!important} .stats-grid{grid-template-columns:repeat(2,1fr)!important} .steps-grid,.feat-grid{grid-template-columns:1fr!important}}
-        @media(max-width:600px){.stats-grid{grid-template-columns:1fr!important} .nav-center{display:none!important}}
+        .mobile-menu-toggle { display: none; }
+        @media(max-width:768px){
+          .stats-grid{grid-template-columns:repeat(2,1fr)!important}
+          .categories-grid{grid-template-columns:repeat(2,1fr)!important}
+          .nav-center{display:none!important}
+          .nav-desktop-buttons{display:none!important}
+          .mobile-menu-toggle{display:block!important}
+          .section{padding:48px 0!important}
+          .btn-green, .btn-outline{width:100%!important;justify-content:center!important}
+          .footer-links{display:none!important}
+        }
+        .mobile-menu-overlay { position: fixed; top: 60px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 99; }
+        .mobile-menu-overlay.open { opacity: 1; pointer-events: auto; }
+        .mobile-menu { position: fixed; top: 60px; right: -100%; width: 280px; height: calc(100vh - 60px); background: #fff; box-shadow: -4px 0 24px rgba(0,0,0,0.1); transition: right 0.3s ease; z-index: 100; overflow-y: auto; }
+        .mobile-menu.open { right: 0; }
+        .mobile-menu-item { display: block; padding: 16px 24px; color: #374151; font-size: 15px; font-weight: 500; text-decoration: none; border-bottom: 1px solid #F3F4F6; transition: background 0.2s; }
+        .mobile-menu-item:hover { background: #F9FAFB; }
+        .mobile-menu-button { padding: 16px 24px; margin: 16px 24px; }
       `}</style>
 
       {/* NAVBAR */}
@@ -305,12 +329,48 @@ export default function FosfoHome() {
             <a href="#funcionalidades" className="nav-link">Funcionalidades</a>
             <a href="#faq" className="nav-link">FAQ</a>
           </div>
-          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          <div className="nav-desktop-buttons" style={{ display:"flex", alignItems:"center", gap:8 }}>
             <a href="/login" className="nav-link" style={{ padding:"6px 12px", borderRadius:8 }}>Entrar</a>
             <a href="/register" className="btn-green" style={{ fontSize:13, padding:"8px 16px" }}>Começar agora</a>
           </div>
+          <button 
+            className="mobile-menu-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            style={{ background:"none", border:"none", cursor:"pointer", padding:8 }}
+            aria-label="Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              {mobileMenuOpen ? (
+                <>
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </>
+              ) : (
+                <>
+                  <line x1="3" y1="12" x2="21" y2="12"/>
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <line x1="3" y1="18" x2="21" y2="18"/>
+                </>
+              )}
+            </svg>
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      <div 
+        className={`mobile-menu-overlay ${mobileMenuOpen ? 'open' : ''}`}
+        onClick={() => setMobileMenuOpen(false)}
+      />
+
+      {/* Mobile Menu */}
+      <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
+        <a href="#como-funciona" className="mobile-menu-item" onClick={(e) => handleSmoothScroll(e, 'como-funciona')}>Como funciona</a>
+        <a href="#funcionalidades" className="mobile-menu-item" onClick={(e) => handleSmoothScroll(e, 'funcionalidades')}>Funcionalidades</a>
+        <a href="#faq" className="mobile-menu-item" onClick={(e) => handleSmoothScroll(e, 'faq')}>FAQ</a>
+        <a href="/demo" className="mobile-menu-item">Ver demo</a>
+        <a href="/login" className="mobile-menu-item">Entrar</a>
+        <a href="/register" className="btn-green mobile-menu-button" style={{ width:"calc(100% - 48px)", justifyContent:"center" }}>Começar agora</a>
+      </div>
 
       {/* HERO */}
       <section style={{ paddingTop:60, minHeight:"100vh", display:"flex", alignItems:"center",
@@ -513,7 +573,7 @@ export default function FosfoHome() {
             </div>
           </div>
 
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:40 }}>
+          <div className="categories-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:40 }}>
             <CategoryCard images={["/categories/01_Bolo_Cenoura_Coberto.jpg","/categories/02_Torta_Limao_Merengada.jpg","/categories/03_Pao_de_Mel_Embalado.jpg"]} />
             <CategoryCard images={["/categories/04_Doces_Gourmet_Caixa_A.jpg","/categories/04_Doces_Gourmet_Caixa_B.jpg","/categories/05_Doce_de_Coco_Caseiro.jpg"]} />
             <CategoryCard images={["/categories/07_Cachecol_Trico_Pronto.jpg","/categories/08_Tapete_Croche_Colorido.jpg","/categories/09_Boneca_Pano_Artesanal.jpg"]} />
@@ -534,43 +594,63 @@ export default function FosfoHome() {
       </section>
 
       {/* DEMO */}
-      <section className="section">
+      <section className="section" style={{ background:"#FAFAF9" }}>
         <div className="container">
           <div className="demo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:56, alignItems:"center" }}>
-            <div>
+            <div style={{ textAlign:"center" }}>
               <div className="section-label">Veja ao vivo</div>
               <h2 style={{ fontSize:"clamp(24px,2.8vw,32px)", fontWeight:800, color:"#111827",
-                letterSpacing:"-.03em", lineHeight:1.15, marginBottom:14 }}>Explore sem<br />criar conta.</h2>
-              <p style={{ fontSize:15, color:"#6B7280", lineHeight:1.65, marginBottom:28 }}>
-                A loja demo tem produtos reais, carrinho funcional e checkout completo. O painel admin está aberto para explorar como funciona a gestão de pedidos.
+                letterSpacing:"-.03em", lineHeight:1.15, marginBottom:14 }}>Teste agora,<br />sem cadastro.</h2>
+              <p style={{ fontSize:15, color:"#6B7280", lineHeight:1.65, marginBottom:0 }}>
+                Explore nossa loja demo com produtos reais, carrinho funcional e checkout completo. O painel admin também está aberto para você ver como funciona a gestão de pedidos.
               </p>
-              <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-                <a href="/demo" className="btn-green">Ver loja demo</a>
-                <a href="/demo-admin" className="btn-outline">Explorar painel admin</a>
-              </div>
             </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               {[
-                { label:"Loja pública",  desc:"Catálogo com variações e carrinho",        href:"/demo" },
-                { label:"Painel admin",  desc:"Gestão de pedidos, produtos e métricas",   href:"/demo-admin" },
+                { label:"Loja pública",  desc:"Catálogo com variações e carrinho",        href:"/demo", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> },
+                { label:"Painel admin",  desc:"Gestão de pedidos, produtos e métricas",   href:"/demo-admin", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg> },
               ].map(item => (
                 <a key={item.label} href={item.href} style={{
                   display:"flex", alignItems:"center", justifyContent:"space-between",
-                  padding:"20px 24px", background:"#FAFAF9",
-                  border:"1px solid #E5E7EB", borderRadius:14,
-                  textDecoration:"none", transition:"border-color .2s, box-shadow .2s, background .2s",
+                  padding:"24px", background:"#fff",
+                  border:"2px solid #E5E7EB", borderRadius:16,
+                  textDecoration:"none", transition:"all .2s ease",
+                  boxShadow:"0 1px 3px rgba(0,0,0,0.05)"
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor="#86EFAC"; e.currentTarget.style.background="#fff"; e.currentTarget.style.boxShadow="0 4px 20px rgba(22,163,74,.07)"; e.currentTarget.querySelector('.arr').style.borderColor="#16A34A"; e.currentTarget.querySelector('.arr svg').setAttribute('stroke','#16A34A'); }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor="#E5E7EB"; e.currentTarget.style.background="#FAFAF9"; e.currentTarget.style.boxShadow="none"; e.currentTarget.querySelector('.arr').style.borderColor="#D1D5DB"; e.currentTarget.querySelector('.arr svg').setAttribute('stroke','#9CA3AF'); }}>
-                  <div>
-                    <div style={{ fontSize:14, fontWeight:700, color:"#111827", marginBottom:3 }}>{item.label}</div>
-                    <div style={{ fontSize:13, color:"#9CA3AF" }}>{item.desc}</div>
+                  onMouseEnter={e => { 
+                    e.currentTarget.style.borderColor="#16A34A"; 
+                    e.currentTarget.style.background="#F0FDF4"; 
+                    e.currentTarget.style.boxShadow="0 8px 24px rgba(22,163,74,.12)"; 
+                    e.currentTarget.style.transform="translateY(-2px)";
+                    const btn = e.currentTarget.querySelector('.access-btn');
+                    if(btn) { btn.style.background="#16A34A"; btn.style.color="#fff"; }
+                  }}
+                  onMouseLeave={e => { 
+                    e.currentTarget.style.borderColor="#E5E7EB"; 
+                    e.currentTarget.style.background="#fff"; 
+                    e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,0.05)"; 
+                    e.currentTarget.style.transform="translateY(0)";
+                    const btn = e.currentTarget.querySelector('.access-btn');
+                    if(btn) { btn.style.background="#F0FDF4"; btn.style.color="#16A34A"; }
+                  }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+                    <div style={{ width:44, height:44, borderRadius:12, background:"#F0FDF4", border:"1px solid #BBF7D0", display:"flex", alignItems:"center", justifyContent:"center", color:"#16A34A" }}>
+                      {item.icon}
+                    </div>
+                    <div>
+                      <div style={{ fontSize:15, fontWeight:700, color:"#111827", marginBottom:4 }}>{item.label}</div>
+                      <div style={{ fontSize:13, color:"#6B7280" }}>{item.desc}</div>
+                    </div>
                   </div>
-                  <div className="arr" style={{ width:34, height:34, borderRadius:"50%",
-                    border:"1.5px solid #D1D5DB", display:"flex", alignItems:"center",
-                    justifyContent:"center", flexShrink:0, transition:"border-color .2s" }}>
-                    <svg width="14" height="14" fill="none" stroke="#9CA3AF" strokeWidth="2"
-                      strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" style={{ transition:"stroke .2s" }}>
+                  <div className="access-btn" style={{ 
+                    display:"inline-flex", alignItems:"center", gap:6,
+                    padding:"10px 18px", background:"#F0FDF4", color:"#16A34A",
+                    borderRadius:10, fontSize:13, fontWeight:600,
+                    transition:"all .2s ease", whiteSpace:"nowrap"
+                  }}>
+                    Acessar
+                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5"
+                      strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                       <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
                   </div>
@@ -586,7 +666,7 @@ export default function FosfoHome() {
         style={{ background:"#FAFAF9", borderTop:"1px solid #F3F4F6" }}>
         <div className="container">
           <div className="faq-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1.6fr", gap:80, alignItems:"start" }}>
-            <div style={{ position:"sticky", top:80 }}>
+            <div style={{ position:"sticky", top:80, textAlign:"center" }}>
               <div className="section-label">Dúvidas frequentes</div>
               <h2 style={{ fontSize:"clamp(22px,2.5vw,28px)", fontWeight:800, color:"#111827",
                 letterSpacing:"-.03em", lineHeight:1.2, marginBottom:14 }}>
@@ -644,7 +724,7 @@ export default function FosfoHome() {
             <span style={{ fontSize:13, color:"#D1D5DB", margin:"0 4px" }}>·</span>
             <span style={{ fontSize:13, color:"#9CA3AF" }}>© 2026</span>
           </div>
-          <div style={{ display:"flex", gap:20 }}>
+          <div className="footer-links" style={{ display:"flex", gap:20 }}>
             {[["Demo","/demo"],["Login","/login"],["Cadastrar","/register"]].map(([l,h]) => (
               <a key={l} href={h} style={{ fontSize:13, color:"#9CA3AF", textDecoration:"none" }}>{l}</a>
             ))}
