@@ -29,6 +29,7 @@ export type Store = {
   delivery_enabled: boolean
   is_active: boolean
   trial_ends_at: string | null
+  is_free: boolean
   created_at: string
   updated_at: string
 }

@@ -5,6 +5,7 @@ export type StoreWithOwner = Store & {
   owner: Profile | null
   product_count: number
   order_count: number
+  is_free: boolean
 }
 
 export async function getMasterMetrics() {
@@ -35,11 +36,14 @@ export async function getMasterMetrics() {
 
 export async function getMasterStores(): Promise<StoreWithOwner[]> {
   const supabase = createClient()
+  supabase.channel('custom-all-channel').unsubscribe()
 
+  const timestamp = Date.now()
   const { data: stores, error } = await supabase
     .from('stores')
     .select('*')
     .order('created_at', { ascending: false })
+    .gt('created_at', '2000-01-01')
 
   if (error) throw error
 
@@ -83,10 +87,13 @@ export async function getMasterStores(): Promise<StoreWithOwner[]> {
 
 export async function toggleStoreActive(storeId: string, isActive: boolean): Promise<void> {
   const supabase = createClient()
-  const { error } = await supabase
+  console.log('toggleStoreActive called:', storeId, isActive)
+  const { data, error } = await supabase
     .from('stores')
-    .update({ is_active: isActive })
+    .update({ is_active: isActive, updated_at: new Date().toISOString() })
     .eq('id', storeId)
+    .select()
+  console.log('toggleStoreActive result:', data, error)
   if (error) throw error
 }
 
@@ -152,7 +159,26 @@ export async function updatePlatformSetting(key: string, value: string) {
   const supabase = createClient()
   const { error } = await supabase
     .from('platform_settings')
-    .update({ value })
-    .eq('key', key)
+    .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+  if (error) throw error
+}
+
+export async function setStoreFree(storeId: string, isFree: boolean): Promise<void> {
+  const supabase = createClient()
+  const { error } = await supabase
+    .from('stores')
+    .update({ is_free: isFree, is_active: true })
+    .eq('id', storeId)
+  if (error) throw error
+}
+
+export async function applyNewTrialToNewStores(days: number): Promise<void> {
+  const supabase = createClient()
+  const newDate = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
+  const { error } = await supabase
+    .from('stores')
+    .update({ trial_ends_at: newDate })
+    .eq('is_free', false)
+    .is('trial_ends_at', null)
   if (error) throw error
 }
