@@ -1,477 +1,656 @@
-import Link from 'next/link'
-import {
-  Store, ShoppingCart, Package, Settings,
-  MessageCircle, BarChart3, ArrowRight, Zap, Shield, Smartphone,
-  CheckCircle, Clock, TrendingUp, Users, ChevronDown
-} from 'lucide-react'
+"use client";
+import { useState, useEffect } from "react";
 
-export default function HomePage() {
+const ORDERS = [
+  { name: "Ana Lima",  item: "Açaí 500ml — Granola",     total: "R$ 28,00", time: "agora", initials: "AL", color: "#16A34A" },
+  { name: "Carlos M.", item: "Pizza Grande — Calabresa",  total: "R$ 56,00", time: "2min",  initials: "CM", color: "#2563EB" },
+  { name: "Julia S.",  item: "Brigadeiro Gourmet ×4",     total: "R$ 32,00", time: "5min",  initials: "JS", color: "#9333EA" },
+  { name: "Pedro R.",  item: "Combo Açaí + Suco",         total: "R$ 44,00", time: "8min",  initials: "PR", color: "#D97706" },
+];
+
+const FEATURES = [
+  { title: "Loja personalizada",     desc: "Logo, cores e banner com a identidade da sua marca.",
+    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+  { title: "Produtos com variações", desc: "Tamanhos, sabores, cores — cada um com seu preço.",
+    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> },
+  { title: "Carrinho inteligente",   desc: "Seus clientes montam o pedido com facilidade.",
+    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> },
+  { title: "Pedido por WhatsApp",    desc: "Receba os detalhes do pedido direto no seu WhatsApp.",
+    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
+  { title: "Painel completo",        desc: "Gerencie produtos, pedidos e métricas em um só lugar.",
+    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
+  { title: "100% responsivo",        desc: "Funciona perfeitamente no celular e no computador.",
+    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> },
+];
+
+const FAQ = [
+  { q: "Preciso pagar para começar?",              a: "Não. Você testa o sistema na prática, cria sua página, adiciona produtos e recebe pedidos — sem custo inicial." },
+  { q: "Quanto tempo leva para criar minha loja?", a: "Menos de 2 minutos. Basta fazer o cadastro, escolher o nome e você já pode começar a adicionar produtos." },
+  { q: "Como meus clientes fazem pedidos?",        a: "Acessam o link da sua loja, navegam pelos produtos, adicionam ao carrinho e finalizam. Você recebe no painel e pode encaminhar ao WhatsApp." },
+  { q: "Posso personalizar a aparência da loja?",  a: "Sim. Logo, cores da marca e banners — tudo para a loja ter a cara do seu negócio." },
+  { q: "Funciona no celular?",                     a: "Perfeitamente. Tanto a loja pública quanto o painel admin são 100% responsivos e funcionam muito bem em smartphones e tablets." },
+  { q: "Posso ter produtos com variações?",        a: "Sim. Tamanhos, sabores, cores — cada variação pode ter seu próprio preço. Perfeito para lojas de alimentos, roupas e muito mais." },
+  { q: "Tem limite de produtos ou pedidos?",       a: "Não. Adicione quantos produtos quiser e receba quantos pedidos vierem — sem restrições artificiais." },
+  { q: "Como funciona a integração com WhatsApp?", a: "Ao confirmar um pedido, o sistema gera a mensagem formatada com todos os dados e abre direto no WhatsApp do dono da loja." },
+];
+
+const STEPS = [
+  { num: "01", title: "Configure sua loja",     desc: "Cadastre-se, escolha o nome e personalize com logo e cores. Menos de 2 minutos para estar no ar.",
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+  { num: "02", title: "Cadastre seus produtos", desc: "Fotos, preços e variações como tamanho, sabor ou cor. Organize tudo por categorias.",
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> },
+  { num: "03", title: "Receba pedidos",         desc: "Clientes acessam pelo link, montam o carrinho e finalizam. Você recebe no painel e no WhatsApp.",
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
+];
+
+const STATS = [
+  { value: "500+", label: "Lojas ativas",          icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+  { value: "50K+", label: "Pedidos por mês",        icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> },
+  { value: "10K+", label: "Produtos cadastrados",   icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> },
+  { value: "2min", label: "Para estar no ar",       icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+];
+
+// ── Sub-components ──────────────────────────────────────────────
+
+function PhoneMockup() {
+  const products = [
+    { emoji: "🍇", name: "Açaí 500ml",    price: "R$ 22,00", badge: "Popular", badgeBg: "#DCFCE7", badgeColor: "#166534" },
+    { emoji: "🍕", name: "Combo Família", price: "R$ 89,00", badge: null },
+    { emoji: "🍫", name: "Brigadeiro ×6", price: "R$ 36,00", badge: "Novo",    badgeBg: "#FEF9C3", badgeColor: "#854D0E" },
+  ];
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 bg-gray-900 rounded-lg flex items-center justify-center">
-              <Store className="h-4 w-4 text-white" />
+    <div style={{ width: 210, flexShrink: 0, background: "#111", borderRadius: 36, padding: 8,
+      boxShadow: "0 32px 64px rgba(0,0,0,0.22), 0 0 0 1px rgba(255,255,255,0.07)" }}>
+      <div style={{ width: 60, height: 18, background: "#111", borderRadius: 9, margin: "0 auto 6px" }} />
+      <div style={{ background: "#fff", borderRadius: 26, overflow: "hidden", minHeight: 400 }}>
+        <div style={{ background: "#16A34A", padding: "14px 14px 10px", color: "#fff" }}>
+          <div style={{ fontSize: 9, opacity: .7, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 3 }}>AÇAÍ CENTRAL</div>
+          <div style={{ fontWeight: 700, fontSize: 14 }}>Olá! O que vai querer? 👋</div>
+        </div>
+        <div style={{ display: "flex", gap: 5, padding: "8px 10px 4px" }}>
+          {["Todos","Açaí","Combos","Bebidas"].map((c,i) => (
+            <div key={c} style={{ fontSize: 9, fontWeight: 600, padding: "3px 8px", borderRadius: 20, flexShrink: 0,
+              background: i===0?"#16A34A":"#F3F4F6", color: i===0?"#fff":"#6B7280" }}>{c}</div>
+          ))}
+        </div>
+        <div style={{ padding: "4px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
+          {products.map(p => (
+            <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 8,
+              background: "#F9FAFB", borderRadius: 10, padding: "7px 8px", border: "1px solid #F3F4F6" }}>
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: "#DCFCE7",
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{p.emoji}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: "#111827" }}>{p.name}</div>
+                <div style={{ fontSize: 10, color: "#16A34A", fontWeight: 700 }}>{p.price}</div>
+              </div>
+              {p.badge && <div style={{ fontSize: 8, fontWeight: 700, padding: "2px 5px", borderRadius: 5,
+                background: p.badgeBg, color: p.badgeColor }}>{p.badge}</div>}
+              <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#16A34A",
+                color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 14, fontWeight: 700, flexShrink: 0 }}>+</div>
             </div>
-            <span className="font-bold text-gray-900">Fosfo Pedidos</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/demo"
-              className="text-sm text-gray-600 hover:text-gray-900 transition-colors hidden sm:block"
-            >
-              Ver demo
-            </Link>
-            <Link
-              href="/login"
-              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              Entrar
-            </Link>
-            <Link
-              href="/register"
-              className="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-xl hover:bg-gray-800 transition-colors"
-            >
-              Começar agora
-            </Link>
+          ))}
+        </div>
+        <div style={{ padding: "8px 10px 14px" }}>
+          <div style={{ background: "#16A34A", borderRadius: 10, padding: "9px 12px",
+            display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>🛒  Ver carrinho</div>
+            <div style={{ background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 9,
+              fontWeight: 700, padding: "2px 6px", borderRadius: 6 }}>2 itens</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OrderNotification() {
+  const [idx, setIdx] = useState(0);
+  const [show, setShow] = useState(true);
+  useEffect(() => {
+    const t = setInterval(() => {
+      setShow(false);
+      setTimeout(() => { setIdx(i => (i+1) % ORDERS.length); setShow(true); }, 350);
+    }, 3000);
+    return () => clearInterval(t);
+  }, []);
+  const o = ORDERS[idx];
+  return (
+    <div style={{ background: "#fff", borderRadius: 14, padding: "10px 14px", width: 258,
+      boxShadow: "0 4px 24px rgba(0,0,0,0.09), 0 0 0 1px rgba(0,0,0,0.05)",
+      display: "flex", alignItems: "center", gap: 10,
+      opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(5px)",
+      transition: "opacity .3s, transform .3s" }}>
+      <div style={{ width: 34, height: 34, borderRadius: "50%", background: o.color+"18",
+        color: o.color, display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 10, fontWeight: 800, flexShrink: 0 }}>{o.initials}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>{o.name}</span>
+          <span style={{ fontSize: 10, color: "#9CA3AF" }}>{o.time}</span>
+        </div>
+        <div style={{ fontSize: 10, color: "#6B7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{o.item}</div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: "#16A34A", marginTop: 1 }}>{o.total}</div>
+      </div>
+    </div>
+  );
+}
+
+function WhatsAppCard() {
+  return (
+    <div style={{ background: "#fff", borderRadius: 14, padding: "12px 14px", width: 228,
+      boxShadow: "0 4px 24px rgba(0,0,0,0.09), 0 0 0 1px rgba(0,0,0,0.05)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#dcfce7",
+          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>💬</div>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>WhatsApp</div>
+          <div style={{ fontSize: 9, color: "#9CA3AF" }}>Mensagem automática</div>
+        </div>
+      </div>
+      <div style={{ background: "#DCF8C6", borderRadius: "10px 10px 2px 10px",
+        padding: "8px 10px", fontSize: 9.5, color: "#1a1a1a", lineHeight: 1.6 }}>
+        🧾 <b>Novo Pedido #047</b><br />
+        👤 Ana Lima · (51) 99999-8888<br /><br />
+        • 1× Açaí 500ml — R$ 22,00<br />
+        • 1× Granola extra — R$ 6,00<br /><br />
+        💰 <b>Total: R$ 28,00</b>
+      </div>
+      <div style={{ fontSize: 9, color: "#9CA3AF", textAlign: "right", marginTop: 4 }}>✓✓ Entregue</div>
+    </div>
+  );
+}
+
+function StatCard({ value, label }) {
+  return (
+    <div style={{ background: "#fff", borderRadius: 12, padding: "10px 14px",
+      boxShadow: "0 4px 20px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.05)",
+      display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#16A34A", flexShrink: 0 }} />
+      <div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: "#111827", lineHeight: 1 }}>{value}</div>
+        <div style={{ fontSize: 10, color: "#9CA3AF", marginTop: 2 }}>{label}</div>
+      </div>
+    </div>
+  );
+}
+
+function TrustPill({ icon, children }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 8,
+      fontSize: 13, color: "#374151", fontWeight: 500,
+      background: "#fff", border: "1px solid #E5E7EB",
+      borderRadius: 100, padding: "6px 14px" }}>
+      <span style={{ width: 20, height: 20, borderRadius: "50%",
+        background: "#F0FDF4", border: "1px solid #BBF7D0",
+        display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        {icon}
+      </span>
+      {children}
+    </span>
+  );
+}
+
+function CategoryCard({ images }) {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i+1) % images.length), 4000);
+    return () => clearInterval(t);
+  }, [images]);
+  return (
+    <div style={{ borderRadius:16, overflow:"hidden", position:"relative", aspectRatio:"1", background:"#F3F4F6" }}>
+      {images.map((src, i) => (
+        <img key={src} src={src} alt="" style={{
+          position:"absolute", inset:0, width:"100%", height:"100%",
+          objectFit:"cover", display:"block",
+          opacity: i === idx ? 1 : 0,
+          transition:"opacity 0.8s ease",
+        }} />
+      ))}
+    </div>
+  );
+}
+
+function FaqItem({ q, a }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div onClick={() => setOpen(!open)}
+      style={{ borderBottom: "1px solid #F3F4F6", cursor: "pointer" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, padding: "18px 0" }}>
+        <span style={{ fontSize: 14.5, fontWeight: 600, color: "#111827", lineHeight: 1.4 }}>{q}</span>
+        <span style={{
+          width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
+          border: open ? "1.5px solid #86EFAC" : "1.5px solid #E5E7EB",
+          background: open ? "#F0FDF4" : "transparent",
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          transition: "border-color .2s, background .2s",
+        }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke={open ? "#16A34A" : "#9CA3AF"} strokeWidth="2.5"
+            strokeLinecap="round" strokeLinejoin="round"
+            style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform .22s ease, stroke .2s" }}>
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </span>
+      </div>
+      {open && <p style={{ margin: "0 0 16px", fontSize: 13.5, color: "#6B7280", lineHeight: 1.7 }}>{a}</p>}
+    </div>
+  );
+}
+
+// ── Main ────────────────────────────────────────────────────────
+
+export default function FosfoHome() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  return (
+    <div style={{ fontFamily: "'DM Sans','Helvetica Neue',sans-serif", background: "#fff", color: "#111827", overflowX: "hidden" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        @keyframes floatA { 0%,100%{transform:translateY(0) rotate(-0.5deg)} 50%{transform:translateY(-12px) rotate(0.5deg)} }
+        @keyframes floatB { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        @keyframes floatC { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        .fade-up { animation: fadeUp .65s ease both; }
+        .d1{animation-delay:.05s} .d2{animation-delay:.15s} .d3{animation-delay:.25s} .d4{animation-delay:.35s} .d5{animation-delay:.45s}
+        .float-a { animation: floatA 5s ease-in-out infinite; }
+        .float-b { animation: floatB 4s ease-in-out infinite .5s; }
+        .float-c { animation: floatC 5.5s ease-in-out infinite 1s; }
+        .nav-link { font-size:14px; color:#6B7280; font-weight:500; text-decoration:none; transition:color .15s; }
+        .nav-link:hover { color:#111827; }
+        .btn-green { display:inline-flex; align-items:center; gap:7px; background:#16A34A; color:#fff; font-size:14px; font-weight:600; padding:11px 22px; border-radius:9px; text-decoration:none; border:none; cursor:pointer; transition:background .15s,transform .12s; }
+        .btn-green:hover { background:#15803D; transform:translateY(-1px); }
+        .btn-outline { display:inline-flex; align-items:center; gap:7px; background:#fff; color:#374151; font-size:14px; font-weight:600; padding:11px 22px; border-radius:9px; text-decoration:none; border:1.5px solid #E5E7EB; cursor:pointer; transition:border-color .15s,background .12s,transform .12s; }
+        .btn-outline:hover { border-color:#D1D5DB; background:#F9FAFB; transform:translateY(-1px); }
+        .step-card { background:#fff; border:1px solid #E5E7EB; border-radius:16px; padding:32px 24px 36px; position:relative; overflow:hidden; transition:border-color .2s,box-shadow .2s; display:flex; flex-direction:column; align-items:center; text-align:center; }
+        .step-card:hover { border-color:#BBF7D0; box-shadow:0 8px 32px rgba(22,163,74,.08); }
+        .feat-card { background:#fff; border:1px solid #F3F4F6; border-radius:12px; padding:24px; transition:border-color .2s,box-shadow .2s; }
+        .feat-card:hover { border-color:#D1FAE5; box-shadow:0 4px 20px rgba(22,163,74,.07); }
+        .demo-row { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:#FAFAF9; border:1px solid #F3F4F6; border-radius:12px; text-decoration:none; transition:border-color .15s; cursor:pointer; }
+        .demo-row:hover { border-color:#D1FAE5; }
+        .section { padding:96px 0; }
+        .container { max-width:1100px; margin:0 auto; padding:0 24px; }
+        .section-label { font-size:11.5px; font-weight:600; color:#16A34A; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; }
+        .section-title { font-size:clamp(26px,3vw,34px); font-weight:800; color:#111827; letter-spacing:-.03em; line-height:1.15; }
+        @media(max-width:860px){.hero-grid,.demo-grid,.faq-grid{grid-template-columns:1fr!important} .visual-col{display:none!important} .stats-grid{grid-template-columns:repeat(2,1fr)!important} .steps-grid,.feat-grid{grid-template-columns:1fr!important}}
+        @media(max-width:600px){.stats-grid{grid-template-columns:1fr!important} .nav-center{display:none!important}}
+      `}</style>
+
+      {/* NAVBAR */}
+      <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:100, height:60,
+        display:"flex", alignItems:"center", padding:"0 32px",
+        background: scrolled ? "rgba(255,255,255,0.92)" : "#fff",
+        backdropFilter: scrolled ? "blur(12px)" : "none",
+        borderBottom:`1px solid ${scrolled?"rgba(0,0,0,0.07)":"#F3F4F6"}`,
+        transition:"background .2s, border-color .2s" }}>
+        <div style={{ maxWidth:1100, margin:"0 auto", width:"100%", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <a href="/" style={{ textDecoration:"none", display:"flex", alignItems:"center", gap:9 }}>
+            <div style={{ width:32, height:32, borderRadius:9, background:"#111827",
+              display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <span style={{ fontSize:17, fontWeight:800, color:"#111827", letterSpacing:"-.04em" }}>Sistema de Pedidos Fosfo</span>
+          </a>
+          <div className="nav-center" style={{ display:"flex", gap:28 }}>
+            <a href="#como-funciona" className="nav-link">Como funciona</a>
+            <a href="#funcionalidades" className="nav-link">Funcionalidades</a>
+            <a href="#faq" className="nav-link">FAQ</a>
+          </div>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <a href="/login" className="nav-link" style={{ padding:"6px 12px", borderRadius:8 }}>Entrar</a>
+            <a href="/register" className="btn-green" style={{ fontSize:13, padding:"8px 16px" }}>Começar agora</a>
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="relative pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 overflow-hidden">
-        {/* Background decorativo */}
-        <div className="absolute inset-0 -z-10">
-          {/* Grid pattern */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]" />
-          
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-purple-50/30 to-blue-50" />
-          
-          {/* Blobs animados maiores e mais coloridos */}
-          <div className="absolute top-10 left-0 w-96 h-96 bg-gradient-to-br from-emerald-300 to-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob" />
-          <div className="absolute top-20 right-0 w-96 h-96 bg-gradient-to-br from-pink-300 to-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000" />
-          <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-gradient-to-br from-blue-300 to-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000" />
-          
-          {/* Cards flutuantes decorativos */}
-          <div className="absolute top-32 right-[10%] w-48 h-32 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-4 rotate-6 opacity-80">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="h-8 w-8 bg-emerald-500 rounded-lg" />
-              <div className="flex-1">
-                <div className="h-2 w-20 bg-gray-200 rounded mb-1" />
-                <div className="h-1.5 w-16 bg-gray-100 rounded" />
+      {/* HERO */}
+      <section style={{ paddingTop:60, minHeight:"100vh", display:"flex", alignItems:"center",
+        background:"#fff", position:"relative", overflow:"hidden" }}>
+
+        {/* organic contour background */}
+        <svg style={{ position:"absolute", right:-20, top:0, height:"100%", width:"62%",
+          zIndex:0, pointerEvents:"none" }}
+          viewBox="0 0 520 800" xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid slice" fill="none">
+          <path d="M 520 720 C 420 690, 340 620, 280 540 C 220 460, 180 370, 160 280 C 148 220, 150 160, 170 100" stroke="#D1FAE5" strokeWidth="1" opacity="1"/>
+          <path d="M 520 680 C 430 648, 352 576, 294 492 C 236 408, 196 316, 178 224 C 166 162, 168 100, 190 40" stroke="#BBF7D0" strokeWidth="1" opacity="0.9"/>
+          <path d="M 520 636 C 440 602, 364 528, 308 442 C 252 356, 212 262, 196 168 C 184 104, 186 40, 210 -20" stroke="#86EFAC" strokeWidth="0.8" opacity="0.7"/>
+          <path d="M 520 592 C 450 556, 376 480, 322 392 C 268 304, 228 208, 214 112 C 202 46, 204 -20, 230 -82" stroke="#4ADE80" strokeWidth="0.7" opacity="0.45"/>
+          <path d="M 520 548 C 460 510, 388 432, 336 342 C 284 252, 244 154, 232 56 C 220 -12, 222 -80, 250 -144" stroke="#22C55E" strokeWidth="0.6" opacity="0.25"/>
+          <path d="M 520 780 C 410 750, 326 676, 264 590 C 202 504, 160 408, 138 314 C 124 250, 126 186, 148 124" stroke="#D1FAE5" strokeWidth="1.2" opacity="0.8"/>
+          <path d="M 520 820 C 400 792, 308 716, 244 628 C 180 540, 136 442, 112 346 C 96 280, 98 214, 122 150" stroke="#BBF7D0" strokeWidth="1" opacity="0.6"/>
+          <path d="M 520 860 C 392 834, 292 756, 226 666 C 160 576, 114 476, 88 378 C 70 310, 72 242, 98 176" stroke="#D1FAE5" strokeWidth="1.4" opacity="0.5"/>
+          <path d="M 380 800 C 330 762, 270 682, 230 596 C 190 510, 168 410, 158 318 C 150 254, 152 190, 172 128" stroke="#D1FAE5" strokeWidth="1.5" opacity="0.45"/>
+          <path d="M 340 800 C 298 760, 248 676, 212 586 C 176 496, 158 394, 150 300 C 143 234, 146 168, 168 104" stroke="#BBF7D0" strokeWidth="1" opacity="0.3"/>
+          <path d="M 300 800 C 266 758, 224 670, 192 576 C 160 482, 144 378, 138 282 C 132 214, 136 146, 160 80" stroke="#D1FAE5" strokeWidth="0.8" opacity="0.18"/>
+        </svg>
+        <div style={{ position:"absolute", left:0, top:0, bottom:0, width:"52%",
+          background:"linear-gradient(to right, #fff 65%, transparent 100%)", zIndex:1, pointerEvents:"none" }} />
+        <div style={{ position:"absolute", top:0, left:0, right:0, height:120,
+          background:"linear-gradient(to bottom, #fff, transparent)", zIndex:1, pointerEvents:"none" }} />
+        <div style={{ position:"absolute", bottom:0, left:0, right:0, height:120,
+          background:"linear-gradient(to top, #fff, transparent)", zIndex:1, pointerEvents:"none" }} />
+
+        <div className="container" style={{ width:"100%", position:"relative", zIndex:2 }}>
+          <div className="hero-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr",
+            gap:64, alignItems:"center", paddingTop:48, paddingBottom:72 }}>
+            <div>
+              <div className="fade-up d1" style={{ marginBottom:24 }}>
+                <TrustPill>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <circle cx="5" cy="5" r="3" fill="#16A34A"/>
+                    <circle cx="5" cy="5" r="5" stroke="#86EFAC" strokeWidth="1"/>
+                  </svg>
+                  Acesso liberado · sem cartão
+                </TrustPill>
+              </div>
+              <h1 className="fade-up d2" style={{ fontSize:"clamp(36px,4.5vw,54px)", fontWeight:800,
+                color:"#0A0A09", lineHeight:1.08, letterSpacing:"-.03em", marginBottom:20 }}>
+                Seu sistema de<br />pedidos,{" "}
+                <span style={{ color:"#16A34A", position:"relative", display:"inline-block" }}>
+                  com cara
+                  <svg viewBox="0 0 180 8" fill="none" style={{ position:"absolute", bottom:-4, left:0, width:"100%" }}>
+                    <path d="M2 5.5C40 2 80 6.5 178 3" stroke="#BBF7D0" strokeWidth="3" strokeLinecap="round"/>
+                  </svg>
+                </span>{" "}de loja.
+              </h1>
+              <p className="fade-up d3" style={{ fontSize:17, color:"#6B7280", lineHeight:1.65,
+                maxWidth:420, marginBottom:36, fontWeight:400 }}>
+                Catálogo de produtos com variações, carrinho, gestão de pedidos e notificação via WhatsApp — tudo em um só lugar, pronto em minutos.
+              </p>
+              <div className="fade-up d4" style={{ display:"flex", flexWrap:"wrap", gap:10, marginBottom:32 }}>
+                <a href="/register" className="btn-green">
+                  Começar agora
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="/demo" className="btn-outline">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z" fill="currentColor" stroke="none"/></svg>
+                  Ver demonstração
+                </a>
+              </div>
+              <div className="fade-up d5" style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+                <TrustPill icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}>
+                  Sem burocracia
+                </TrustPill>
+                <TrustPill icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}>
+                  Configuração rápida
+                </TrustPill>
+                <TrustPill icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>}>
+                  Suporte incluído
+                </TrustPill>
               </div>
             </div>
-            <div className="h-1.5 w-full bg-gray-100 rounded mb-1" />
-            <div className="h-1.5 w-3/4 bg-gray-100 rounded" />
+
+            <div className="visual-col" style={{ position:"relative", height:580,
+              display:"flex", alignItems:"center", justifyContent:"center" }}>
+              <div style={{ position:"absolute", width:380, height:380, borderRadius:"50%",
+                background:"radial-gradient(circle, #DCFCE7 0%, transparent 70%)", opacity:.6, zIndex:0 }} />
+              <div className="float-b" style={{ position:"absolute", top:60, left:-10, zIndex:3 }}>
+                <StatCard value="47" label="Pedidos hoje" />
+              </div>
+              <div className="float-a" style={{ position:"relative", zIndex:2 }}>
+                <PhoneMockup />
+              </div>
+              <div className="float-b" style={{ position:"absolute", top:44, right:-32, zIndex:3 }}>
+                <OrderNotification />
+              </div>
+              <div className="float-c" style={{ position:"absolute", bottom:44, left:-36, zIndex:3 }}>
+                <WhatsAppCard />
+              </div>
+            </div>
           </div>
-          
-          <div className="absolute bottom-32 left-[8%] w-40 h-40 bg-white/60 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-4 -rotate-6 opacity-80">
-            <div className="grid grid-cols-2 gap-2">
-              {[1,2,3,4].map(i => (
-                <div key={i} className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg" />
+        </div>
+      </section>
+
+      {/* STATS */}
+      <section style={{ borderTop:"1px solid #F3F4F6", borderBottom:"1px solid #F3F4F6", background:"#fff" }}>
+        <div className="container">
+          <div className="stats-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)" }}>
+            {STATS.map((s, i) => (
+              <div key={s.label} style={{ padding:"28px 20px", borderRight: i < 3 ? "1px solid #F3F4F6" : "none",
+                display:"flex", flexDirection:"column", alignItems:"center", gap:12, textAlign:"center" }}>
+                <div style={{ width:38, height:38, borderRadius:10, background:"#F0FDF4",
+                  border:"1px solid #BBF7D0", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  {s.icon}
+                </div>
+                <div>
+                  <div style={{ fontSize:26, fontWeight:800, color:"#0A0A09", letterSpacing:"-.04em", lineHeight:1 }}>{s.value}</div>
+                  <div style={{ fontSize:12, color:"#9CA3AF", marginTop:3 }}>{s.label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* COMO FUNCIONA */}
+      <section className="section" id="como-funciona">
+        <div className="container">
+          <div style={{ textAlign:"center", marginBottom:48 }}>
+            <div className="section-label">Como funciona</div>
+            <h2 className="section-title">Três passos para começar<br />a receber pedidos</h2>
+          </div>
+          <div className="steps-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14 }}>
+            {STEPS.map(s => (
+              <div key={s.num} className="step-card">
+                <div style={{ position:"relative", width:56, height:56, marginBottom:20 }}>
+                  <div style={{ width:56, height:56, borderRadius:14, background:"#F0FDF4",
+                    border:"1px solid #BBF7D0", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    {s.icon}
+                  </div>
+                  <div style={{ position:"absolute", top:-8, right:-8, width:22, height:22, borderRadius:"50%",
+                    background:"#111827", border:"2px solid #fff", display:"flex", alignItems:"center",
+                    justifyContent:"center", fontSize:9, fontWeight:800, color:"#fff" }}>{s.num}</div>
+                </div>
+                <h3 style={{ fontSize:16, fontWeight:700, color:"#111827", letterSpacing:"-.02em", marginBottom:8 }}>{s.title}</h3>
+                <p style={{ fontSize:13.5, color:"#6B7280", lineHeight:1.7 }}>{s.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:8, marginTop:28 }}>
+            <div style={{ width:8, height:8, borderRadius:"50%", background:"#16A34A" }} />
+            <div style={{ width:40, height:1, background:"#E5E7EB" }} />
+            <div style={{ width:8, height:8, borderRadius:"50%", background:"#D1D5DB" }} />
+            <div style={{ width:40, height:1, background:"#E5E7EB" }} />
+            <div style={{ width:8, height:8, borderRadius:"50%", background:"#D1D5DB" }} />
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURES */}
+      <section className="section" id="funcionalidades"
+        style={{ background:"#FAFAF9", borderTop:"1px solid #F3F4F6", borderBottom:"1px solid #F3F4F6" }}>
+        <div className="container">
+          <div style={{ textAlign:"center", marginBottom:48 }}>
+            <div className="section-label">Funcionalidades</div>
+            <h2 className="section-title">Tudo que você precisa</h2>
+            <p style={{ fontSize:16, color:"#6B7280", marginTop:10 }}>Funcionalidades pensadas para facilitar sua vida</p>
+          </div>
+          <div className="feat-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:16 }}>
+            {FEATURES.map(f => (
+              <div key={f.title} className="feat-card">
+                <div style={{ width:36, height:36, borderRadius:9, background:"#F0FDF4",
+                  border:"1px solid #D1FAE5", display:"flex", alignItems:"center",
+                  justifyContent:"center", marginBottom:14 }}>{f.icon}</div>
+                <h3 style={{ fontSize:14, fontWeight:700, color:"#111827", marginBottom:6 }}>{f.title}</h3>
+                <p style={{ fontSize:13, color:"#6B7280", lineHeight:1.65 }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FEITO PARA PEQUENOS PRODUTORES */}
+      <section className="section" style={{ background:"#fff", borderBottom:"1px solid #F3F4F6" }}>
+        <div className="container">
+          <div style={{ textAlign:"center", marginBottom:32 }}>
+            <div className="section-label">Para quem é</div>
+            <h2 className="section-title" style={{ marginBottom:8 }}>Feito para pequenos produtores</h2>
+            <p style={{ fontSize:16, color:"#6B7280", marginBottom:24 }}>Confeitarias, docerias, artesãos e empreendedores locais</p>
+            <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", gap:10 }}>
+              {[
+                { label:"Confeitaria",      icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 11H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2z"/><path d="M12 11V7a4 4 0 0 1 8 0"/><path d="M12 11V7a4 4 0 0 0-8 0"/></svg> },
+                { label:"Doceria",          icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> },
+                { label:"Artesanato",       icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg> },
+                { label:"Gastronomia",      icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg> },
+                { label:"Pequenos negócios",icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> },
+              ].map(p => (
+                <div key={p.label} style={{ display:"inline-flex", alignItems:"center", gap:8,
+                  background:"#F3F4F6", borderRadius:100, padding:"7px 16px",
+                  fontSize:13, fontWeight:600, color:"#111827" }}>
+                  {p.icon}{p.label}
+                </div>
               ))}
             </div>
           </div>
-          
-          {/* Ícones decorativos maiores */}
-          <div className="absolute top-24 right-[18%] opacity-[0.12] rotate-12">
-            <ShoppingCart className="h-24 w-24 text-gray-900" />
-          </div>
-          <div className="absolute top-44 left-[10%] opacity-[0.12] -rotate-12">
-            <Package className="h-28 w-28 text-gray-900" />
-          </div>
-          <div className="absolute bottom-24 right-[22%] opacity-[0.12] rotate-6">
-            <Store className="h-32 w-32 text-gray-900" />
-          </div>
-          <div className="absolute top-60 right-[38%] opacity-[0.10] -rotate-6">
-            <BarChart3 className="h-20 w-20 text-gray-900" />
-          </div>
-          <div className="absolute bottom-36 left-[18%] opacity-[0.10] rotate-12">
-            <MessageCircle className="h-22 w-22 text-gray-900" />
-          </div>
-          <div className="absolute top-36 left-[35%] opacity-[0.08] -rotate-12">
-            <TrendingUp className="h-18 w-18 text-gray-900" />
-          </div>
-          
-          {/* Círculos decorativos maiores */}
-          <div className="absolute top-28 left-[6%] w-4 h-4 bg-emerald-500 rounded-full opacity-50" />
-          <div className="absolute top-56 right-[8%] w-3 h-3 bg-pink-500 rounded-full opacity-50" />
-          <div className="absolute bottom-44 left-[28%] w-5 h-5 bg-blue-500 rounded-full opacity-50" />
-          <div className="absolute top-40 right-[45%] w-3 h-3 bg-purple-500 rounded-full opacity-50" />
-          <div className="absolute bottom-52 right-[15%] w-4 h-4 bg-cyan-500 rounded-full opacity-50" />
-          
-          {/* Linhas decorativas */}
-          <div className="absolute top-36 left-[15%] w-24 h-0.5 bg-gradient-to-r from-transparent via-emerald-300 to-transparent opacity-30 rotate-45" />
-          <div className="absolute bottom-40 right-[20%] w-32 h-0.5 bg-gradient-to-r from-transparent via-pink-300 to-transparent opacity-30 -rotate-45" />
-        </div>
 
-        <div className="max-w-4xl mx-auto text-center relative">
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-emerald-50 text-emerald-700 text-xs sm:text-sm font-medium px-3 sm:px-4 py-1.5 rounded-full mb-4 sm:mb-6 border border-emerald-200">
-            <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-            <span className="hidden xs:inline">Pronto em poucos minutos •</span>
-            <span>Acesso liberado</span>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:40 }}>
+            <CategoryCard images={["/categories/01_Bolo_Cenoura_Coberto.jpg","/categories/02_Torta_Limao_Merengada.jpg","/categories/03_Pao_de_Mel_Embalado.jpg"]} />
+            <CategoryCard images={["/categories/04_Doces_Gourmet_Caixa_A.jpg","/categories/04_Doces_Gourmet_Caixa_B.jpg","/categories/05_Doce_de_Coco_Caseiro.jpg"]} />
+            <CategoryCard images={["/categories/07_Cachecol_Trico_Pronto.jpg","/categories/08_Tapete_Croche_Colorido.jpg","/categories/09_Boneca_Pano_Artesanal.jpg"]} />
+            <CategoryCard images={["/categories/10_Marmita_Feijoada_Completa.jpg","/categories/11_Pizza_Artesanal_Pronta.jpg","/categories/12_Massa_ao_Sugo_Prata.jpg"]} />
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 tracking-tight leading-tight mb-4 sm:mb-6">
-            Seu sistema de pedidos,
-            <br />
-            <span className="bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">com cara de loja</span>
-          </h1>
-          <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto mb-8 sm:mb-10 px-2">
-            Sistema completo para receber e organizar pedidos: catálogo de produtos com preço e variações, carrinho e gestão em um só lugar.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-6 sm:mb-8">
-            <Link
-              href="/register"
-              className="inline-flex items-center justify-center gap-2 bg-gray-900 text-white font-medium px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl hover:bg-gray-800 transition-all text-sm sm:text-base shadow-lg shadow-gray-900/20 w-full sm:w-auto"
-            >
-              Começar agora
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/demo"
-              className="inline-flex items-center justify-center gap-2 border-2 border-gray-300 text-gray-700 font-medium px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl hover:bg-gray-50 transition-all text-sm sm:text-base w-full sm:w-auto"
-            >
-              Ver demonstração
-            </Link>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-500">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600" />
-              <span>Sem burocracia</span>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600" />
-              <span>Configuração rápida</span>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600" />
-              <span>Suporte incluído</span>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Stats */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-gray-50">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
-            {[
-              { icon: Users, label: 'Lojas Ativas', value: '500+' },
-              { icon: ShoppingCart, label: 'Pedidos/mês', value: '50K+' },
-              { icon: Package, label: 'Produtos', value: '10K+' },
-              { icon: TrendingUp, label: 'Crescimento', value: '300%' },
-            ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="h-10 w-10 sm:h-12 sm:w-12 bg-gray-900 rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                  <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                </div>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{stat.value}</p>
-                <p className="text-xs sm:text-sm text-gray-600">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="py-20 px-4 sm:px-6 bg-gray-50">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Como funciona</h2>
-            <p className="text-gray-500 text-lg">Três passos para começar a receber pedidos</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                step: '01',
-                title: 'Configure seu sistema de pedidos',
-                desc: 'Cadastre-se, escolha o nome da loja e personalize com sua marca.',
-                icon: Store,
-              },
-              {
-                step: '02',
-                title: 'Cadastre produtos',
-                desc: 'Adicione fotos, preços, variações e organize por categorias.',
-                icon: Package,
-              },
-              {
-                step: '03',
-                title: 'Receba pedidos',
-                desc: 'Seus clientes fazem pedidos e você gerencia tudo pelo painel.',
-                icon: ShoppingCart,
-              },
-            ].map((item) => (
-              <div key={item.step} className="relative">
-                <span className="text-6xl font-bold text-gray-100 absolute -top-4 -left-2">{item.step}</span>
-                <div className="relative bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                  <div className="h-12 w-12 bg-gray-900 rounded-xl flex items-center justify-center mb-4">
-                    <item.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
-                  <p className="text-gray-500">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Screenshot/Preview */}
-      <section className="py-20 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Veja o sistema em ação</h2>
-            <p className="text-gray-500 text-lg">Interface moderna e intuitiva para você e seus clientes</p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Loja Pública */}
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border border-gray-200 flex flex-col">
-              <div className="bg-white rounded-xl shadow-lg p-6 mb-6 flex-1">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="h-8 w-8 bg-pink-500 rounded-lg" />
-                  <div>
-                    <div className="h-2 w-24 bg-gray-200 rounded" />
-                    <div className="h-1.5 w-32 bg-gray-100 rounded mt-1" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="bg-gray-50 rounded-lg p-3">
-                      <div className="aspect-square bg-gray-200 rounded-lg mb-2" />
-                      <div className="h-2 w-full bg-gray-200 rounded mb-1" />
-                      <div className="h-2 w-2/3 bg-gray-100 rounded" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="text-center">
-                <h3 className="font-semibold text-gray-900 mb-1">Página de pedidos</h3>
-                <p className="text-sm text-gray-600 mb-3">Seus clientes escolhem e enviam pedidos</p>
-                <Link
-                  href="/demo"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-gray-900 hover:gap-2 transition-all"
-                >
-                  Ver demo ao vivo <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Painel Admin */}
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border border-gray-200 flex flex-col">
-              <div className="bg-white rounded-xl shadow-lg p-6 mb-6 flex-1">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="h-2 w-20 bg-gray-200 rounded" />
-                  <div className="h-2 w-16 bg-emerald-200 rounded" />
-                </div>
-                <div className="grid grid-cols-3 gap-3 mb-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-gray-50 rounded-lg p-3">
-                      <div className="h-2 w-8 bg-gray-200 rounded mb-2" />
-                      <div className="h-3 w-12 bg-gray-300 rounded" />
-                    </div>
-                  ))}
-                </div>
-                <div className="space-y-2">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center gap-2 bg-gray-50 rounded p-2">
-                      <div className="h-2 w-2 bg-emerald-500 rounded-full" />
-                      <div className="h-2 flex-1 bg-gray-200 rounded" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="text-center">
-                <h3 className="font-semibold text-gray-900 mb-1">Painel Admin</h3>
-                <p className="text-sm text-gray-600 mb-3">Gerencie tudo em um só lugar</p>
-                <Link
-                  href="/demo-admin"
-                  className="inline-flex items-center gap-1 text-sm font-medium text-gray-900 hover:gap-2 transition-all"
-                >
-                  Ver admin demo <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Social Proof com imagens reais */}
-      <section className="py-20 px-4 sm:px-6 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Feito para pequenos produtores</h2>
-            <p className="text-gray-500 text-lg">Confeitarias, docerias, artesãos e empreendedores locais</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop&auto=format',
-              'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=400&h=400&fit=crop&auto=format',
-              'https://images.unsplash.com/photo-1558326567-98ae2405596b?w=400&h=400&fit=crop&auto=format',
-              'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400&h=400&fit=crop&auto=format',
-            ].map((img, i) => (
-              <div key={i} className="aspect-square rounded-2xl overflow-hidden shadow-lg hover:scale-105 transition-transform">
-                <img src={img} alt="" className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <p className="text-gray-600 mb-6">
-              Centenas de pequenos negócios já estão vendendo online com o Fosfo Pedidos
+          <div style={{ textAlign:"center" }}>
+            <p style={{ fontSize:15, color:"#6B7280", marginBottom:24, lineHeight:1.65 }}>
+              Centenas de pequenos negócios já estão vendendo online com o{" "}
+              <strong style={{ color:"#111827", fontWeight:700 }}>Fosfo Pedidos</strong>
             </p>
-            <Link
-              href="/register"
-              className="inline-flex items-center gap-2 bg-gray-900 text-white font-medium px-6 py-3 rounded-xl hover:bg-gray-800 transition-all"
-            >
-              Começar agora <ArrowRight className="h-4 w-4" />
-            </Link>
+            <a href="/register" className="btn-green">
+              Começar agora
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-20 px-4 sm:px-6 bg-gray-50">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Tudo que você precisa</h2>
-            <p className="text-gray-500 text-lg">Funcionalidades pensadas para facilitar sua vida</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: Store, title: 'Loja personalizada', desc: 'Logo, cores e banner com a identidade da sua marca' },
-              { icon: Package, title: 'Produtos com variações', desc: 'Tamanhos, sabores, cores — cada um com seu preço' },
-              { icon: ShoppingCart, title: 'Carrinho inteligente', desc: 'Seus clientes montam o pedido com facilidade' },
-              { icon: MessageCircle, title: 'Pedido por WhatsApp', desc: 'Receba os pedidos direto no seu WhatsApp' },
-              { icon: BarChart3, title: 'Painel completo', desc: 'Gerencie produtos, pedidos e métricas em um só lugar' },
-              { icon: Smartphone, title: '100% responsivo', desc: 'Funciona perfeitamente no celular e computador' },
-            ].map((f) => (
-              <div key={f.title} className="p-6 rounded-2xl bg-white border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all">
-                <div className="h-10 w-10 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
-                  <f.icon className="h-5 w-5 text-gray-700" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">{f.title}</h3>
-                <p className="text-sm text-gray-500">{f.desc}</p>
+      {/* DEMO */}
+      <section className="section">
+        <div className="container">
+          <div className="demo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:56, alignItems:"center" }}>
+            <div>
+              <div className="section-label">Veja ao vivo</div>
+              <h2 style={{ fontSize:"clamp(24px,2.8vw,32px)", fontWeight:800, color:"#111827",
+                letterSpacing:"-.03em", lineHeight:1.15, marginBottom:14 }}>Explore sem<br />criar conta.</h2>
+              <p style={{ fontSize:15, color:"#6B7280", lineHeight:1.65, marginBottom:28 }}>
+                A loja demo tem produtos reais, carrinho funcional e checkout completo. O painel admin está aberto para explorar como funciona a gestão de pedidos.
+              </p>
+              <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+                <a href="/demo" className="btn-green">Ver loja demo</a>
+                <a href="/demo-admin" className="btn-outline">Explorar painel admin</a>
               </div>
-            ))}
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+              {[
+                { label:"Loja pública",  desc:"Catálogo com variações e carrinho",        href:"/demo" },
+                { label:"Painel admin",  desc:"Gestão de pedidos, produtos e métricas",   href:"/demo-admin" },
+              ].map(item => (
+                <a key={item.label} href={item.href} style={{
+                  display:"flex", alignItems:"center", justifyContent:"space-between",
+                  padding:"20px 24px", background:"#FAFAF9",
+                  border:"1px solid #E5E7EB", borderRadius:14,
+                  textDecoration:"none", transition:"border-color .2s, box-shadow .2s, background .2s",
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor="#86EFAC"; e.currentTarget.style.background="#fff"; e.currentTarget.style.boxShadow="0 4px 20px rgba(22,163,74,.07)"; e.currentTarget.querySelector('.arr').style.borderColor="#16A34A"; e.currentTarget.querySelector('.arr svg').setAttribute('stroke','#16A34A'); }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor="#E5E7EB"; e.currentTarget.style.background="#FAFAF9"; e.currentTarget.style.boxShadow="none"; e.currentTarget.querySelector('.arr').style.borderColor="#D1D5DB"; e.currentTarget.querySelector('.arr svg').setAttribute('stroke','#9CA3AF'); }}>
+                  <div>
+                    <div style={{ fontSize:14, fontWeight:700, color:"#111827", marginBottom:3 }}>{item.label}</div>
+                    <div style={{ fontSize:13, color:"#9CA3AF" }}>{item.desc}</div>
+                  </div>
+                  <div className="arr" style={{ width:34, height:34, borderRadius:"50%",
+                    border:"1.5px solid #D1D5DB", display:"flex", alignItems:"center",
+                    justifyContent:"center", flexShrink:0, transition:"border-color .2s" }}>
+                    <svg width="14" height="14" fill="none" stroke="#9CA3AF" strokeWidth="2"
+                      strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" style={{ transition:"stroke .2s" }}>
+                      <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="py-20 px-4 sm:px-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Perguntas frequentes</h2>
-            <p className="text-gray-500 text-lg">Tudo que você precisa saber</p>
-          </div>
-          <div className="space-y-4">
-            {[
-              {
-                q: 'Preciso pagar para começar?',
-                a: 'Não! Você pode começar sem custo e testar o sistema na prática. Durante esse período, é possível criar sua página, adicionar produtos e receber pedidos normalmente.'
-              },
-              {
-                q: 'Quanto tempo leva para criar minha loja?',
-                a: 'Menos de 2 minutos! Basta fazer o cadastro, escolher o nome da sua loja e você já pode começar a adicionar produtos. É rápido e simples.'
-              },
-              {
-                q: 'Como meus clientes fazem pedidos?',
-                a: 'Seus clientes acessam sua loja pelo link único, navegam pelos produtos, adicionam ao carrinho e finalizam o pedido. Você recebe a notificação no painel e pode enviar para o WhatsApp automaticamente.'
-              },
-              {
-                q: 'Posso personalizar a aparência da loja?',
-                a: 'Sim! Você pode adicionar seu logo, escolher as cores da marca, criar banners personalizados e organizar produtos por categorias. Tudo para deixar a loja com a cara do seu negócio.'
-              },
-              {
-                q: 'Funciona no celular?',
-                a: 'Perfeitamente! Tanto a loja pública quanto o painel administrativo são 100% responsivos e funcionam muito bem em smartphones e tablets.'
-              },
-              {
-                q: 'Posso ter produtos com variações?',
-                a: 'Sim! Você pode criar variações como tamanhos, sabores, cores, etc. Cada variação pode ter seu próprio preço. Perfeito para lojas de alimentos, roupas e muito mais.'
-              },
-              {
-                q: 'Tem limite de produtos ou pedidos?',
-                a: 'Não! Você pode adicionar quantos produtos quiser e receber quantos pedidos seus clientes fizerem. Sem limites artificiais.'
-              },
-              {
-                q: 'Como funciona a integração com WhatsApp?',
-                a: 'Quando um cliente faz um pedido, você pode enviar os detalhes direto para o seu WhatsApp com um clique. A mensagem já vem formatada com todos os dados do pedido.'
-              }
-            ].map((faq, i) => (
-              <details key={i} className="group bg-white border border-gray-200 rounded-xl p-6 hover:border-gray-300 transition-colors">
-                <summary className="flex items-center justify-between cursor-pointer list-none">
-                  <h3 className="font-semibold text-gray-900 pr-4">{faq.q}</h3>
-                  <ChevronDown className="h-5 w-5 text-gray-400 group-open:rotate-180 transition-transform shrink-0" />
-                </summary>
-                <p className="text-gray-600 mt-4 leading-relaxed">{faq.a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 px-4 sm:px-6">
-        <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-12 sm:p-16 shadow-2xl">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Comece a organizar seus pedidos hoje
-          </h2>
-          <p className="text-gray-300 text-lg mb-8 max-w-xl mx-auto">
-            Junte-se a centenas de empreendedores que já estão usando o Fosfo Pedidos para crescer seus negócios.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-            <Link
-              href="/register"
-              className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 font-medium px-8 py-3.5 rounded-xl hover:bg-gray-100 transition-all text-base shadow-lg"
-            >
-              Começar agora
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/demo"
-              className="inline-flex items-center justify-center gap-2 border-2 border-white/20 text-white font-medium px-8 py-3.5 rounded-xl hover:bg-white/10 transition-all text-base"
-            >
-              Ver demonstração
-            </Link>
-          </div>
-          <p className="text-sm text-gray-400">
-            Sem burocracia • Configuração em minutos • Suporte incluído
-          </p>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-8 px-4 sm:px-6 border-t border-gray-100">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 bg-gray-900 rounded flex items-center justify-center">
-              <Store className="h-3 w-3 text-white" />
+      <section className="section" id="faq"
+        style={{ background:"#FAFAF9", borderTop:"1px solid #F3F4F6" }}>
+        <div className="container">
+          <div className="faq-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1.6fr", gap:80, alignItems:"start" }}>
+            <div style={{ position:"sticky", top:80 }}>
+              <div className="section-label">Dúvidas frequentes</div>
+              <h2 style={{ fontSize:"clamp(22px,2.5vw,28px)", fontWeight:800, color:"#111827",
+                letterSpacing:"-.03em", lineHeight:1.2, marginBottom:14 }}>
+                Tudo que você precisa saber antes de começar.
+              </h2>
+              <p style={{ fontSize:13.5, color:"#9CA3AF", lineHeight:1.65 }}>
+                Ainda tem dúvidas? Fale com a gente pelo WhatsApp.
+              </p>
             </div>
-            <span className="text-sm text-gray-500">
-              © 2026 Fosfo Pedidos. Todos os direitos reservados.
-            </span>
+            <div>
+              {FAQ.map(item => <FaqItem key={item.q} q={item.q} a={item.a} />)}
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/demo" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
-              Demo
-            </Link>
-            <Link href="/login" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
-              Login
-            </Link>
-            <a
-              href="https://fosfo.com.br"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-            >
-              Powered by Fosfo
-            </a>
+        </div>
+      </section>
+
+      {/* CTA FINAL */}
+      <section className="section" style={{ borderTop:"1px solid #F3F4F6" }}>
+        <div className="container" style={{ textAlign:"center" }}>
+          <div style={{ maxWidth:480, margin:"0 auto" }}>
+            <h2 style={{ fontSize:"clamp(28px,3.5vw,40px)", fontWeight:800, color:"#111827",
+              letterSpacing:"-.03em", lineHeight:1.1, marginBottom:14 }}>
+              Comece a organizar seus pedidos hoje.
+            </h2>
+            <p style={{ fontSize:16, color:"#6B7280", lineHeight:1.65, marginBottom:32 }}>
+              Junte-se a centenas de empreendedores que já usam o Fosfo para crescer seus negócios.
+            </p>
+            <div style={{ display:"flex", justifyContent:"center", gap:10, flexWrap:"wrap", marginBottom:20 }}>
+              <a href="/register" className="btn-green" style={{ fontSize:15, padding:"13px 28px" }}>Criar minha loja grátis</a>
+              <a href="/demo" className="btn-outline" style={{ fontSize:15, padding:"13px 28px" }}>Ver demonstração</a>
+            </div>
+            <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", gap:20 }}>
+              {["Sem burocracia","Configuração em minutos","Suporte incluído"].map(t => (
+                <span key={t} style={{ fontSize:12.5, color:"#9CA3AF", display:"flex", alignItems:"center", gap:5 }}>
+                  <span style={{ color:"#16A34A" }}>·</span>{t}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ borderTop:"1px solid #F3F4F6", padding:"24px", background:"#fff" }}>
+        <div className="container" style={{ display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:9 }}>
+            <div style={{ width:28, height:28, borderRadius:8, background:"#111827",
+              display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <span style={{ fontSize:14, fontWeight:700, color:"#374151", letterSpacing:"-.03em" }}>Sistema de Pedidos Fosfo</span>
+            <span style={{ fontSize:13, color:"#D1D5DB", margin:"0 4px" }}>·</span>
+            <span style={{ fontSize:13, color:"#9CA3AF" }}>© 2026</span>
+          </div>
+          <div style={{ display:"flex", gap:20 }}>
+            {[["Demo","/demo"],["Login","/login"],["Cadastrar","/register"]].map(([l,h]) => (
+              <a key={l} href={h} style={{ fontSize:13, color:"#9CA3AF", textDecoration:"none" }}>{l}</a>
+            ))}
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }
