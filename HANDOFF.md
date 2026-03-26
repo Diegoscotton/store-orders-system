@@ -1,5 +1,5 @@
 # HANDOFF — Sistema de Pedidos Fosfo
-> Última atualização: 26/03/2026 — Sessão 5
+> Última atualização: 26/03/2026 — Sessão 6
 
 ## Como usar este arquivo
 Cole este documento no início de um novo chat (Claude ou Windsurf) para retomar o desenvolvimento.
@@ -55,7 +55,7 @@ Envie junto o `PROJECT_CONTEXT.md` e cole apenas os arquivos relevantes à taref
 ### ⏳ Fase 5 — Demo + LP (PRÓXIMA)
 - [ ] Loja Demo funcional com produtos realistas
 - [ ] Admin Demo com acesso aberto (sem senha)
-- [ ] Refinar Landing Page
+- [x] Revisão completa do copy da Landing Page
 
 ### ⬜ Fase 6 — Polish
 - [ ] Responsividade mobile (admin + loja + LP)
@@ -66,6 +66,32 @@ Envie junto o `PROJECT_CONTEXT.md` e cole apenas os arquivos relevantes à taref
 ---
 
 ## Histórico de Desenvolvimento
+
+### Sessão 6 (26/03/2026) — Revisão de Copy e Estratégia de Marketing
+**Funcionalidades implementadas:**
+- [x] Copy completo da Landing Page revisado
+- [x] Substituição global de "loja" por "catálogo" em todo o copy da LP
+- [x] Seção nova "O problema" adicionada (dor do WhatsApp)
+- [x] Métricas falsas ocultadas (className="hidden") — não deletadas
+- [x] FAQ atualizado com 3 novas perguntas:
+  - "Por que não usar só o WhatsApp?"
+  - "Quanto custa depois do período grátis?"
+  - "Preciso de site, domínio ou técnico?"
+- [x] CTA final revisado com ancoragem de trial (30 dias grátis, sem cartão)
+- [x] Hero revisado: novo headline, subtítulo e benefícios nos botões
+- [x] Auditoria de links e navegação da LP
+
+**Decisões tomadas:**
+- Termo "loja" substituído por "catálogo" — evita remeter a e-commerce completo
+- Métricas ocultadas em vez de deletadas — podem ser reativadas futuramente
+- Preço (R$49,90) não mencionado explicitamente na LP — estratégia de trial primeiro
+- Tom definido: próximo e acolhedor, quase pessoal
+- Público primário: confeitarias, açaiterias, artesãos, marmitex
+
+**Próximos passos definidos:**
+- Script de captação (3 versões: confeitaria, açaiteria, artesão)
+- Estratégia de captação local (lista de 20 negócios, Instagram, anúncios)
+- Reavaliação visual da LP após cache limpar
 
 ### Sessão 5 (26/03/2026) — Preparação para Demo
 **Funcionalidades implementadas:**

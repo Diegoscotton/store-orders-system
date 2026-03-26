@@ -8,6 +8,12 @@
 - **Referência visual:** origemchocolataria.com.br (funcionalidade), mas com design premium e moderno
 - **Público:** Pequenas lojas, restaurantes, confeitarias, açaiterias — negócios simples que precisam de um catálogo online funcional
 
+**Linguagem e posicionamento:**
+- Usar "catálogo online" no lugar de "loja" — evita remeter a e-commerce
+- Tom: próximo, acolhedor, quase pessoal — nunca corporativo
+- Proposta central: organizar pedidos que chegam pelo WhatsApp, não substituí-lo
+- Trial: 14 dias grátis, sem cartão. Preço pós-trial: R$49,90/mês (não exposto na LP inicialmente)
+
 ---
 
 ## Stack Tecnológica
@@ -465,3 +471,28 @@ NEXT_PUBLIC_APP_URL=https://seusistema.com
 - **Placeholder de produto** — imagem padrão bonita quando o dono não envia foto
 - **Confirmação de pedido** — modal amigável (não alert()), com número do pedido
 - **Banners** — carrossel com múltiplos banners na loja pública
+
+---
+
+## Estratégia de Marketing
+
+### Posicionamento
+O Fosfo não é um e-commerce. É um sistema de pedidos com cara de catálogo online.
+A dor central do público é: receber pedido pelo WhatsApp virou bagunça.
+O Fosfo organiza o que chega no WhatsApp — sem fazer o cliente largar o que já usa.
+
+### Público primário (fase inicial)
+- Confeitarias e docerias
+- Açaiterias e lanchonetes
+- Artesãos e produtores caseiros
+- Restaurantes e marmitex
+
+### Captação inicial
+- Abordagem direta via WhatsApp (scripts por nicho)
+- Foco local: Bento Gonçalves e região
+- Demo sem cadastro como principal ferramenta de conversão
+
+### Trial
+- 14 dias grátis, sem cartão
+- Preço pós-trial: R$49,90/mês
+- Preço não exibido na LP — usuário decide após testar
