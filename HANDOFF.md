@@ -9,12 +9,66 @@ Envie junto o `PROJECT_CONTEXT.md` e cole apenas os arquivos relevantes à taref
 
 ## Status do Projeto
 
-### ✅ Fase 1 — Base
-### ✅ Fase 2 — Admin da Loja
-### ✅ Fase 3 — Storefront
-### ✅ Fase 4 — Master Admin (COMPLETO)
+### ✅ Fase 1 — Base (COMPLETA)
+- [x] Autenticação com Supabase (email/password)
+- [x] Sistema multi-tenant (profiles, stores, store_users)
+- [x] Design system completo (Button, Input, Card, Badge, Modal, Toast, Skeleton)
+- [x] Hooks customizados (useAuth, useCart)
+- [x] Utilitários (formatCurrency, formatPhone, formatDate, getTrialDaysLeft)
+- [x] Estrutura de rotas Next.js App Router
+- [x] TypeScript strict em todo o projeto
 
-**Itens concluídos nesta sessão (26/03 - Sessão 4):**
+### ✅ Fase 2 — Admin da Loja (COMPLETA)
+- [x] Dashboard com métricas (vendas, pedidos, produtos)
+- [x] CRUD completo de produtos com variações
+- [x] CRUD de categorias
+- [x] Gestão de pedidos (status, impressão)
+- [x] Personalização da loja (logo, cor primária, banner)
+- [x] Upload de imagens (Supabase Storage)
+- [x] Drag & drop para ordenar produtos e categorias
+- [x] Sistema de banners promocionais
+
+### ✅ Fase 3 — Storefront (COMPLETA)
+- [x] Página pública da loja (`/[slug]`)
+- [x] Catálogo de produtos com filtros por categoria
+- [x] Carrinho de compras (localStorage)
+- [x] Checkout via WhatsApp
+- [x] Página de loja inativa (design premium)
+- [x] Responsivo mobile
+- [x] Suporte a variações de produto
+- [x] Banners promocionais na vitrine
+
+### ✅ Fase 4 — Master Admin (COMPLETA)
+- [x] Painel master (`/master`)
+- [x] Gestão de lojas (listar, ativar/desativar, trial, free)
+- [x] Gestão de usuários (listar, excluir)
+- [x] Busca em tempo real (lojas e usuários)
+- [x] Exclusão de lojas com modal de confirmação
+- [x] Exclusão de usuários com modal de confirmação
+- [x] Badges visuais de trial (Free, Expirado, Expirando, Ativo)
+- [x] Ícones ghost para ações (Gift, Clock, Trash2)
+- [x] Links clicáveis (email, WhatsApp)
+- [x] Configurações da plataforma (trial padrão)
+- [x] Funções RPC no Supabase
+- [x] Banners de trial no dashboard admin
+
+### ⏳ Fase 5 — Demo + LP (PRÓXIMA)
+- [ ] Loja Demo funcional com produtos realistas
+- [ ] Admin Demo com acesso aberto (sem senha)
+- [ ] Refinar Landing Page
+
+### ⬜ Fase 6 — Polish
+- [ ] Responsividade mobile (admin + loja + LP)
+- [ ] Refinamento UI loja pública
+- [ ] Refinamento UI admin
+- [ ] Deploy Vercel
+
+---
+
+## Histórico de Desenvolvimento
+
+### Sessão 4 (26/03/2026) — Master Admin: Busca e Exclusão
+**Funcionalidades implementadas:**
 - [x] `/master/stores` — funcionalidade de exclusão de lojas com modal de confirmação
 - [x] `/master/users` — funcionalidade de exclusão de usuários com modal de confirmação
 - [x] `/master/stores` — botões Free/Trial substituídos por ícones ghost (Gift, Clock, Trash2)
@@ -25,9 +79,14 @@ Envie junto o `PROJECT_CONTEXT.md` e cole apenas os arquivos relevantes à taref
 - [x] `masterService.ts` — `getMasterUsers()` refatorado para usar `owner_id` ao invés de `store_users`
 - [x] `types/index.ts` — campo `email` adicionado ao tipo `Profile`
 - [x] Logs de debug adicionados para troubleshooting
-- [x] Git commit: `feat: adicionar busca em tempo real e exclusão de lojas/usuários no painel master`
+- [x] Documentação atualizada (HANDOFF.md, README.md)
 
-**Sessão anterior (26/03 - Sessão 3):**
+**Commits:**
+- `feat: adicionar busca em tempo real e exclusão de lojas/usuários no painel master`
+- `docs: atualizar HANDOFF.md e README.md com funcionalidades da sessão 4`
+
+### Sessão 3 (26/03/2026) — Master Admin: Trial e Badges
+**Funcionalidades implementadas:**
 - [x] Campo `is_free` na tabela `stores` (Supabase + tipos)
 - [x] Funções RPC `master_toggle_store` e `master_set_store_free` no Supabase
 - [x] `/master/stores` — badges visuais de trial (Free / Expirado / Expirando / Ativo)
@@ -36,19 +95,18 @@ Envie junto o `PROJECT_CONTEXT.md` e cole apenas os arquivos relevantes à taref
 - [x] `/master/stores` — toggle atualiza state local sem reload do banco
 - [x] `/master/settings` — salvando com toast de feedback
 - [x] `/admin` (dashboard) — banner amarelo quando trial expira em ≤10 dias
-- [x] `/admin` (dashboard) — banner laranja quando trial já expirou
+- [x] `/admin` (dashboard) — banner laranja quando trial já expirado
 - [x] `/[slug]` — página de loja inativa com design premium (não mostra vitrine)
 
-### ⏳ Fase 5 — Demo + LP
-- [ ] Loja Demo funcional com produtos realistas
-- [ ] Admin Demo com acesso aberto (sem senha)
-- [ ] Refinar Landing Page
+**Commits:**
+- `feat: master admin — badges trial, banners admin, loja inativa`
 
-### ⬜ Fase 6 — Polish
-- [ ] Responsividade mobile (admin + loja + LP)
-- [ ] Refinamento UI loja pública
-- [ ] Refinamento UI admin
-- [ ] Deploy Vercel
+### Sessões anteriores (Fases 1-3)
+- Implementação completa da base do sistema
+- Painel admin da loja com todas as funcionalidades
+- Storefront público com carrinho e checkout
+- Sistema de autenticação e multi-tenancy
+- Design system completo
 
 ---
 
@@ -148,11 +206,87 @@ profiles, stores, store_users, categories, products, product_images, product_var
 ---
 
 ## Problemas já resolvidos
-- Trigger handle_new_user() com `SET search_path = public` e `SECURITY DEFINER`
-- Policies com recursão infinita: fix-nuclear.sql aplicado
-- confirm() substituído por Modal de confirmação
-- setState com função: resolvido usando objeto wrapper `{ fn: ... }`
-- Toggle de loja atualiza state local diretamente (sem reload do banco)
+
+### Supabase & Database
+- **Trigger handle_new_user():** Adicionado `SET search_path = public` e `SECURITY DEFINER` para criar profile automaticamente
+- **Policies com recursão infinita:** fix-nuclear.sql aplicado para corrigir RLS
+- **Cache de queries:** Adicionado timestamp e filtros para forçar refresh de dados
+- **Cascade deletes:** Implementado exclusão em cascata para lojas e usuários
+
+### React & State Management
+- **confirm() nativo:** Substituído por componentes Modal com confirmação
+- **setState com função:** Resolvido usando objeto wrapper `{ fn: ... }` para evitar stale closures
+- **Toggle de loja:** Atualiza state local diretamente (sem reload do banco)
+- **Filtros de busca:** Implementado busca em tempo real sem debounce
+
+### TypeScript
+- **Tipos do Supabase:** Sincronizados com schema do banco (is_free, email, etc)
+- **Type safety:** Strict mode habilitado em todo o projeto
+- **Type casting:** Uso de `(user as any).email` onde necessário para campos dinâmicos
+
+### Performance
+- **Queries otimizadas:** Select apenas campos necessários ao invés de `*`
+- **owner_id vs store_users:** Refatorado para usar relação direta via owner_id
+- **State updates:** Atualizações locais antes de recarregar do servidor
+
+---
+
+## Funcionalidades Completas por Módulo
+
+### 🔐 Autenticação
+- ✅ Login com email/password
+- ✅ Registro de usuário + criação automática de loja
+- ✅ Proteção de rotas por role (admin, master)
+- ✅ Logout
+- ✅ Confirm email DESATIVADO (acesso imediato)
+
+### 👨‍💼 Painel Admin (`/admin`)
+- ✅ Dashboard com métricas (vendas, pedidos, produtos)
+- ✅ Gráfico de vendas dos últimos 7 dias
+- ✅ Produtos mais vendidos
+- ✅ Pedidos recentes
+- ✅ Banners de aviso de trial (amarelo ≤10 dias, laranja expirado)
+- ✅ CRUD completo de produtos (nome, preço, descrição, imagens, variações)
+- ✅ Upload de imagens para produtos (Supabase Storage)
+- ✅ Drag & drop para ordenar produtos
+- ✅ CRUD de categorias
+- ✅ Drag & drop para ordenar categorias
+- ✅ Gestão de pedidos (listar, filtrar, atualizar status)
+- ✅ Impressão de pedidos (múltiplos em A4)
+- ✅ Personalização da loja (logo, cor primária, banner)
+- ✅ Sistema de banners promocionais
+
+### 🏪 Loja Pública (`/[slug]`)
+- ✅ Catálogo de produtos com imagens
+- ✅ Filtros por categoria
+- ✅ Suporte a variações de produto (tamanho, sabor, etc)
+- ✅ Carrinho de compras (localStorage)
+- ✅ Checkout via WhatsApp
+- ✅ Banners promocionais
+- ✅ Página de loja inativa (design premium)
+- ✅ Responsivo mobile
+
+### 👑 Painel Master (`/master`)
+- ✅ Gestão de lojas (listar, ativar/desativar, trial, free, excluir)
+- ✅ Gestão de usuários (listar, excluir)
+- ✅ Busca em tempo real (lojas: nome, slug, dono | usuários: nome, email, loja)
+- ✅ Badges visuais de trial (Free, Expirado, Expirando em X dias, Ativo)
+- ✅ Modal de confirmação para exclusão (digitar nome para confirmar)
+- ✅ Links clicáveis (email → mailto:, telefone → WhatsApp)
+- ✅ Ícones ghost para ações (Gift, Clock, Trash2)
+- ✅ Configurações da plataforma (trial padrão)
+- ✅ Modal de detalhes da loja
+- ✅ Estender trial de lojas específicas
+
+### 🛠️ Infraestrutura
+- ✅ Multi-tenancy completo (isolamento por store_id)
+- ✅ Row Level Security (RLS) no Supabase
+- ✅ Storage público para assets
+- ✅ Funções RPC para operações master
+- ✅ Cascade deletes (loja → produtos, pedidos | usuário → loja)
+- ✅ Design system completo e consistente
+- ✅ TypeScript strict em todo o projeto
+- ✅ Error handling com toast feedback
 
 ---
 
