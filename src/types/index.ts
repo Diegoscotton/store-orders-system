@@ -29,6 +29,7 @@ export type Store = {
   whatsapp_enabled: boolean
   delivery_enabled: boolean
   is_active: boolean
+  is_demo: boolean
   trial_ends_at: string | null
   is_free: boolean
   created_at: string
