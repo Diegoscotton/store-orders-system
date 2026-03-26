@@ -1,5 +1,5 @@
 # HANDOFF — Sistema de Pedidos Fosfo
-> Última atualização: 26/03/2026 — Sessão 4
+> Última atualização: 26/03/2026 — Sessão 5
 
 ## Como usar este arquivo
 Cole este documento no início de um novo chat (Claude ou Windsurf) para retomar o desenvolvimento.
@@ -66,6 +66,24 @@ Envie junto o `PROJECT_CONTEXT.md` e cole apenas os arquivos relevantes à taref
 ---
 
 ## Histórico de Desenvolvimento
+
+### Sessão 5 (26/03/2026) — Preparação para Demo
+**Funcionalidades implementadas:**
+- [x] `types/index.ts` — campo `is_demo: boolean` adicionado ao tipo `Store`
+- [x] API Route `/api/platform-settings` — endpoint para buscar configurações da plataforma
+- [x] Correção de estrutura de arquivos (nomes e locais corretos conforme Next.js App Router)
+- [x] Reorganização de arquivos duplicados (slug-page, landing-page, master-stores-page)
+- [x] Documentação expandida no HANDOFF.md (histórico completo, funcionalidades por módulo)
+
+**Commits:**
+- `fix: corrigir nomes e locais dos arquivos`
+- `fix: api route platform-settings`
+- `docs: expandir HANDOFF.md com histórico completo, funcionalidades por módulo e problemas resolvidos`
+
+**Decisões técnicas:**
+- Campo `is_demo` permitirá identificar e tratar a loja demo de forma especial
+- API route de platform-settings facilita acesso às configurações sem duplicar lógica
+- Estrutura de arquivos agora segue convenções do Next.js (route.ts, page.tsx)
 
 ### Sessão 4 (26/03/2026) — Master Admin: Busca e Exclusão
 **Funcionalidades implementadas:**
@@ -140,6 +158,7 @@ profiles, stores, store_users, categories, products, product_images, product_var
 ### Campos relevantes em `stores`
 - `is_active` — liga/desliga a loja (master controla)
 - `is_free` — isenta a loja de trial
+- `is_demo` — identifica loja demo (acesso público ao admin)
 - `trial_ends_at` — data de expiração do trial
 - `primary_color`, `logo_url`, `slug` — personalização
 
@@ -175,18 +194,20 @@ profiles, stores, store_users, categories, products, product_images, product_var
 
 - `PROJECT_CONTEXT.md` — Especificação completa do produto
 - `HANDOFF.md` — Este arquivo
-- `src/types/index.ts` — Todos os tipos TypeScript (inclui `is_free` e `email` no Profile)
+- `src/types/index.ts` — Todos os tipos TypeScript (inclui `is_free`, `is_demo` no Store e `email` no Profile)
 - `src/hooks/useAuth.ts` — Hook de autenticação
 - `src/hooks/useCart.ts` — Hook do carrinho
 - `src/lib/utils.ts` — Utilitários (formatCurrency, getTrialDaysLeft, etc)
 - `src/components/ui/index.ts` — Barrel export do design system
 - `src/services/masterService.ts` — toggleStoreActive, setStoreFree, extendStoreTrial, getMasterStores, getMasterUsers, deleteStore, deleteUser
 - `src/services/dashboardService.ts` — getDashboardMetrics
+- `src/app/api/platform-settings/route.ts` — API route para buscar configurações da plataforma
 - `src/app/master/stores/page.tsx` — Gestão de lojas com badges, modais, busca em tempo real e exclusão
 - `src/app/master/users/page.tsx` — Gestão de usuários com busca em tempo real e exclusão
 - `src/app/master/settings/page.tsx` — Configurações da plataforma
 - `src/app/admin/page.tsx` — Dashboard admin com banners de trial
 - `src/app/[slug]/page.tsx` — Loja pública + página de loja inativa
+- `src/app/page.tsx` — Landing Page
 
 ---
 
@@ -199,9 +220,10 @@ profiles, stores, store_users, categories, products, product_images, product_var
 5. **Loja inativa:** Página premium com design escuro, mensagem amigável e CTA para o Fosfo.
 6. **Banners de trial no admin:** Amarelo (≤10 dias), Laranja (expirado). Não bloqueia o painel.
 7. **Personalização da loja:** Apenas logo + cor primária + banner.
-8. **Demo:** Loja demo genérica + admin demo sem senha.
+8. **Demo:** Loja demo genérica + admin demo sem senha. Campo `is_demo` identifica a loja.
 9. **Impressão de pedidos:** Folha A4 com múltiplos pedidos.
 10. **URL das lojas:** seusite.com/slug-da-loja
+11. **Estrutura de arquivos:** Seguir convenções Next.js App Router (route.ts para API, page.tsx para páginas)
 
 ---
 
