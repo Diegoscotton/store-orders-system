@@ -1,5 +1,5 @@
 # HANDOFF — Sistema de Pedidos Fosfo
-> Última atualização: 26/03/2026 — Sessão 3
+> Última atualização: 26/03/2026 — Sessão 4
 
 ## Como usar este arquivo
 Cole este documento no início de um novo chat (Claude ou Windsurf) para retomar o desenvolvimento.
@@ -12,9 +12,22 @@ Envie junto o `PROJECT_CONTEXT.md` e cole apenas os arquivos relevantes à taref
 ### ✅ Fase 1 — Base
 ### ✅ Fase 2 — Admin da Loja
 ### ✅ Fase 3 — Storefront
-### ✅ Fase 4 — Master Admin (incluindo sessão de hoje)
+### ✅ Fase 4 — Master Admin (COMPLETO)
 
-**Itens concluídos nesta sessão (26/03):**
+**Itens concluídos nesta sessão (26/03 - Sessão 4):**
+- [x] `/master/stores` — funcionalidade de exclusão de lojas com modal de confirmação
+- [x] `/master/users` — funcionalidade de exclusão de usuários com modal de confirmação
+- [x] `/master/stores` — botões Free/Trial substituídos por ícones ghost (Gift, Clock, Trash2)
+- [x] `/master/stores` — campo de busca em tempo real (nome, slug, dono)
+- [x] `/master/users` — campo de busca em tempo real (nome, email, loja)
+- [x] `/master/stores` — email e telefone do dono clicáveis (mailto: e WhatsApp)
+- [x] `masterService.ts` — funções `deleteStore()` e `deleteUser()` com cascade
+- [x] `masterService.ts` — `getMasterUsers()` refatorado para usar `owner_id` ao invés de `store_users`
+- [x] `types/index.ts` — campo `email` adicionado ao tipo `Profile`
+- [x] Logs de debug adicionados para troubleshooting
+- [x] Git commit: `feat: adicionar busca em tempo real e exclusão de lojas/usuários no painel master`
+
+**Sessão anterior (26/03 - Sessão 3):**
 - [x] Campo `is_free` na tabela `stores` (Supabase + tipos)
 - [x] Funções RPC `master_toggle_store` e `master_set_store_free` no Supabase
 - [x] `/master/stores` — badges visuais de trial (Free / Expirado / Expirando / Ativo)
@@ -25,7 +38,6 @@ Envie junto o `PROJECT_CONTEXT.md` e cole apenas os arquivos relevantes à taref
 - [x] `/admin` (dashboard) — banner amarelo quando trial expira em ≤10 dias
 - [x] `/admin` (dashboard) — banner laranja quando trial já expirou
 - [x] `/[slug]` — página de loja inativa com design premium (não mostra vitrine)
-- [x] Git commit: `feat: master admin — badges trial, banners admin, loja inativa`
 
 ### ⏳ Fase 5 — Demo + LP
 - [ ] Loja Demo funcional com produtos realistas
@@ -77,6 +89,10 @@ profiles, stores, store_users, categories, products, product_images, product_var
 - `master_toggle_store(store_id, is_active)` — ativa/desativa loja
 - `master_set_store_free(store_id, is_free)` — marca/desmarca como free
 
+### Funções de exclusão (masterService.ts)
+- `deleteStore(storeId)` — exclui loja permanentemente (cascade: produtos, pedidos, etc)
+- `deleteUser(userId)` — exclui usuário permanentemente (cascade: loja vinculada)
+
 ---
 
 ## Credenciais de Teste
@@ -101,14 +117,15 @@ profiles, stores, store_users, categories, products, product_images, product_var
 
 - `PROJECT_CONTEXT.md` — Especificação completa do produto
 - `HANDOFF.md` — Este arquivo
-- `src/types/index.ts` — Todos os tipos TypeScript (inclui `is_free`)
+- `src/types/index.ts` — Todos os tipos TypeScript (inclui `is_free` e `email` no Profile)
 - `src/hooks/useAuth.ts` — Hook de autenticação
 - `src/hooks/useCart.ts` — Hook do carrinho
 - `src/lib/utils.ts` — Utilitários (formatCurrency, getTrialDaysLeft, etc)
 - `src/components/ui/index.ts` — Barrel export do design system
-- `src/services/masterService.ts` — toggleStoreActive, setStoreFree, extendStoreTrial, getMasterStores
+- `src/services/masterService.ts` — toggleStoreActive, setStoreFree, extendStoreTrial, getMasterStores, getMasterUsers, deleteStore, deleteUser
 - `src/services/dashboardService.ts` — getDashboardMetrics
-- `src/app/master/stores/page.tsx` — Gestão de lojas com badges e modais
+- `src/app/master/stores/page.tsx` — Gestão de lojas com badges, modais, busca em tempo real e exclusão
+- `src/app/master/users/page.tsx` — Gestão de usuários com busca em tempo real e exclusão
 - `src/app/master/settings/page.tsx` — Configurações da plataforma
 - `src/app/admin/page.tsx` — Dashboard admin com banners de trial
 - `src/app/[slug]/page.tsx` — Loja pública + página de loja inativa

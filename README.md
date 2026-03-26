@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Pedidos Fosfo
 
-## Getting Started
+Sistema SaaS multi-tenant para gerenciamento de lojas online com catálogo de produtos, carrinho de compras e gestão de pedidos via WhatsApp.
 
-First, run the development server:
+## 📚 Documentação
 
+- **[HANDOFF.md](./HANDOFF.md)** — Status do projeto, credenciais, decisões técnicas (LEIA PRIMEIRO)
+- **[PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md)** — Especificação completa do produto
+- **[PLANO_TAREFAS.md](./PLANO_TAREFAS.md)** — Roadmap e tarefas pendentes
+- **[SETUP_DEMO.md](./SETUP_DEMO.md)** — Como configurar a loja demo
+- **[DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)** — Guia de deploy no Vercel
+
+## 🚀 Como rodar localmente
+
+**Terminal nativo do Mac** (não o Windsurf):
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd ~/store-orders-system && npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Se der erro de porta em uso:
+```bash
+lsof -ti:3000,3001,3002,3003 | xargs kill -9 ; npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Acesse: [http://localhost:3000](http://localhost:3000)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Stack Tecnológica
 
-## Learn More
+- **Next.js 16** (App Router)
+- **React 19**
+- **TypeScript 5**
+- **Tailwind CSS 4**
+- **Supabase** (Auth + Database + Storage)
+- **Radix UI** (Componentes acessíveis)
+- **Lucide React** (Ícones)
 
-To learn more about Next.js, take a look at the following resources:
+## 📁 Estrutura do Projeto
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/                    # Rotas Next.js
+│   ├── (auth)/            # Login, Register
+│   ├── admin/             # Painel do dono da loja
+│   ├── master/            # Painel master (Diego)
+│   ├── [slug]/            # Loja pública dinâmica
+│   └── demo/              # Loja e admin demo
+├── components/
+│   └── ui/                # Design system
+├── hooks/                 # React hooks customizados
+├── lib/                   # Utilitários
+├── services/              # Lógica de negócio
+└── types/                 # TypeScript types
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔑 Credenciais de Teste
 
-## Deploy on Vercel
+| Conta | Email | Senha | Role |
+|-------|-------|-------|------|
+| Master | diego@fosfo.com.br | (sua senha) | master |
+| Admin teste | diegoscotton@hotmail.com | (sua senha) | admin |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🌐 Supabase
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **URL:** https://lfeoismqsjvgvpjceger.supabase.co
+- **Region:** East US
+- **Storage:** store-assets, product-images
+
+## 📦 Funcionalidades Principais
+
+### Painel Master (`/master`)
+- ✅ Gestão de lojas (ativar/desativar, trial, free)
+- ✅ Gestão de usuários
+- ✅ Busca em tempo real
+- ✅ Exclusão de lojas e usuários
+- ✅ Configurações da plataforma
+
+### Painel Admin (`/admin`)
+- ✅ Dashboard com métricas
+- ✅ Gestão de produtos e categorias
+- ✅ Gestão de pedidos
+- ✅ Personalização da loja
+- ✅ Banners de trial
+
+### Loja Pública (`/[slug]`)
+- ✅ Catálogo de produtos
+- ✅ Carrinho de compras
+- ✅ Checkout via WhatsApp
+- ✅ Página de loja inativa
+
+## 🚢 Deploy
+
+Ver [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md) para instruções completas.
+
+## 📝 Licença
+
+Propriedade de Fosfo - Todos os direitos reservados.
