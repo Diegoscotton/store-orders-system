@@ -3,10 +3,10 @@
 ## Identidade do Projeto
 
 - **Nome:** Sistema de Pedidos Fosfo
-- **Tipo:** Plataforma multi-tenant SaaS para lojas receberem pedidos online
-- **Objetivo:** Permitir que qualquer pessoa crie uma loja online em poucos passos, cadastre produtos com variações, receba pedidos pelo sistema e opcionalmente por WhatsApp
+- **Tipo:** Plataforma multi-tenant SaaS para pequenos negócios receberem pedidos online
+- **Objetivo:** Permitir que qualquer pessoa crie um catálogo online em poucos passos, cadastre produtos com variações, receba pedidos pelo sistema e opcionalmente por WhatsApp
 - **Referência visual:** origemchocolataria.com.br (funcionalidade), mas com design premium e moderno
-- **Público:** Pequenas lojas, restaurantes, confeitarias, açaiterias — negócios simples que precisam de um catálogo online funcional
+- **Público:** Confeitarias, açaiterias, artesãos, marmitex — negócios simples que precisam de um catálogo online funcional
 
 **Linguagem e posicionamento:**
 - Usar "catálogo online" no lugar de "loja" — evita remeter a e-commerce
@@ -59,18 +59,25 @@ Plataforma (LP + Auth + Master Admin)
 ### 1. Landing Page (/)
 Página pública premium que apresenta a plataforma.
 
-**Seções:**
-- Hero com headline forte e CTA
-- Como funciona (3 passos visuais)
-- Funcionalidades (cards com ícones)
-- Demonstração (link para loja demo funcional)
-- Depoimentos/Social proof (futuro)
-- CTA final + rodapé
+**Seções (ordem atual):**
+- Hero — headline + mockup visual do app
+- O Problema — comparativo WhatsApp vs Sistema (dois cards lado a lado, vermelho/verde)
+- Como funciona — 3 passos visuais
+- Funcionalidades — cards com ícones
+- Para quem é — fotos reais de produtos (confeitaria, artesanato, gastronomia)
+- Demonstração — dois acessos: loja pública + painel admin
+- FAQ — inclui "Por que não usar só o WhatsApp?", "Quanto custa?", "Preciso de técnico?"
+- CTA final — fundo escuro (#111c14), "Testa agora. Decide depois.", pills na base
+
+**Regras de copy:**
+- "catálogo" no lugar de "loja" em todo o copy
+- Métricas (500+ lojas, 50K pedidos) estão ocultas com `hidden` — não deletar
+- "Centenas de pequenos negócios..." deve ser removido ou substituído por algo factual
 
 **Links:**
-- "Ver demonstração" → `/demo` (loja demo funcional)
-- "Ver admin demo" → `/demo/admin` (acesso aberto, sem senha)
-- "Criar minha loja" → `/register`
+- "Ver demonstração" → `/demo`
+- "Ver admin demo" → `/demo-admin`
+- "Criar meu catálogo" → `/register`
 - "Entrar" → `/login`
 
 ---
@@ -86,128 +93,101 @@ Página pública premium que apresenta a plataforma.
 2. Sistema cria conta no Supabase Auth
 3. Sistema cria a loja com slug gerado automaticamente
 4. Sistema cria vínculo `store_users` (role: admin)
-5. Redireciona para `/admin` (onboarding)
+5. Redireciona para `/admin`
 
 ---
 
 ### 3. Loja Pública (/[slug])
-Vitrine da loja acessível por qualquer pessoa.
 
 **Layout:**
 - Header com logo, nome da loja, descrição, botão do carrinho
-- Banner opcional (imagem de destaque)
-- Filtro por categorias (tabs ou pills horizontais)
-- Grid de produtos (cards premium)
+- Banner opcional (carrossel)
+- Filtro por categorias (tabs ou pills)
+- Grid de produtos
 - Carrinho lateral (drawer)
 - Checkout com formulário
 
 **Card do Produto:**
-- Foto principal do produto (placeholder padrão se não tiver)
+- Foto principal (placeholder padrão se não tiver)
 - Nome + descrição curta
-- Preço base (atualiza dinamicamente conforme variação selecionada)
-- Seletor de variações (ex: Tamanho P/M/G) — pills ou dropdown. Cada opção pode ter preço diferente
-- Seletor de quantidade (+/- com número)
+- Preço base (atualiza conforme variação)
+- Seletor de variações (pills ou dropdown, cada opção com preço)
+- Seletor de quantidade (+/-)
 - Botão "Adicionar ao carrinho"
-- Se produto não tem variações: mostra só preço fixo + quantidade + botão
-
-**Variações — como funciona:**
-- Dono da loja cria "tipos" de variação livremente (ex: "Tamanho", "Sabor", "Cor")
-- Para cada tipo, cria opções com preço específico (ex: P=R$25, M=R$40, G=R$60)
-- Um produto pode ter múltiplos tipos de variação (ex: Tamanho + Sabor)
-- Produto sem variação = preço fixo simples
-- Na loja: o preço exibido muda ao selecionar a opção
-
-**Imagens do produto:**
-- Foto principal obrigatória (se não enviar, usa placeholder padrão bonito)
-- Fotos adicionais opcionais (carrossel no detalhe/modal do produto)
-
-**Carrinho:**
-- Drawer lateral
-- Lista de itens com foto, nome, variação, quantidade, preço
-- Alterar quantidade (+/-)
-- Remover item
-- Total
-- Botão "Finalizar Pedido"
 
 **Checkout:**
-- Formulário: Nome, Telefone (WhatsApp), Endereço (opcional), Observações
-- Resumo do pedido
-- Botão "Confirmar Pedido"
-- Ao confirmar:
-  - Grava pedido no banco (tabela orders + order_items)
-  - Se WhatsApp ativo: abre WhatsApp do cliente com mensagem pré-formatada pro dono da loja (via wa.me)
-  - Mostra modal bonito e amigável: "Pedido enviado com sucesso!" + número do pedido
+- Formulário: Nome, Telefone, Endereço (opcional), Observações
+- Grava pedido no banco (orders + order_items)
+- Se WhatsApp ativo: abre wa.me com mensagem pré-formatada
+- Modal de confirmação com número do pedido
 
 **Loja Travada (trial expirado):**
-- Vitrine continua visível (produtos aparecem)
-- Botão de pedido desabilitado
-- Aviso sutil: "Esta loja está temporariamente indisponível para pedidos"
+- Vitrine continua visível
+- Pedidos bloqueados
+- Página premium com mensagem amigável
 
 ---
 
 ### 4. Admin da Loja (/admin)
-Painel do dono da loja para gerenciar tudo.
 
-**Sidebar:**
+**Sidebar (itens em ordem):**
 - Dashboard
 - Produtos
 - Categorias
 - Pedidos
 - Banners
 - Configurações
-- Minha Loja (preview)
+- — separador —
+- Por onde começar (ícone Compass) → `/admin/start`
+- Ver meu catálogo → loja pública
+- Indique o sistema (ícone Share2) — copia link + feedback
+- Falar com suporte (ícone MessageCircle) → WhatsApp 5554981219406
+- Sair
 
-**Dashboard:**
+**Dashboard (`/admin`):**
 - Cards de métricas: total produtos, pedidos hoje, pedidos pendentes, total de pedidos
-- Gráfico de pedidos dos últimos 7 dias (futuro)
-- Acesso rápido: últimos pedidos pendentes
+- Gráfico de vendas dos últimos 7 dias
+- Produtos mais vendidos
+- Pedidos recentes
+- Cards de acesso rápido: Por onde começar / Acessar meu catálogo / Falar com suporte
+- Banner de trial amarelo (≤10 dias) ou laranja (expirado)
+- Banner de assinatura (≤7 dias, apenas `is_free !== true`): mensagem amigável + R$49,90/mês + botão "Assinar via WhatsApp"
 
-**Produtos (/admin/products):**
-- Tabela com: foto miniatura, nome, categoria, preço, status
-- Botão "+ Novo Produto"
-- Editar / Excluir
-- Modal/página de criação:
-  - Nome, descrição, preço base
-  - Categoria (select)
-  - Upload de imagens (múltiplas, drag & drop)
-  - Variações dinâmicas:
-    - Adicionar tipo de variação (ex: "Tamanho")
-    - Para cada tipo, adicionar opções (ex: "P", "M", "G") com preço específico
-  - Status: ativo/inativo
+**Página `/admin/start` — Por onde começar:**
+- Passo a passo onboarding com 4 cards
+- Passo 1: Configure sua loja → `/admin/settings`
+- Passo 2: Crie suas categorias → `/admin/categories`
+- Passo 3: Cadastre seus produtos → `/admin/products`
+- Passo 4: Compartilhe seu catálogo → loja pública
+- Cards com numeração visual (círculo verde), hover sutil, responsivo
+- Acessível a qualquer momento pela sidebar
 
-**Categorias (/admin/categories):**
-- Lista com nome e quantidade de produtos
-- Criar / Editar / Excluir
-- Reordenar (futuro)
+**Produtos (`/admin/products`):**
+- Tabela com foto miniatura, nome, categoria, preço, status
+- CRUD completo com variações dinâmicas e upload de imagens
+- Drag & drop para reordenar
 
-**Pedidos (/admin/orders):**
-- Tabela com: nº pedido, cliente, telefone, total, status, data/hora
-- Filtros: por status, por data
-- Clique abre detalhes do pedido:
-  - Itens com variações e quantidades
-  - Dados do cliente
-  - Observações
-  - Alterar status: Pendente → Aceito → Preparando → Pronto → Entregue / Cancelado
-- Impressão em lote: selecionar múltiplos pedidos → gerar folha A4 com vários pedidos formatados
-- Marcar como atendido em lote
+**Categorias (`/admin/categories`):**
+- CRUD com reordenação
 
-**Banners (/admin/banners):**
-- Carrossel com múltiplos banners na loja
-- Upload de imagens
-- Reordenar (drag & drop ou setas)
-- Ativar/desativar individualmente
-- Link opcional (ao clicar no banner)
+**Pedidos (`/admin/orders`):**
+- Tabela com filtros por status e data
+- Detalhes do pedido com alterar status
+- Impressão em lote (A4)
 
-**Configurações (/admin/settings):**
+**Banners (`/admin/banners`):**
+- Upload, reordenar, ativar/desativar, link opcional
+
+**Configurações (`/admin/settings`):**
 - Dados da loja: nome, slug, descrição
-- Visual: logo (upload), cor primária (color picker), banner principal (upload)
-- WhatsApp: número do dono (máscara BR), toggle ativar/desativar envio automático
-- Preview da mensagem de pedido que o cliente vai enviar
+- Visual: logo, cor primária, banner
+- WhatsApp: número + toggle
+
+**Regra importante:** Nenhuma das features de assinatura, indicação ou suporte deve aparecer na loja demo (`is_demo = true`).
 
 ---
 
 ### 5. Master Admin (/master)
-Painel exclusivo do Diego (super admin).
 
 **Sidebar:**
 - Dashboard
@@ -215,56 +195,45 @@ Painel exclusivo do Diego (super admin).
 - Usuários
 - Configurações
 
-**Dashboard:**
-- Total de lojas cadastradas
-- Lojas ativas vs travadas
-- Total de pedidos (global)
-- Novos cadastros (últimos 7 dias)
+**Lojas (`/master/stores`):**
+- Tabela com nome, dono (nome + email + telefone clicáveis), data, status, trial
+- Toggle ativa/desativa loja
+- Badges: Free / Expirado / Expirando em X dias / Ativo
+- Exclusão com modal de confirmação (digitar nome)
+- Estender trial
+- Marcar como free (remove cobrança)
 
-**Lojas (/master/stores):**
-- Tabela com: nome da loja, dono (nome + email + telefone), data cadastro, status (ativa/travada), trial (dias restantes)
-- Toggle liga/desliga por loja
-- Definir dias de trial
-- Ver detalhes: métricas da loja, produtos, pedidos
-- Link direto para a loja pública
+**Usuários (`/master/users`):**
+- Lista com busca em tempo real
+- Exclusão com modal de confirmação
 
-**Usuários (/master/users):**
-- Lista de todos os usuários cadastrados
-- Dados: nome, email, loja vinculada, data cadastro
-
-**Configurações (/master/settings):**
-- Trial padrão (quantidade de dias)
+**Configurações (`/master/settings`):**
+- Trial padrão (dias)
 - Dados da plataforma
-- Loja demo (configurar qual loja é a demo)
+- Loja demo (qual loja é a demo)
 
 ---
 
 ## Sistema de Trial
 
-**Funcionamento:**
-- Ao criar a loja, `trial_ends_at` é definido como `NOW() + X dias` (configurável pelo master)
-- Default: 14 dias (ajustável)
-- No storefront: aviso sutil quando faltam poucos dias (ex: faixa superior discreta)
-- Quando expira: `is_active = false`
-  - Loja continua visível (vitrine aparece)
-  - Pedidos são bloqueados
-  - No admin da loja: aviso para "ativar plano" com contato
-- Master pode: estender trial, ativar/desativar manualmente
-- Cobrança é feita por fora (pessoalmente pelo Diego)
+- Ao criar a loja: `trial_ends_at = NOW() + X dias` (default 14)
+- `is_free = true` → isenta completamente (sem banner de assinatura)
+- Banner de aviso no admin: amarelo (≤10 dias), laranja (expirado)
+- Banner de assinatura: aparece nos últimos 7 dias, apenas `is_free !== true`
+- Quando expira: `is_active = false` → loja pública mostra página de bloqueio
+- Master pode estender, ativar/desativar e marcar como free
+- Cobrança feita pessoalmente pelo Diego via WhatsApp
+
+**Preço:** R$49,90/mês (não exposto na LP, mencionado apenas no banner de trial do admin)
 
 ---
 
 ## WhatsApp
 
-**Configuração:** feita pelo dono da loja em Configurações
-- Campo: número de WhatsApp (com máscara BR)
-- Toggle: ativar/desativar envio automático
+**Pedidos da loja:** via `https://wa.me/{numero_dono}?text={mensagem}`
+**Suporte/Assinatura:** `https://wa.me/5554981219406` (Diego)
 
-**Envio:** via link `https://wa.me/{numero}?text={mensagem_codificada}`
-- Ao confirmar pedido, abre WhatsApp Web/App com mensagem pré-formatada
-- Mensagem inclui: número do pedido, itens, variações, quantidades, total, dados do cliente
-
-**Template da mensagem:**
+**Template da mensagem de pedido:**
 ```
 🧾 *Novo Pedido #{numero}*
 
@@ -288,86 +257,70 @@ Painel exclusivo do Diego (super admin).
 ```
 src/
 ├── app/
-│   ├── page.tsx              # Landing Page
-│   ├── login/page.tsx        # Login
-│   ├── register/page.tsx     # Registro + Criar loja
-│   ├── demo/page.tsx         # Loja demo
-│   ├── [slug]/               # Loja pública dinâmica
-│   │   ├── page.tsx          # Vitrine
-│   │   └── checkout/page.tsx # Checkout da loja
-│   ├── admin/                # Admin da loja
+│   ├── page.tsx                    # Landing Page
+│   ├── login/page.tsx
+│   ├── register/page.tsx
+│   ├── demo/page.tsx               # Loja demo (futuro)
+│   ├── demo-admin/page.tsx         # Admin demo sem senha (futuro)
+│   ├── [slug]/
+│   │   ├── page.tsx                # Loja pública
+│   │   └── checkout/page.tsx
+│   ├── admin/
 │   │   ├── layout.tsx
-│   │   ├── page.tsx          # Dashboard
+│   │   ├── page.tsx                # Dashboard
+│   │   ├── start/page.tsx          # Onboarding "Por onde começar"
 │   │   ├── products/
 │   │   ├── categories/
 │   │   ├── orders/
 │   │   ├── banners/
 │   │   └── settings/
-│   └── master/               # Master admin (Diego)
-│       ├── layout.tsx
-│       ├── page.tsx          # Dashboard master
-│       ├── stores/
-│       ├── users/
-│       └── settings/
+│   ├── master/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── stores/
+│   │   ├── users/
+│   │   └── settings/
+│   └── api/
+│       └── platform-settings/route.ts
 ├── components/
-│   ├── ui/                   # Design system (Button, Card, Input, etc)
-│   ├── store/                # Componentes da loja pública
-│   ├── admin/                # Componentes do admin
-│   └── master/               # Componentes do master
+│   ├── ui/
+│   ├── store/
+│   ├── admin/
+│   └── master/
 ├── lib/
-│   ├── supabase.ts           # Cliente Supabase
-│   ├── supabase-server.ts    # Cliente server-side
-│   └── utils.ts              # Utilitários
-├── services/                 # Camada de dados
+│   ├── supabase.ts
+│   ├── supabase-server.ts
+│   └── utils.ts
+├── services/
 │   ├── storeService.ts
 │   ├── productService.ts
 │   ├── categoryService.ts
 │   ├── orderService.ts
-│   └── userService.ts
-├── types/                    # TypeScript types
-│   ├── store.ts
-│   ├── product.ts
-│   ├── category.ts
-│   ├── order.ts
-│   └── user.ts
-├── hooks/                    # Custom hooks
+│   ├── userService.ts
+│   ├── dashboardService.ts
+│   └── masterService.ts
+├── types/
+│   └── index.ts
+├── hooks/
 │   ├── useAuth.ts
 │   ├── useStore.ts
 │   └── useCart.ts
-└── middleware.ts              # Proteção de rotas
+└── middleware.ts
 ```
 
 ---
 
 ## Design System
 
-**Filosofia:** Premium, moderno, limpo. Nada de "template Bootstrap".
+**Filosofia:** Premium, moderno, limpo.
 
 **Paleta:**
 - Fundo principal: branco / cinza muito claro
 - Texto: cinza escuro / preto
-- Accent: definido por loja (cor primária configurável)
+- Accent: verde (#639922 plataforma, cor primária configurável por loja)
 - Sucesso: verde
 - Alerta: amarelo
 - Erro: vermelho
-
-**Tipografia:**
-- Font principal: Inter ou system-ui
-- Títulos: bold, tracking tight
-- Body: regular, line-height confortável
-
-**Componentes base:**
-- Button (primary, secondary, outline, ghost, danger)
-- Card (com hover suave)
-- Input (com label, placeholder, erro)
-- Badge (status colors)
-- Modal/Dialog (Radix UI)
-- Dropdown/Select
-- Table (com hover, zebra opcional)
-- Toast/Notification (ao invés de alert())
-- Skeleton (loading states)
-- Avatar
-- Tabs
 
 **Admin:**
 - Sidebar escura (cinza 900)
@@ -378,108 +331,41 @@ src/
 **Storefront:**
 - Layout limpo, muito espaço em branco
 - Cards de produto com sombra suave
-- Animações sutis (hover, transições)
 - Mobile-first, totalmente responsivo
 
 ---
 
 ## Regras de Desenvolvimento
 
-1. **Sempre filtrar por store_id** — nunca buscar dados sem isolamento de loja
-2. **Nunca expor dados entre lojas** — RLS é a última linha de defesa, mas o código deve validar também
-3. **Mobile-first** — toda UI deve funcionar perfeitamente no celular
-4. **Sem alert()** — usar toasts/notificações bonitas
-5. **Loading states** — skeleton em toda listagem, spinner em ações
-6. **Tratamento de erros** — try/catch com feedback visual ao usuário
-7. **Sem localStorage para dados críticos** — carrinho pode usar localStorage, mas com validação
-8. **Imagens otimizadas** — next/image quando possível, fallback graceful
+1. **Sempre filtrar por store_id** — nunca buscar dados sem isolamento
+2. **Nunca expor dados entre lojas** — RLS + validação no código
+3. **Mobile-first** — toda UI funciona no celular
+4. **Sem alert()** — usar toasts
+5. **Loading states** — skeleton em listagens, spinner em ações
+6. **Tratamento de erros** — try/catch com feedback visual
+7. **Demo isolada** — `is_demo = true` remove features de assinatura, indicação e suporte
+8. **Imagens otimizadas** — next/image quando possível
 9. **TypeScript strict** — tipos definidos para tudo
-
----
-
-## Fases de Desenvolvimento
-
-### Fase 1 — Base (Fundação)
-- [ ] Criar projeto Next.js do zero
-- [ ] Configurar Supabase (schema + RLS + storage)
-- [ ] Design system (componentes UI base)
-- [ ] Auth (login + registro + middleware)
-- [ ] Criar estrutura de pastas
-
-### Fase 2 — Admin da Loja
-- [ ] Layout admin (sidebar + header)
-- [ ] Dashboard com métricas
-- [ ] CRUD de categorias
-- [ ] CRUD de produtos com variações e imagens
-- [ ] Gestão de pedidos (tabela + detalhes + status)
-- [ ] Configurações da loja
-- [ ] Banners
-
-### Fase 3 — Storefront (Loja Pública)
-- [ ] Layout da loja (header + categorias + grid)
-- [ ] Card de produto com variações e quantidade
-- [ ] Carrinho (drawer)
-- [ ] Checkout com formulário
-- [ ] Envio de pedido (banco + WhatsApp opcional)
-- [ ] Tela de confirmação
-
-### Fase 4 — Landing Page + Demo
-- [ ] Landing page premium
-- [ ] Loja demo funcional (tema genérico, produtos realistas mostrando todas as features)
-- [ ] Admin demo com acesso aberto (sem senha, visitante experimenta o painel)
-- [ ] Página de registro (nome + email + senha + nome da loja → cria tudo de uma vez)
-
-### Fase 5 — Master Admin
-- [ ] Layout master (sidebar separada)
-- [ ] Dashboard com métricas globais
-- [ ] Gestão de lojas (tabela + toggle ativo/inativo)
-- [ ] Sistema de trial (definir período, bloquear loja)
-- [ ] Gestão de usuários
-
-### Fase 6 — Polish
-- [ ] Testes de fluxo completo
-- [ ] Responsividade total
-- [ ] Performance (lazy loading, skeleton)
-- [ ] Deploy na Vercel
-- [ ] Domínio
 
 ---
 
 ## Variáveis de Ambiente
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhb...
+NEXT_PUBLIC_SUPABASE_URL=https://lfeoismqsjvgvpjceger.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 SUPABASE_SERVICE_ROLE_KEY=eyJhb...
-NEXT_PUBLIC_APP_URL=https://seusistema.com
+NEXT_PUBLIC_APP_URL=https://store-orders-system.vercel.app
 ```
-
----
-
-## Notas Importantes
-
-- **Sem sistema de pagamento online** — cobrança é feita pessoalmente pelo Diego
-- **Sem sistema de entrega/frete** — o pedido é apenas registrado, entrega é por conta do dono da loja
-- **WhatsApp é via link** — ao confirmar pedido, abre wa.me no dispositivo do cliente com mensagem pré-formatada pro dono da loja. Não é API.
-- **Trial é simples** — data de expiração + flag ativo/inativo, sem automação complexa
-- **Uma loja por usuário** (MVP) — no futuro pode expandir
-- **Rodapé de toda loja** — "Powered by Fosfo" com link para fosfo.com.br
-- **Personalização da loja** — apenas: logo, cor primária, banner. Sem troca de fonte ou cor de texto.
-- **Demo aberta** — admin demo acessível sem login, para o visitante experimentar o painel
-- **URL das lojas** — formato seusite.com/slug-da-loja (rota dinâmica [slug])
-- **Supabase** — projeto novo do zero
-- **Placeholder de produto** — imagem padrão bonita quando o dono não envia foto
-- **Confirmação de pedido** — modal amigável (não alert()), com número do pedido
-- **Banners** — carrossel com múltiplos banners na loja pública
 
 ---
 
 ## Estratégia de Marketing
 
 ### Posicionamento
-O Fosfo não é um e-commerce. É um sistema de pedidos com cara de catálogo online.
-A dor central do público é: receber pedido pelo WhatsApp virou bagunça.
-O Fosfo organiza o que chega no WhatsApp — sem fazer o cliente largar o que já usa.
+O sistema não é um e-commerce. É um organizador de pedidos com cara de catálogo online.
+A dor central: receber pedido pelo WhatsApp virou bagunça.
+O sistema organiza o que chega no WhatsApp — sem fazer o cliente largar o que já usa.
 
 ### Público primário (fase inicial)
 - Confeitarias e docerias
@@ -488,11 +374,13 @@ O Fosfo organiza o que chega no WhatsApp — sem fazer o cliente largar o que j�
 - Restaurantes e marmitex
 
 ### Captação inicial
-- Abordagem direta via WhatsApp (scripts por nicho)
+- Abordagem direta via WhatsApp (scripts por nicho — a fazer)
 - Foco local: Bento Gonçalves e região
 - Demo sem cadastro como principal ferramenta de conversão
+- Link de indicação na sidebar do admin incentiva usuários a compartilhar
 
 ### Trial
 - 14 dias grátis, sem cartão
 - Preço pós-trial: R$49,90/mês
 - Preço não exibido na LP — usuário decide após testar
+- Banner de assinatura aparece nos últimos 7 dias do trial
