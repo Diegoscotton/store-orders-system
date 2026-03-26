@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { getMasterStores, toggleStoreActive, extendStoreTrial, setStoreFree, deleteStore } from '@/services/masterService'
 import type { StoreWithOwner } from '@/services/masterService'
 import { Button, Card, Badge, Modal, ModalContent, Input, useToast, Skeleton } from '@/components/ui'
-import { Store, Eye, ExternalLink, Power, PowerOff, Clock, Package, ShoppingCart, Calendar, User, Phone, Mail, Gift, X, Trash2, Search } from 'lucide-react'
+import { Store, Eye, ExternalLink, Power, PowerOff, Clock, Package, ShoppingCart, Calendar, User, Phone, Mail, Gift, X, Trash2, Search, FlaskConical } from 'lucide-react'
 import { formatDate, formatPhone, getTrialDaysLeft } from '@/lib/utils'
 
 export default function MasterStoresPage() {
@@ -196,6 +196,7 @@ export default function MasterStoresPage() {
                 const isExpired = daysLeft === 0
                 const isExpiring = daysLeft > 0 && daysLeft <= 10
                 const showExpiredBadge = isExpired && !store.is_free && store.is_active
+                const isDemo = (store as any).is_demo === true
 
                 return (
                   <tr key={store.id} className="hover:bg-gray-50 transition-colors">
@@ -212,7 +213,14 @@ export default function MasterStoresPage() {
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{store.name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-gray-900">{store.name}</p>
+                            {isDemo && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                                <FlaskConical className="h-3 w-3" /> Demo
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-gray-500">/{store.slug}</p>
                         </div>
                       </div>
@@ -261,46 +269,50 @@ export default function MasterStoresPage() {
                             <ExternalLink className="h-4 w-4" />
                           </Button>
                         </a>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => confirmToggle(store)}
-                          title={store.is_active ? 'Desativar' : 'Ativar'}
-                        >
-                          {store.is_active ? (
-                            <PowerOff className="h-4 w-4 text-red-500" />
-                          ) : (
-                            <Power className="h-4 w-4 text-emerald-500" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleToggleFree(store)}
-                          title={store.is_free ? 'Remover Free' : 'Tornar Free'}
-                        >
-                          {store.is_free ? (
-                            <X className="h-4 w-4 text-amber-500" />
-                          ) : (
-                            <Gift className="h-4 w-4 text-gray-400" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openTrialModal(store.id)}
-                          title="Estender trial"
-                        >
-                          <Clock className="h-4 w-4 text-gray-400" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openDeleteModal(store)}
-                          title="Excluir loja"
-                        >
-                          <Trash2 className="h-4 w-4 text-red-400" />
-                        </Button>
+                        {!isDemo && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => confirmToggle(store)}
+                              title={store.is_active ? 'Desativar' : 'Ativar'}
+                            >
+                              {store.is_active ? (
+                                <PowerOff className="h-4 w-4 text-red-500" />
+                              ) : (
+                                <Power className="h-4 w-4 text-emerald-500" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleToggleFree(store)}
+                              title={store.is_free ? 'Remover Free' : 'Tornar Free'}
+                            >
+                              {store.is_free ? (
+                                <X className="h-4 w-4 text-amber-500" />
+                              ) : (
+                                <Gift className="h-4 w-4 text-gray-400" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openTrialModal(store.id)}
+                              title="Estender trial"
+                            >
+                              <Clock className="h-4 w-4 text-gray-400" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openDeleteModal(store)}
+                              title="Excluir loja"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-400" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

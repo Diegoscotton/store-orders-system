@@ -21,7 +21,10 @@ export default async function StorePage({ params }: Props) {
     notFound()
   }
 
-  if (!store.is_active) {
+  // Checa trial expirado (loja não free + data passada)
+  const trialExpired = !store.is_free && store.trial_ends_at !== null && new Date(store.trial_ends_at) < new Date()
+
+  if (!store.is_active || trialExpired) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#FAFAF9', padding: '24px' }}>
         <div style={{ textAlign: 'center', maxWidth: 420 }}>

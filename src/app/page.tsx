@@ -239,11 +239,21 @@ function FaqItem({ q, a }) {
 export default function FosfoHome() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+  const [platformName, setPlatformName] = useState("Sistema de Pedidos Fosfo");
+
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", fn);
     return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/platform-settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.platform_name) setPlatformName(data.platform_name);
+      })
+      .catch(() => {});
   }, []);
 
   const handleSmoothScroll = (e, targetId) => {
@@ -322,7 +332,7 @@ export default function FosfoHome() {
                 <polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <span style={{ fontSize:17, fontWeight:800, color:"#111827", letterSpacing:"-.04em" }}>Sistema de Pedidos Fosfo</span>
+            <span style={{ fontSize:17, fontWeight:800, color:"#111827", letterSpacing:"-.04em" }}>{platformName}</span>
           </a>
           <div className="nav-center" style={{ display:"flex", gap:28 }}>
             <a href="#como-funciona" className="nav-link">Como funciona</a>
@@ -720,7 +730,7 @@ export default function FosfoHome() {
                 <polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <span style={{ fontSize:14, fontWeight:700, color:"#374151", letterSpacing:"-.03em" }}>Sistema de Pedidos Fosfo</span>
+            <span style={{ fontSize:14, fontWeight:700, color:"#374151", letterSpacing:"-.03em" }}>{platformName}</span>
             <span style={{ fontSize:13, color:"#D1D5DB", margin:"0 4px" }}>·</span>
             <span style={{ fontSize:13, color:"#9CA3AF" }}>© 2026</span>
           </div>
