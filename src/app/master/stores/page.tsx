@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getMasterStores, toggleStoreActive, extendStoreTrial, setStoreFree } from '@/services/masterService'
+import { getMasterStores, toggleStoreActive, extendStoreTrial, setStoreFree, deleteStore } from '@/services/masterService'
 import type { StoreWithOwner } from '@/services/masterService'
 import { Button, Card, Badge, Modal, ModalContent, Input, useToast, Skeleton } from '@/components/ui'
-import { Store, Eye, ExternalLink, Power, PowerOff, Clock, Package, ShoppingCart, Calendar, User, Phone, Mail, Gift, X } from 'lucide-react'
+import { Store, Eye, ExternalLink, Power, PowerOff, Clock, Package, ShoppingCart, Calendar, User, Phone, Mail, Gift, X, Trash2, Search } from 'lucide-react'
 import { formatDate, formatPhone, getTrialDaysLeft } from '@/lib/utils'
 
 export default function MasterStoresPage() {
@@ -20,6 +20,11 @@ export default function MasterStoresPage() {
   const [confirmMessage, setConfirmMessage] = useState('')
   const [pendingStoreId, setPendingStoreId] = useState<string | null>(null)
   const [pendingActive, setPendingActive] = useState<boolean>(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [deleteStoreName, setDeleteStoreName] = useState('')
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState('')
+  const [pendingDeleteStore, setPendingDeleteStore] = useState<StoreWithOwner | null>(null)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     loadStores()
@@ -63,6 +68,26 @@ export default function MasterStoresPage() {
     setPendingStoreId(null)
   }
 
+  function openDeleteModal(store: StoreWithOwner) {
+    setPendingDeleteStore(store)
+    setDeleteStoreName(store.name)
+    setDeleteConfirmInput('')
+    setDeleteModalOpen(true)
+  }
+
+  async function handleDeleteStore() {
+    if (!pendingDeleteStore || deleteConfirmInput !== pendingDeleteStore.name) return
+    try {
+      await deleteStore(pendingDeleteStore.id)
+      toast({ type: 'success', title: 'Loja excluída permanentemente' })
+      setStores(prev => prev.filter(s => s.id !== pendingDeleteStore.id))
+      setDeleteModalOpen(false)
+      setPendingDeleteStore(null)
+    } catch {
+      toast({ type: 'error', title: 'Erro ao excluir loja' })
+    }
+  }
+
   async function handleToggleFree(store: StoreWithOwner) {
     const newState = !store.is_free
     try {
@@ -100,12 +125,28 @@ export default function MasterStoresPage() {
     setDetailsOpen(true)
   }
 
+  const filteredStores = stores.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase()) ||
+    s.slug.toLowerCase().includes(search.toLowerCase()) ||
+    (s.owner?.full_name || '').toLowerCase().includes(search.toLowerCase())
+  )
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Lojas</h1>
-          <p className="text-gray-500 mt-1">{stores.length} loja{stores.length !== 1 ? 's' : ''} cadastrada{stores.length !== 1 ? 's' : ''}</p>
+          <p className="text-gray-500 mt-1">{filteredStores.length} de {stores.length} loja{stores.length !== 1 ? 's' : ''}</p>
+        </div>
+        <div className="relative w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar por nome, slug ou dono..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+          />
         </div>
       </div>
 
@@ -124,17 +165,18 @@ export default function MasterStoresPage() {
         </Card>
       )}
 
-      {!loading && stores.length === 0 && (
+      {!loading && filteredStores.length === 0 && (
         <Card className="text-center py-16">
           <div className="h-14 w-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Store className="h-7 w-7 text-gray-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhuma loja cadastrada</h3>
-          <p className="text-gray-500">As lojas aparecerão aqui quando usuários se registrarem</p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhuma loja</h3>
+          <p className="text-gray-500">As lojas aparecerão aqui quando forem criadas</p>
+          {search && <p className="text-sm text-gray-400 mt-1">Tente buscar por outro termo</p>}
         </Card>
       )}
 
-      {!loading && stores.length > 0 && (
+      {!loading && filteredStores.length > 0 && (
         <Card className="p-0 overflow-hidden">
           <table className="w-full">
             <thead>
@@ -149,7 +191,7 @@ export default function MasterStoresPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {stores.map((store) => {
+              {filteredStores.map((store) => {
                 const daysLeft = getTrialDaysLeft(store.trial_ends_at)
                 const isExpired = daysLeft === 0
                 const isExpiring = daysLeft > 0 && daysLeft <= 10
@@ -231,34 +273,33 @@ export default function MasterStoresPage() {
                             <Power className="h-4 w-4 text-emerald-500" />
                           )}
                         </Button>
-                        {!store.is_free ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleToggleFree(store)}
-                            title="Tornar Free"
-                          >
-                            <Gift className="h-3.5 w-3.5" />
-                            Tornar Free
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleToggleFree(store)}
-                            title="Remover Free"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                            Remover Free
-                          </Button>
-                        )}
                         <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openTrialModal(store.id)}
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleToggleFree(store)}
+                          title={store.is_free ? 'Remover Free' : 'Tornar Free'}
                         >
-                          <Clock className="h-3.5 w-3.5" />
-                          Trial
+                          {store.is_free ? (
+                            <X className="h-4 w-4 text-amber-500" />
+                          ) : (
+                            <Gift className="h-4 w-4 text-gray-400" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openTrialModal(store.id)}
+                          title="Estender trial"
+                        >
+                          <Clock className="h-4 w-4 text-gray-400" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openDeleteModal(store)}
+                          title="Excluir loja"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-400" />
                         </Button>
                       </div>
                     </td>
@@ -300,11 +341,17 @@ export default function MasterStoresPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Mail className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-700">{selectedStore.owner?.id || '—'}</span>
+                  {selectedStore.owner?.email ? (
+                    <a href={`mailto:${selectedStore.owner.email}`} className="text-blue-600 hover:underline">{selectedStore.owner.email}</a>
+                  ) : <span className="text-gray-700">—</span>}
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-700">{selectedStore.owner?.phone ? formatPhone(selectedStore.owner.phone) : '—'}</span>
+                  {selectedStore.owner?.phone ? (
+                    <a href={`https://wa.me/55${selectedStore.owner.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline">
+                      {formatPhone(selectedStore.owner.phone)}
+                    </a>
+                  ) : <span className="text-gray-700">—</span>}
                 </div>
               </div>
 
@@ -391,6 +438,40 @@ export default function MasterStoresPage() {
               </Button>
               <Button className="flex-1" onClick={handleConfirmToggle}>
                 Confirmar
+              </Button>
+            </div>
+          </div>
+        </ModalContent>
+      </Modal>
+
+      {/* Delete Store Modal */}
+      <Modal open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <ModalContent title="Excluir loja permanentemente">
+          <div className="space-y-4">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+              <p className="text-sm text-red-700 font-medium">⚠️ Esta ação é irreversível.</p>
+              <p className="text-sm text-red-600 mt-1">Todos os produtos, pedidos e dados da loja serão deletados permanentemente.</p>
+            </div>
+            <p className="text-sm text-gray-600">
+              Para confirmar, digite o nome da loja: <strong>{deleteStoreName}</strong>
+            </p>
+            <Input
+              placeholder="Digite o nome da loja"
+              value={deleteConfirmInput}
+              onChange={(e) => setDeleteConfirmInput(e.target.value)}
+            />
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setDeleteModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                variant="danger"
+                className="flex-1"
+                onClick={handleDeleteStore}
+                disabled={deleteConfirmInput !== deleteStoreName}
+              >
+                <Trash2 className="h-4 w-4" />
+                Excluir permanentemente
               </Button>
             </div>
           </div>

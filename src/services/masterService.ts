@@ -112,34 +112,26 @@ export async function getMasterUsers() {
 
   const { data: profiles, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, full_name, phone, email, role, created_at, updated_at, avatar_url')
     .eq('role', 'admin')
     .order('created_at', { ascending: false })
 
   if (error) throw error
 
-  // Get store links
-  const { data: storeUsers } = await supabase
-    .from('store_users')
-    .select('user_id, store_id')
-
+  // Busca lojas pelo owner_id (mais confiável que store_users)
   const { data: stores } = await supabase
     .from('stores')
-    .select('id, name, slug')
+    .select('id, name, slug, owner_id')
 
-  const storeMap: Record<string, { name: string; slug: string }> = {}
-  stores?.forEach((s) => { storeMap[s.id] = { name: s.name, slug: s.slug } })
-
-  const userStoreMap: Record<string, { name: string; slug: string }> = {}
-  storeUsers?.forEach((su) => {
-    if (storeMap[su.store_id]) {
-      userStoreMap[su.user_id] = storeMap[su.store_id]
-    }
+  const ownerStoreMap: Record<string, { name: string; slug: string }> = {}
+  stores?.forEach((s) => {
+    if (s.owner_id) ownerStoreMap[s.owner_id] = { name: s.name, slug: s.slug }
   })
 
   return (profiles || []).map((profile) => ({
     ...profile,
-    store: userStoreMap[profile.id] || null,
+    email: null, // email vem de auth.users, não acessível pelo client
+    store: ownerStoreMap[profile.id] || null,
   }))
 }
 
@@ -180,5 +172,33 @@ export async function applyNewTrialToNewStores(days: number): Promise<void> {
     .update({ trial_ends_at: newDate })
     .eq('is_free', false)
     .is('trial_ends_at', null)
+  if (error) throw error
+}
+
+export async function deleteStore(storeId: string): Promise<void> {
+  const supabase = createClient()
+  const { error } = await supabase
+    .from('stores')
+    .delete()
+    .eq('id', storeId)
+  if (error) throw error
+}
+
+export async function deleteUser(userId: string): Promise<void> {
+  const supabase = createClient()
+  // Deleta a loja do usuário primeiro
+  const { data: storeUser } = await supabase
+    .from('store_users')
+    .select('store_id')
+    .eq('user_id', userId)
+    .single()
+  if (storeUser?.store_id) {
+    await supabase.from('stores').delete().eq('id', storeUser.store_id)
+  }
+  // Deleta o profile
+  const { error } = await supabase
+    .from('profiles')
+    .delete()
+    .eq('id', userId)
   if (error) throw error
 }

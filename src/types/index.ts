@@ -7,6 +7,7 @@ export type Profile = {
   id: string
   full_name: string
   phone: string | null
+  email?: string | null
   avatar_url: string | null
   role: UserRole
   created_at: string
