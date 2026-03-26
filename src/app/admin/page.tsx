@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { getDashboardMetrics, type DashboardMetrics } from '@/services/dashboardService'
 import { Card, MetricCardSkeleton, Badge } from '@/components/ui'
-import { Package, ShoppingCart, Clock, TrendingUp, DollarSign, CheckCircle, Eye } from 'lucide-react'
+import { Package, ShoppingCart, Clock, TrendingUp, DollarSign, CheckCircle, Eye, AlertTriangle, AlertCircle } from 'lucide-react'
 import { formatCurrency, getTrialDaysLeft } from '@/lib/utils'
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
@@ -94,12 +94,51 @@ export default function AdminDashboard() {
     })
   }
 
+  function getTrialWarning(store: any) {
+    if (!store) return null
+    if (store.is_free) return null
+    if (!store.trial_ends_at) return null
+    const now = new Date()
+    const end = new Date(store.trial_ends_at)
+    const diffMs = end.getTime() - now.getTime()
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+    if (diffDays < 0) return { type: 'expired' }
+    if (diffDays <= 10) return { type: 'expiring', days: diffDays }
+    return null
+  }
+
+  const trialWarning = getTrialWarning(store)
+
   return (
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-500 mt-1">Bem-vindo de volta, {store.name}</p>
       </div>
+
+      {trialWarning?.type === 'expiring' && (
+        <div style={{ background: '#FFFBEB', borderLeft: '4px solid #F59E0B', borderRadius: 10, padding: '14px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm text-amber-800">Seu período de teste expira em <strong>{trialWarning.days} dia{trialWarning.days !== 1 ? 's' : ''}</strong>. Entre em contato para continuar usando o Fosfo.</p>
+          </div>
+          <a href="https://wa.me/5551981219406" target="_blank" rel="noopener noreferrer" style={{ background: '#F59E0B', color: '#fff', fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            Falar com suporte
+          </a>
+        </div>
+      )}
+
+      {trialWarning?.type === 'expired' && (
+        <div style={{ background: '#FFF7ED', borderLeft: '4px solid #EA580C', borderRadius: 10, padding: '14px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <AlertCircle className="h-5 w-5 text-orange-600 shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm text-orange-800">Seu período de teste encerrou. Entre em contato para reativar sua loja.</p>
+          </div>
+          <a href="https://wa.me/5551981219406" target="_blank" rel="noopener noreferrer" style={{ background: '#EA580C', color: '#fff', fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            Reativar agora
+          </a>
+        </div>
+      )}
 
       {/* Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
