@@ -53,7 +53,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Store className="h-5 w-5 text-white" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold truncate">{store?.name || 'Minha Loja'}</p>
+              <p className="text-sm font-semibold truncate">{store?.name || 'Meu Catálogo'}</p>
               <p className="text-xs text-gray-400">Painel Admin</p>
             </div>
           </div>
@@ -89,7 +89,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"
             >
               <ExternalLink className="h-4.5 w-4.5" />
-              Ver minha loja
+              Ver meu catálogo
             </Link>
           )}
           <button

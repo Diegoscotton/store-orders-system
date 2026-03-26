@@ -575,7 +575,7 @@ export default function DemoAdminPage() {
         return (
           <Card>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">Banners da Loja</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">Banners do Catálogo</h2>
               <button className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-medium opacity-50 cursor-not-allowed">
                 <Plus className="h-4 w-4" />
                 Novo Banner
@@ -612,11 +612,11 @@ export default function DemoAdminPage() {
       case 'settings':
         return (
           <Card>
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Configurações da Loja</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">Configurações do Catálogo</h2>
             <div className="space-y-6">
               {/* Logo */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Logo da Loja</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Logo do Catálogo</label>
                 {storeData?.logo_url ? (
                   <div className="flex items-center gap-4">
                     <div className="h-16 w-16 bg-gray-50 border border-gray-200 rounded-lg p-2 flex items-center justify-center">
@@ -636,7 +636,7 @@ export default function DemoAdminPage() {
               {/* Informações Básicas */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Nome da Loja</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nome do Catálogo</label>
                   <input 
                     type="text" 
                     value={storeData?.name || 'Doce Sabor Confeitaria'} 
@@ -741,7 +741,7 @@ export default function DemoAdminPage() {
       {/* Tarja Superior Demo */}
       <div className="bg-blue-600 text-white py-2 px-4 flex flex-col sm:flex-row items-center justify-between gap-2 z-50">
         <div className="flex items-center gap-2 text-sm">
-          <span className="font-bold">🎯 Loja Demonstração</span>
+          <span className="font-bold">🎯 Catálogo Demonstração</span>
           <span className="hidden sm:inline">•</span>
           <span className="hidden sm:inline">Explore todas as funcionalidades</span>
         </div>
@@ -750,7 +750,7 @@ export default function DemoAdminPage() {
             href="/demo"
             className="px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-xs font-medium transition-colors"
           >
-            Ver Loja Demo
+            Ver Catálogo Demo
           </a>
           <a
             href="/"
@@ -762,7 +762,7 @@ export default function DemoAdminPage() {
             href="/register"
             className="px-3 py-1 bg-white text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors"
           >
-            Criar minha loja →
+            Criar meu catálogo →
           </a>
         </div>
       </div>

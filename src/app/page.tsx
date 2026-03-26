@@ -9,7 +9,7 @@ const ORDERS = [
 ];
 
 const FEATURES = [
-  { title: "Loja personalizada",     desc: "Logo, cores e banner com a identidade da sua marca.",
+  { title: "Catálogo personalizado",     desc: "Logo, cores e banner com a identidade da sua marca.",
     icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
   { title: "Produtos com variações", desc: "Tamanhos, sabores, cores — cada um com seu preço.",
     icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> },
@@ -25,17 +25,20 @@ const FEATURES = [
 
 const FAQ = [
   { q: "Preciso pagar para começar?",              a: "Não. Você testa o sistema na prática, cria sua página, adiciona produtos e recebe pedidos — sem custo inicial." },
-  { q: "Quanto tempo leva para criar minha loja?", a: "Menos de 2 minutos. Basta fazer o cadastro, escolher o nome e você já pode começar a adicionar produtos." },
-  { q: "Como meus clientes fazem pedidos?",        a: "Acessam o link da sua loja, navegam pelos produtos, adicionam ao carrinho e finalizam. Você recebe no painel e pode encaminhar ao WhatsApp." },
-  { q: "Posso personalizar a aparência da loja?",  a: "Sim. Logo, cores da marca e banners — tudo para a loja ter a cara do seu negócio." },
-  { q: "Funciona no celular?",                     a: "Perfeitamente. Tanto a loja pública quanto o painel admin são 100% responsivos e funcionam muito bem em smartphones e tablets." },
-  { q: "Posso ter produtos com variações?",        a: "Sim. Tamanhos, sabores, cores — cada variação pode ter seu próprio preço. Perfeito para lojas de alimentos, roupas e muito mais." },
+  { q: "Quanto tempo leva para criar meu catálogo?", a: "Menos de 2 minutos. Basta fazer o cadastro, escolher o nome e você já pode começar a adicionar produtos." },
+  { q: "Como meus clientes fazem pedidos?",        a: "Acessam o link do seu catálogo, navegam pelos produtos, adicionam ao carrinho e finalizam. Você recebe no painel e pode encaminhar ao WhatsApp." },
+  { q: "Posso personalizar a aparência do catálogo?",  a: "Sim. Logo, cores da marca e banners — tudo para o catálogo ter a cara do seu negócio." },
+  { q: "Funciona no celular?",                     a: "Perfeitamente. Tanto o catálogo público quanto o painel admin são 100% responsivos e funcionam muito bem em smartphones e tablets." },
+  { q: "Posso ter produtos com variações?",        a: "Sim. Tamanhos, sabores, cores — cada variação pode ter seu próprio preço. Perfeito para catálogos de alimentos, roupas e muito mais." },
   { q: "Tem limite de produtos ou pedidos?",       a: "Não. Adicione quantos produtos quiser e receba quantos pedidos vierem — sem restrições artificiais." },
-  { q: "Como funciona a integração com WhatsApp?", a: "Ao confirmar um pedido, o sistema gera a mensagem formatada com todos os dados e abre direto no WhatsApp do dono da loja." },
+  { q: "Como funciona a integração com WhatsApp?", a: "Ao confirmar um pedido, o sistema gera a mensagem formatada com todos os dados e abre direto no WhatsApp do dono do catálogo." },
+  { q: "Por que não usar só o WhatsApp?", a: "WhatsApp é ótimo pra conversar. Mas pra receber pedido vira bagunça: áudio, print, mensagem que some. Com o sistema de pedidos, seu cliente acessa o link, monta o carrinho, e você recebe tudo certinho — ainda no WhatsApp, mas organizado." },
+  { q: "Quanto custa depois do período grátis?", a: "Durante o teste é 100% gratuito, sem cartão. Depois, o plano tem um valor acessível pra qualquer pequeno negócio. Você decide se quer continuar só depois de testar — sem compromisso." },
+  { q: "Preciso de site, domínio ou técnico?", a: "Não. É só criar a conta, configurar seu catálogo e compartilhar o link. Nada de programador, hospedagem ou domínio." },
 ];
 
 const STEPS = [
-  { num: "01", title: "Configure sua loja",     desc: "Cadastre-se, escolha o nome e personalize com logo e cores. Menos de 2 minutos para estar no ar.",
+  { num: "01", title: "Configure seu catálogo",     desc: "Cadastre-se, escolha o nome e personalize com logo e cores. Menos de 2 minutos para estar no ar.",
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
   { num: "02", title: "Cadastre seus produtos", desc: "Fotos, preços e variações como tamanho, sabor ou cor. Organize tudo por categorias.",
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> },
@@ -180,7 +183,7 @@ function TrustPill({ icon, children }) {
     <span style={{ display: "inline-flex", alignItems: "center", gap: 8,
       fontSize: 13, color: "#374151", fontWeight: 500,
       background: "#fff", border: "1px solid #E5E7EB",
-      borderRadius: 100, padding: "6px 14px" }}>
+      borderRadius: 100, padding: "6px 14px", whiteSpace: "nowrap" }}>
       {icon}
       {children}
     </span>
@@ -295,7 +298,7 @@ export default function FosfoHome() {
         .container { max-width:1100px; margin:0 auto; padding:0 24px; }
         .section-label { font-size:11.5px; font-weight:600; color:#16A34A; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; }
         .section-title { font-size:clamp(26px,3vw,34px); font-weight:800; color:#111827; letter-spacing:-.03em; line-height:1.15; }
-        @media(max-width:860px){.hero-grid,.demo-grid,.faq-grid{grid-template-columns:1fr!important} .visual-col{display:none!important} .stats-grid{grid-template-columns:repeat(2,1fr)!important} .steps-grid,.feat-grid{grid-template-columns:1fr!important}}
+        @media(max-width:860px){.hero-grid,.demo-grid,.faq-grid{grid-template-columns:1fr!important} .visual-col{display:none!important} .stats-grid{grid-template-columns:repeat(2,1fr)!important} .steps-grid,.feat-grid{grid-template-columns:1fr!important} .demo-text-col,.faq-text-col{text-align:center!important}}
         .mobile-menu-toggle { display: none; }
         @media(max-width:768px){
           .stats-grid{grid-template-columns:repeat(2,1fr)!important}
@@ -306,6 +309,7 @@ export default function FosfoHome() {
           .section{padding:48px 0!important}
           .btn-green, .btn-outline{width:100%!important;justify-content:center!important}
           .footer-links{display:none!important}
+          .cta-benefits{flex-direction:column!important;align-items:center!important}
         }
         .mobile-menu-overlay { position: fixed; top: 60px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 99; }
         .mobile-menu-overlay.open { opacity: 1; pointer-events: auto; }
@@ -341,7 +345,7 @@ export default function FosfoHome() {
           </div>
           <div className="nav-desktop-buttons" style={{ display:"flex", alignItems:"center", gap:8 }}>
             <a href="/login" className="nav-link" style={{ padding:"6px 12px", borderRadius:8 }}>Entrar</a>
-            <a href="/register" className="btn-green" style={{ fontSize:13, padding:"8px 16px" }}>Começar agora</a>
+            <a href="/register" className="btn-green" style={{ fontSize:13, padding:"8px 16px" }}>Criar meu catálogo grátis</a>
           </div>
           <button 
             className="mobile-menu-toggle"
@@ -379,7 +383,7 @@ export default function FosfoHome() {
         <a href="#faq" className="mobile-menu-item" onClick={(e) => handleSmoothScroll(e, 'faq')}>FAQ</a>
         <a href="/demo" className="mobile-menu-item">Ver demo</a>
         <a href="/login" className="mobile-menu-item">Entrar</a>
-        <a href="/register" className="btn-green mobile-menu-button" style={{ width:"calc(100% - 48px)", justifyContent:"center" }}>Começar agora</a>
+        <a href="/register" className="btn-green mobile-menu-button" style={{ width:"calc(100% - 48px)", justifyContent:"center" }}>Criar meu catálogo grátis</a>
       </div>
 
       {/* HERO */}
@@ -420,26 +424,26 @@ export default function FosfoHome() {
                     <circle cx="5" cy="5" r="3" fill="#16A34A"/>
                     <circle cx="5" cy="5" r="5" stroke="#86EFAC" strokeWidth="1"/>
                   </svg>
-                  Acesso liberado · sem cartão
+                  30 dias para testar · sem cartão
                 </TrustPill>
               </div>
               <h1 className="fade-up d2" style={{ fontSize:"clamp(36px,4.5vw,54px)", fontWeight:800,
                 color:"#0A0A09", lineHeight:1.08, letterSpacing:"-.03em", marginBottom:20 }}>
-                Seu sistema de<br />pedidos,{" "}
+                Seu catálogo online{" "}
                 <span style={{ color:"#16A34A", position:"relative", display:"inline-block" }}>
-                  com cara
+                  pronto
                   <svg viewBox="0 0 180 8" fill="none" style={{ position:"absolute", bottom:-4, left:0, width:"100%" }}>
                     <path d="M2 5.5C40 2 80 6.5 178 3" stroke="#BBF7D0" strokeWidth="3" strokeLinecap="round"/>
                   </svg>
-                </span>{" "}de loja.
+                </span>{" "}em minutos.
               </h1>
               <p className="fade-up d3" style={{ fontSize:17, color:"#6B7280", lineHeight:1.65,
                 maxWidth:420, marginBottom:36, fontWeight:400 }}>
-                Catálogo de produtos com variações, carrinho, gestão de pedidos e notificação via WhatsApp — tudo em um só lugar, pronto em minutos.
+                Cadastre seus produtos, compartilhe o link e comece a receber pedidos organizados — com carrinho, variações e notificação no WhatsApp.
               </p>
               <div className="fade-up d4" style={{ display:"flex", flexWrap:"wrap", gap:10, marginBottom:32 }}>
                 <a href="/register" className="btn-green">
-                  Começar agora
+                  Criar meu catálogo grátis
                   <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
                 <a href="/demo" className="btn-outline">
@@ -449,13 +453,13 @@ export default function FosfoHome() {
               </div>
               <div className="fade-up d5" style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
                 <TrustPill icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}>
-                  Sem burocracia
+                  30 dias para testar
                 </TrustPill>
                 <TrustPill icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}>
-                  Configuração rápida
+                  Sem cartão
                 </TrustPill>
                 <TrustPill icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>}>
-                  Suporte incluído
+                  Pronto em 2 minutos
                 </TrustPill>
               </div>
             </div>
@@ -481,6 +485,7 @@ export default function FosfoHome() {
         </div>
       </section>
 
+      <div className="hidden">
       {/* STATS */}
       <section style={{ borderTop:"1px solid #F3F4F6", borderBottom:"1px solid #F3F4F6", background:"#fff" }}>
         <div className="container">
@@ -498,6 +503,26 @@ export default function FosfoHome() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+      </div>
+
+      {/* WHATSAPP PROBLEM/SOLUTION */}
+      <section className="section" style={{ background:"#fff" }}>
+        <div className="container">
+          <div style={{ maxWidth:680, margin:"0 auto", textAlign:"center" }}>
+            <h2 style={{ fontSize:"clamp(28px,3.2vw,38px)", fontWeight:800, color:"#111827",
+              letterSpacing:"-.03em", lineHeight:1.2, marginBottom:20 }}>
+              WhatsApp para vender é ótimo. Para organizar pedido, nem tanto.
+            </h2>
+            <p style={{ fontSize:17, color:"#6B7280", lineHeight:1.7, marginBottom:24 }}>
+              Pedido que some na conversa. Cliente que manda áudio. Quantidade errada. 
+              Você anotando tudo no papel ou no bloco de notas.
+            </p>
+            <p style={{ fontSize:18, fontWeight:600, color:"#111827", lineHeight:1.65 }}>
+              O sistema não te faz largar o WhatsApp. Ele organiza o que chega nele.
+            </p>
           </div>
         </div>
       </section>
@@ -596,7 +621,7 @@ export default function FosfoHome() {
               <strong style={{ color:"#111827", fontWeight:700 }}>Fosfo Pedidos</strong>
             </p>
             <a href="/register" className="btn-green">
-              Começar agora
+              Criar meu catálogo grátis
               <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
           </div>
@@ -607,17 +632,17 @@ export default function FosfoHome() {
       <section className="section" style={{ background:"#FAFAF9" }}>
         <div className="container">
           <div className="demo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:56, alignItems:"center" }}>
-            <div style={{ textAlign:"center" }}>
+            <div className="demo-text-col">
               <div className="section-label">Veja ao vivo</div>
               <h2 style={{ fontSize:"clamp(24px,2.8vw,32px)", fontWeight:800, color:"#111827",
                 letterSpacing:"-.03em", lineHeight:1.15, marginBottom:14 }}>Teste agora,<br />sem cadastro.</h2>
               <p style={{ fontSize:15, color:"#6B7280", lineHeight:1.65, marginBottom:0 }}>
-                Explore nossa loja demo com produtos reais, carrinho funcional e checkout completo. O painel admin também está aberto para você ver como funciona a gestão de pedidos.
+                Explore nosso catálogo demo com produtos reais, carrinho funcional e checkout completo. O painel admin também está aberto para você ver como funciona a gestão de pedidos.
               </p>
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
               {[
-                { label:"Loja pública",  desc:"Catálogo com variações e carrinho",        href:"/demo", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> },
+                { label:"Catálogo público",  desc:"Catálogo com variações e carrinho",        href:"/demo", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> },
                 { label:"Painel admin",  desc:"Gestão de pedidos, produtos e métricas",   href:"/demo-admin", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg> },
               ].map(item => (
                 <a key={item.label} href={item.href} style={{
@@ -676,7 +701,7 @@ export default function FosfoHome() {
         style={{ background:"#FAFAF9", borderTop:"1px solid #F3F4F6" }}>
         <div className="container">
           <div className="faq-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1.6fr", gap:80, alignItems:"start" }}>
-            <div style={{ position:"sticky", top:80, textAlign:"center" }}>
+            <div className="faq-text-col" style={{ position:"sticky", top:80 }}>
               <div className="section-label">Dúvidas frequentes</div>
               <h2 style={{ fontSize:"clamp(22px,2.5vw,28px)", fontWeight:800, color:"#111827",
                 letterSpacing:"-.03em", lineHeight:1.2, marginBottom:14 }}>
@@ -699,21 +724,27 @@ export default function FosfoHome() {
           <div style={{ maxWidth:480, margin:"0 auto" }}>
             <h2 style={{ fontSize:"clamp(28px,3.5vw,40px)", fontWeight:800, color:"#111827",
               letterSpacing:"-.03em", lineHeight:1.1, marginBottom:14 }}>
-              Comece a organizar seus pedidos hoje.
+              Testa agora. Decide depois.
             </h2>
             <p style={{ fontSize:16, color:"#6B7280", lineHeight:1.65, marginBottom:32 }}>
-              Junte-se a centenas de empreendedores que já usam o Fosfo para crescer seus negócios.
+              30 dias grátis, sem cartão, sem obrigação. Se não resolver seu problema, não paga nada. Se resolver — e vai resolver — continua por um valor que cabe no orçamento de qualquer pequeno negócio.
             </p>
-            <div style={{ display:"flex", justifyContent:"center", gap:10, flexWrap:"wrap", marginBottom:20 }}>
-              <a href="/register" className="btn-green" style={{ fontSize:15, padding:"13px 28px" }}>Criar minha loja grátis</a>
-              <a href="/demo" className="btn-outline" style={{ fontSize:15, padding:"13px 28px" }}>Ver demonstração</a>
+            <div style={{ display:"flex", justifyContent:"center", gap:10, flexWrap:"wrap", marginBottom:12 }}>
+              <a href="/register" className="btn-green" style={{ fontSize:15, padding:"13px 28px" }}>Criar meu catálogo agora →</a>
             </div>
-            <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", gap:20 }}>
-              {["Sem burocracia","Configuração em minutos","Suporte incluído"].map(t => (
-                <span key={t} style={{ fontSize:12.5, color:"#9CA3AF", display:"flex", alignItems:"center", gap:5 }}>
-                  <span style={{ color:"#16A34A" }}>·</span>{t}
-                </span>
-              ))}
+            <p style={{ fontSize:14, color:"#9CA3AF", marginBottom:20 }}>
+              Já tem conta? <a href="/login" style={{ color:"#16A34A", fontWeight:600, textDecoration:"none" }}>Entrar</a>
+            </p>
+            <div className="cta-benefits" style={{ display:"flex", justifyContent:"center", gap:12 }}>
+              <TrustPill icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}>
+                30 dias para testar
+              </TrustPill>
+              <TrustPill icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>}>
+                Sem cartão
+              </TrustPill>
+              <TrustPill icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>}>
+                Pronto em 2 minutos
+              </TrustPill>
             </div>
           </div>
         </div>

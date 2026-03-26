@@ -70,7 +70,7 @@ export default function AdminDashboard() {
         <div className="h-16 w-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
           <Package className="h-8 w-8 text-gray-400" />
         </div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Nenhuma loja encontrada</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Nenhum catálogo encontrado</h2>
         <p className="text-gray-500 mb-6">Entre em contato com o suporte.</p>
       </div>
     )
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
         <div style={{ background: '#FFF7ED', borderLeft: '4px solid #EA580C', borderRadius: 10, padding: '14px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
           <AlertCircle className="h-5 w-5 text-orange-600 shrink-0" />
           <div className="flex-1">
-            <p className="text-sm text-orange-800">Seu período de teste encerrou. Entre em contato para reativar sua loja.</p>
+            <p className="text-sm text-orange-800">Seu período de teste encerrou. Entre em contato para reativar seu catálogo.</p>
           </div>
           <a href="https://wa.me/5551981219406" target="_blank" rel="noopener noreferrer" style={{ background: '#EA580C', color: '#fff', fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>
             Reativar agora
@@ -282,7 +282,7 @@ export default function AdminDashboard() {
           {[
             { 
               label: 'Novo produto', 
-              desc: 'Adicione um produto à sua loja', 
+              desc: 'Adicione um produto ao seu catálogo', 
               href: '/admin/products/create',
               icon: Package,
               color: 'from-blue-500 to-blue-600'
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
             },
             { 
               label: 'Configurações', 
-              desc: 'Personalize sua loja', 
+              desc: 'Personalize seu catálogo', 
               href: '/admin/settings',
               icon: TrendingUp,
               color: 'from-purple-500 to-purple-600'

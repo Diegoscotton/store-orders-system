@@ -91,17 +91,17 @@ export default function SettingsPage() {
     <div className="pb-24">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Configurações</h1>
-        <p className="text-gray-500 mt-1">Personalize sua loja</p>
+        <p className="text-gray-500 mt-1">Personalize seu catálogo</p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          {/* Dados da loja */}
+          {/* Dados do catálogo */}
           <Card>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Dados da loja</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Dados do catálogo</h2>
             <form onSubmit={handleSave} className="space-y-4">
               <Input
-                label="Nome da loja"
+                label="Nome do catálogo"
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value)
@@ -113,12 +113,12 @@ export default function SettingsPage() {
                 label="Slug (URL)"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                hint={`Sua loja: seusite.com/${slug}`}
+                hint={`Seu catálogo: seusite.com/${slug}`}
                 required
               />
               <Textarea
                 label="Descrição"
-                placeholder="Descreva sua loja em poucas palavras..."
+                placeholder="Descreva seu catálogo em poucas palavras..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
@@ -133,7 +133,7 @@ export default function SettingsPage() {
               {/* Logo */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Logo</label>
-                <p className="text-xs text-gray-500 mb-2">Logo horizontal usado no header da loja</p>
+                <p className="text-xs text-gray-500 mb-2">Logo horizontal usado no header do catálogo</p>
                 <div className="flex items-start gap-4">
                   {logoUrl && (
                     <div className="h-16 w-48 bg-gray-100 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-2">
@@ -258,7 +258,7 @@ export default function SettingsPage() {
                     </div>
                   )}
                   <div>
-                    <p className="font-semibold text-sm">{name || 'Nome da loja'}</p>
+                    <p className="font-semibold text-sm">{name || 'Nome do catálogo'}</p>
                     <p className="text-xs text-gray-500">{description || 'Descrição...'}</p>
                   </div>
                 </div>
@@ -275,7 +275,7 @@ export default function SettingsPage() {
               className="mt-4 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors"
             >
               <ExternalLink className="h-4 w-4" />
-              Ver loja ao vivo
+              Ver catálogo ao vivo
             </a>
           </Card>
         </div>

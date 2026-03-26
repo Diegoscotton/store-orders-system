@@ -75,7 +75,7 @@ function StoreContent({ store, products, banners, categories }: Props) {
           <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm">
               <span className="text-xl">🎯</span>
-              <span className="font-medium">Loja Demonstração</span>
+              <span className="font-medium">Catálogo Demonstração</span>
               <span className="hidden sm:inline">•</span>
               <span className="hidden sm:inline">Explore todas as funcionalidades</span>
             </div>
@@ -96,7 +96,7 @@ function StoreContent({ store, products, banners, categories }: Props) {
                 href="/register"
                 className="inline-flex items-center gap-1 bg-white text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors"
               >
-                Criar minha loja →
+                Criar meu catálogo →
               </a>
             </div>
           </div>

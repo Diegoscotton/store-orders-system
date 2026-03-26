@@ -90,7 +90,7 @@ export default function BannersPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Banners</h1>
-          <p className="text-gray-500 mt-1">Gerencie os banners da sua loja</p>
+          <p className="text-gray-500 mt-1">Gerencie os banners do seu catálogo</p>
           <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mt-2 inline-block">
             <p className="text-sm text-gray-700 font-medium">📐 Dimensão recomendada: 1200x400px (ratio 3:1)</p>
           </div>
@@ -118,7 +118,7 @@ export default function BannersPage() {
             <ImageIcon className="h-7 w-7 text-gray-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-1">Nenhum banner</h3>
-          <p className="text-gray-500 mb-2">Adicione banners para destacar promoções na sua loja</p>
+          <p className="text-gray-500 mb-2">Adicione banners para destacar promoções no seu catálogo</p>
           <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mx-auto inline-block mb-6">
             <p className="text-sm text-gray-700 font-medium">📐 Dimensão recomendada: 1200x400px (ratio 3:1)</p>
           </div>
