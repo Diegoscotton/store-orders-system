@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { getDashboardMetrics, type DashboardMetrics } from '@/services/dashboardService'
 import { Card, MetricCardSkeleton, Badge } from '@/components/ui'
-import { Package, ShoppingCart, Clock, TrendingUp, DollarSign, CheckCircle, Eye, AlertTriangle, AlertCircle } from 'lucide-react'
+import { Package, ShoppingCart, Clock, TrendingUp, DollarSign, CheckCircle, Eye, AlertTriangle, AlertCircle, Compass, ExternalLink, MessageCircle } from 'lucide-react'
 import { formatCurrency, getTrialDaysLeft } from '@/lib/utils'
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
@@ -103,7 +104,7 @@ export default function AdminDashboard() {
     const diffMs = end.getTime() - now.getTime()
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
     if (diffDays < 0) return { type: 'expired' }
-    if (diffDays <= 10) return { type: 'expiring', days: diffDays }
+    if (diffDays <= 7) return { type: 'expiring', days: diffDays }
     return null
   }
 
@@ -120,10 +121,10 @@ export default function AdminDashboard() {
         <div style={{ background: '#FFFBEB', borderLeft: '4px solid #F59E0B', borderRadius: 10, padding: '14px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
           <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
           <div className="flex-1">
-            <p className="text-sm text-amber-800">Seu período de teste expira em <strong>{trialWarning.days} dia{trialWarning.days !== 1 ? 's' : ''}</strong>. Entre em contato para continuar usando o Fosfo.</p>
+            <p className="text-sm text-amber-800">Seu período de teste expira em <strong>{trialWarning.days} dia{trialWarning.days !== 1 ? 's' : ''}</strong>. Assine agora por apenas R$ 49,90/mês e continue recebendo pedidos sem interrupção.</p>
           </div>
-          <a href="https://wa.me/5551981219406" target="_blank" rel="noopener noreferrer" style={{ background: '#F59E0B', color: '#fff', fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>
-            Falar com suporte
+          <a href="https://wa.me/5554981219406?text=Olá!%20Quero%20assinar%20o%20Sistema%20de%20Pedidos%20Fosfo%20por%20R%24%2049%2C90%2Fmês." target="_blank" rel="noopener noreferrer" style={{ background: '#F59E0B', color: '#fff', fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            Assinar via WhatsApp
           </a>
         </div>
       )}
@@ -166,6 +167,70 @@ export default function AdminDashboard() {
             </div>
           </Card>
         ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Link href="/admin/start">
+          <Card className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-green-200">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 bg-green-50 rounded-xl flex items-center justify-center group-hover:bg-green-100 transition-colors">
+                <Compass className="h-6 w-6 text-green-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900 group-hover:text-green-600 transition-colors">Por onde começar</h3>
+                <p className="text-sm text-gray-600">Configure sua loja em poucos passos</p>
+              </div>
+              <div className="text-gray-400 group-hover:text-green-600 group-hover:translate-x-1 transition-all">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </div>
+          </Card>
+        </Link>
+
+        {store?.slug && (
+          <Link href={`/${store.slug}`} target="_blank">
+            <Card className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-blue-200">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                  <ExternalLink className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">Acessar meu catálogo</h3>
+                  <p className="text-sm text-gray-600">Veja como seus clientes veem sua loja</p>
+                </div>
+                <div className="text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </div>
+              </div>
+            </Card>
+          </Link>
+        )}
+
+        {!store?.is_demo && (
+          <a href="https://wa.me/5554981219406?text=Olá!%20Preciso%20de%20ajuda%20com%20o%20Sistema%20de%20Pedidos%20Fosfo." target="_blank" rel="noopener noreferrer">
+            <Card className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:border-purple-200">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 bg-purple-50 rounded-xl flex items-center justify-center group-hover:bg-purple-100 transition-colors">
+                  <MessageCircle className="h-6 w-6 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">Falar com suporte</h3>
+                  <p className="text-sm text-gray-600">Tire suas dúvidas pelo WhatsApp</p>
+                </div>
+                <div className="text-gray-400 group-hover:text-purple-600 group-hover:translate-x-1 transition-all">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </div>
+              </div>
+            </Card>
+          </a>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

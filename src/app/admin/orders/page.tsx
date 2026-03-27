@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { getOrders, updateOrderStatus, updateOrdersStatusBatch } from '@/services/orderService'
 import { Button, Card, Badge, Modal, ModalContent, useToast, Skeleton } from '@/components/ui'
-import { ShoppingCart, Eye, Printer, CheckCircle, Clock, ChefHat, PackageCheck, Truck, XCircle, Search } from 'lucide-react'
+import { ShoppingCart, Eye, Printer, CheckCircle, Clock, ChefHat, PackageCheck, Truck, XCircle, Search, MessageCircle } from 'lucide-react'
 import { formatCurrency, formatDate, formatPhone } from '@/lib/utils'
 import type { Order, OrderStatus } from '@/types'
 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '@/types'
@@ -372,8 +372,23 @@ export default function OrdersPage() {
                   </td>
                   <td className="px-3 py-4 font-medium text-gray-900">#{order.order_number}</td>
                   <td className="px-3 py-4">
-                    <p className="text-sm font-medium text-gray-900">{order.customer_name}</p>
-                    <p className="text-xs text-gray-500">{formatPhone(order.customer_phone)}</p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900">{order.customer_name}</p>
+                        <p className="text-xs text-gray-500">{formatPhone(order.customer_phone)}</p>
+                      </div>
+                      {order.customer_phone && (
+                        <a
+                          href={`https://wa.me/55${order.customer_phone.replace(/\D/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                          title="Contatar cliente"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </a>
+                      )}
+                    </div>
                   </td>
                   <td className="px-3 py-4 font-semibold text-gray-900">{formatCurrency(order.total_amount || order.total || 0)}</td>
                   <td className="px-3 py-4">
@@ -414,7 +429,20 @@ export default function OrdersPage() {
               {/* Customer info */}
               <div className="bg-gray-50 rounded-xl p-4 space-y-2">
                 <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase">Cliente</p>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-xs font-medium text-gray-500 uppercase">Cliente</p>
+                    {selectedOrder.customer_phone && (
+                      <a
+                        href={`https://wa.me/55${selectedOrder.customer_phone.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500 text-white text-xs font-medium hover:bg-green-600 transition-colors"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        Contatar cliente
+                      </a>
+                    )}
+                  </div>
                   <p className="font-medium text-gray-900">{selectedOrder.customer_name}</p>
                   <p className="text-sm text-gray-600">{formatPhone(selectedOrder.customer_phone)}</p>
                 </div>

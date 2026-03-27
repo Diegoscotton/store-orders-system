@@ -311,6 +311,9 @@ export default function FosfoHome() {
           .footer-links{display:none!important}
           .cta-benefits{flex-direction:column!important;align-items:center!important}
         }
+        @media(max-width:580px){
+          .problem-comparison{grid-template-columns:1fr!important}
+        }
         .mobile-menu-overlay { position: fixed; top: 60px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 99; }
         .mobile-menu-overlay.open { opacity: 1; pointer-events: auto; }
         .mobile-menu { position: fixed; top: 60px; right: -100%; width: 280px; height: calc(100vh - 60px); background: #fff; box-shadow: -4px 0 24px rgba(0,0,0,0.1); transition: right 0.3s ease; z-index: 100; overflow-y: auto; }
@@ -508,21 +511,89 @@ export default function FosfoHome() {
       </section>
       </div>
 
-      {/* WHATSAPP PROBLEM/SOLUTION */}
+      {/* O PROBLEMA */}
       <section className="section" style={{ background:"#fff" }}>
         <div className="container">
-          <div style={{ maxWidth:680, margin:"0 auto", textAlign:"center" }}>
+          <div style={{ textAlign:"center", marginBottom:48 }}>
+            <div className="section-label">O problema</div>
             <h2 style={{ fontSize:"clamp(28px,3.2vw,38px)", fontWeight:800, color:"#111827",
-              letterSpacing:"-.03em", lineHeight:1.2, marginBottom:20 }}>
-              WhatsApp para vender é ótimo. Para organizar pedido, nem tanto.
+              letterSpacing:"-.03em", lineHeight:1.2, marginBottom:16 }}>
+              WhatsApp para vender é ótimo.<br />Para organizar pedido, nem tanto.
             </h2>
-            <p style={{ fontSize:17, color:"#6B7280", lineHeight:1.7, marginBottom:24 }}>
-              Pedido que some na conversa. Cliente que manda áudio. Quantidade errada. 
-              Você anotando tudo no papel ou no bloco de notas.
+            <p style={{ fontSize:17, color:"#6B7280", lineHeight:1.65, maxWidth:560, margin:"0 auto" }}>
+              Pedido que some na conversa. Cliente que muda de ideia. Você que não sabe quanto vendeu no dia.
             </p>
-            <p style={{ fontSize:18, fontWeight:600, color:"#111827", lineHeight:1.65 }}>
-              O sistema não te faz largar o WhatsApp. Ele organiza o que chega nele.
-            </p>
+          </div>
+          <div className="problem-comparison" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, maxWidth:760, margin:"0 auto" }}>
+            {/* Card Esquerdo - Sem o sistema */}
+            <div style={{ background:"#fff", border:"1px solid #E5E7EB", borderRadius:12, padding:32, 
+              boxShadow:"0 1px 3px rgba(0,0,0,0.05)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:24 }}>
+                <div style={{ width:40, height:40, borderRadius:12, background:"#FEF2F2", border:"1px solid #FEE2E2",
+                  display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </div>
+                <div style={{ fontSize:13, fontWeight:600, color:"#6B7280", letterSpacing:".02em", textTransform:"uppercase" }}>Sem o sistema</div>
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+                {[
+                  { title:"Pedidos perdidos", desc:"sumindo no meio das conversas" },
+                  { title:"Zero registro", desc:"quem pediu o quê? Ninguém sabe" },
+                  { title:"Retrabalho constante", desc:"preço e variação digitados na mão" },
+                  { title:"Sem visão de faturamento", desc:"quanto você vendeu hoje?" }
+                ].map((item, i) => (
+                  <div key={i} style={{ display:"flex", gap:12, alignItems:"start" }}>
+                    <div style={{ width:18, height:18, borderRadius:"50%", border:"2px solid #FEE2E2",
+                      display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:2 }}>
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div style={{ fontSize:14.5, fontWeight:600, color:"#111827", lineHeight:1.4, marginBottom:3 }}>{item.title}</div>
+                      <div style={{ fontSize:13.5, color:"#6B7280", lineHeight:1.5 }}>{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Card Direito - Com o sistema */}
+            <div style={{ background:"#fff", border:"1px solid #E5E7EB", borderRadius:12, padding:32,
+              boxShadow:"0 1px 3px rgba(0,0,0,0.05)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:24 }}>
+                <div style={{ width:40, height:40, borderRadius:12, background:"#F0FDF4", border:"1px solid #DCFCE7",
+                  display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </div>
+                <div style={{ fontSize:13, fontWeight:600, color:"#6B7280", letterSpacing:".02em", textTransform:"uppercase" }}>Com o sistema</div>
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+                {[
+                  { title:"Tudo numerado e organizado", desc:"cada pedido com status e horário" },
+                  { title:"Catálogo completo", desc:"cliente escolhe direto, sem erro" },
+                  { title:"WhatsApp automático", desc:"notificação pré-formatada no pedido" },
+                  { title:"Painel completo", desc:"pedidos, produtos e faturamento do dia" }
+                ].map((item, i) => (
+                  <div key={i} style={{ display:"flex", gap:12, alignItems:"start" }}>
+                    <div style={{ width:18, height:18, borderRadius:"50%", border:"2px solid #DCFCE7",
+                      display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:2 }}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div style={{ fontSize:14.5, fontWeight:600, color:"#111827", lineHeight:1.4, marginBottom:3 }}>{item.title}</div>
+                      <div style={{ fontSize:13.5, color:"#6B7280", lineHeight:1.5 }}>{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -719,32 +790,78 @@ export default function FosfoHome() {
       </section>
 
       {/* CTA FINAL */}
-      <section className="section" style={{ borderTop:"1px solid #F3F4F6" }}>
-        <div className="container" style={{ textAlign:"center" }}>
-          <div style={{ maxWidth:480, margin:"0 auto" }}>
-            <h2 style={{ fontSize:"clamp(28px,3.5vw,40px)", fontWeight:800, color:"#111827",
-              letterSpacing:"-.03em", lineHeight:1.1, marginBottom:14 }}>
-              Testa agora. Decide depois.
-            </h2>
-            <p style={{ fontSize:16, color:"#6B7280", lineHeight:1.65, marginBottom:32 }}>
-              30 dias grátis, sem cartão, sem obrigação. Se não resolver seu problema, não paga nada. Se resolver — e vai resolver — continua por um valor que cabe no orçamento de qualquer pequeno negócio.
-            </p>
-            <div style={{ display:"flex", justifyContent:"center", gap:10, flexWrap:"wrap", marginBottom:12 }}>
-              <a href="/register" className="btn-green" style={{ fontSize:15, padding:"13px 28px" }}>Criar meu catálogo agora →</a>
-            </div>
-            <p style={{ fontSize:14, color:"#9CA3AF", marginBottom:20 }}>
-              Já tem conta? <a href="/login" style={{ color:"#16A34A", fontWeight:600, textDecoration:"none" }}>Entrar</a>
-            </p>
-            <div className="cta-benefits" style={{ display:"flex", justifyContent:"center", gap:12 }}>
-              <TrustPill icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}>
-                30 dias para testar
-              </TrustPill>
-              <TrustPill icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>}>
-                Sem cartão
-              </TrustPill>
-              <TrustPill icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>}>
-                Pronto em 2 minutos
-              </TrustPill>
+      <section className="section">
+        <div className="container">
+          <div style={{ position:"relative", background:"#111c14", borderRadius:20, padding:"72px 32px", 
+            overflow:"hidden", textAlign:"center" }}>
+            {/* Glow effect */}
+            <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", 
+              width:600, height:400, background:"radial-gradient(circle, rgba(99,153,34,0.2) 0%, transparent 70%)",
+              pointerEvents:"none", zIndex:0 }}></div>
+            
+            {/* Content */}
+            <div style={{ position:"relative", zIndex:1, maxWidth:560, margin:"0 auto" }}>
+              {/* Top pill */}
+              <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(99,153,34,0.18)",
+                border:"1px solid rgba(99,153,34,0.4)", borderRadius:99, padding:"6px 14px", marginBottom:24 }}>
+                <div style={{ width:5, height:5, borderRadius:"50%", background:"#97C459" }}></div>
+                <span style={{ fontSize:12.5, fontWeight:600, color:"#97C459", letterSpacing:".01em" }}>
+                  30 dias grátis · sem cartão
+                </span>
+              </div>
+
+              {/* Headline */}
+              <h2 style={{ fontSize:"clamp(32px,4vw,48px)", fontWeight:800, color:"#f0f0ea",
+                letterSpacing:"-.03em", lineHeight:1.15, marginBottom:16 }}>
+                Testa agora.<br />Decide depois.
+              </h2>
+
+              {/* Subtitle */}
+              <p style={{ fontSize:17, color:"rgba(240,240,234,0.5)", lineHeight:1.65, marginBottom:32 }}>
+                30 dias sem custo, sem compromisso. Você cria, seus clientes pedem — e você decide se ficou bom.
+              </p>
+
+              {/* CTA Button */}
+              <div style={{ marginBottom:16 }}>
+                <a href="/register" style={{ display:"inline-flex", alignItems:"center", gap:8,
+                  background:"#639922", color:"#fff", borderRadius:10, padding:"15px 32px",
+                  fontSize:15.5, fontWeight:600, textDecoration:"none", transition:"all 0.2s" }}>
+                  Criar meu catálogo agora
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </a>
+              </div>
+
+              {/* Login link */}
+              <p style={{ fontSize:13.5, color:"rgba(240,240,234,0.35)", marginBottom:32 }}>
+                Já tem conta? <a href="/login" style={{ color:"rgba(240,240,234,0.5)", textDecoration:"underline", fontWeight:500 }}>Entrar</a>
+              </p>
+
+              {/* Bottom pills */}
+              <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", gap:10 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:7, background:"rgba(255,255,255,0.06)",
+                  border:"0.5px solid rgba(255,255,255,0.12)", borderRadius:99, padding:"7px 16px" }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#639922" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <span style={{ fontSize:12, color:"rgba(240,240,234,0.55)", fontWeight:500 }}>30 dias para testar</span>
+                </div>
+                <div style={{ display:"flex", alignItems:"center", gap:7, background:"rgba(255,255,255,0.06)",
+                  border:"0.5px solid rgba(255,255,255,0.12)", borderRadius:99, padding:"7px 16px" }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#639922" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  <span style={{ fontSize:12, color:"rgba(240,240,234,0.55)", fontWeight:500 }}>Sem cartão</span>
+                </div>
+                <div style={{ display:"flex", alignItems:"center", gap:7, background:"rgba(255,255,255,0.06)",
+                  border:"0.5px solid rgba(255,255,255,0.12)", borderRadius:99, padding:"7px 16px" }}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#639922" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span style={{ fontSize:12, color:"rgba(240,240,234,0.55)", fontWeight:500 }}>Pronto em 2 minutos</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
