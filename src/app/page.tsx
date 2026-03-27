@@ -320,7 +320,7 @@ export default function FosfoHome() {
         .mobile-menu.open { right: 0; }
         .mobile-menu-item { display: block; padding: 16px 24px; color: #374151; font-size: 15px; font-weight: 500; text-decoration: none; border-bottom: 1px solid #F3F4F6; transition: background 0.2s; }
         .mobile-menu-item:hover { background: #F9FAFB; }
-        .mobile-menu-button { padding: 16px 24px; margin: 16px 24px; }
+        .mobile-menu-button { padding: 12px 20px !important; margin: 16px 24px; font-size: 13px !important; box-sizing: border-box; max-width: calc(100% - 48px) !important; }
       `}</style>
 
       {/* NAVBAR */}
@@ -791,8 +791,8 @@ export default function FosfoHome() {
 
       {/* CTA FINAL */}
       <section className="section">
-        <div className="container">
-          <div style={{ position:"relative", background:"#111c14", borderRadius:20, padding:"72px 32px", 
+        <div className="container" style={{ paddingLeft:16, paddingRight:16 }}>
+          <div style={{ position:"relative", background:"#111c14", borderRadius:20, padding:"clamp(32px, 8vw, 72px) clamp(16px, 5vw, 32px)", 
             overflow:"hidden", textAlign:"center" }}>
             {/* Glow effect */}
             <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", 
@@ -824,14 +824,26 @@ export default function FosfoHome() {
               {/* CTA Button */}
               <div style={{ marginBottom:16 }}>
                 <a href="/register" style={{ display:"inline-flex", alignItems:"center", gap:8,
-                  background:"#639922", color:"#fff", borderRadius:10, padding:"15px 32px",
-                  fontSize:15.5, fontWeight:600, textDecoration:"none", transition:"all 0.2s" }}>
-                  Criar meu catálogo agora
+                  background:"#639922", color:"#fff", borderRadius:10, padding:"14px 24px",
+                  fontSize:14, fontWeight:600, textDecoration:"none", transition:"all 0.2s", 
+                  maxWidth:"100%", boxSizing:"border-box", width:"100%", justifyContent:"center" }}>
+                  <span style={{ whiteSpace:"nowrap" }}>Criar meu catálogo agora</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7"/>
                   </svg>
                 </a>
               </div>
+
+              {/* Mobile-specific button adjustments */}
+              <style jsx>{`
+                @media (max-width: 480px) {
+                  a[href="/register"] {
+                    padding: 12px 20px !important;
+                    font-size: 13px !important;
+                    width: 100% !important;
+                  }
+                }
+              `}</style>
 
               {/* Login link */}
               <p style={{ fontSize:13.5, color:"rgba(240,240,234,0.35)", marginBottom:32 }}>

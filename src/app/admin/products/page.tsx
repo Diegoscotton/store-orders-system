@@ -64,17 +64,17 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="w-full md:w-auto">
           <h1 className="text-2xl font-bold text-gray-900">Produtos</h1>
           <p className="text-gray-500 mt-1">{products.length} produto{products.length !== 1 ? 's' : ''} cadastrado{products.length !== 1 ? 's' : ''}</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={() => loadProducts()} disabled={loading}>
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto">
+          <Button variant="outline" onClick={() => loadProducts()} disabled={loading} className="w-full md:w-auto">
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Atualizar
           </Button>
-          <Button onClick={() => router.push('/admin/products/create')}>
+          <Button onClick={() => router.push('/admin/products/create')} className="w-full md:w-auto">
             <Plus className="h-4 w-4" />
             Novo produto
           </Button>
@@ -233,24 +233,20 @@ export default function ProductsPage() {
                     )}
                   </div>
                   
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                  <div className="flex items-center justify-end gap-1 pt-2 border-t border-gray-100">
                     <Button
-                      variant="outline"
-                      size="sm"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => router.push(`/admin/products/${product.id}/edit`)}
-                      className="flex items-center gap-2"
                     >
                       <Pencil className="h-4 w-4" />
-                      Editar
                     </Button>
                     <Button
-                      variant="outline"
-                      size="sm"
+                      variant="ghost"
+                      size="icon"
                       onClick={() => handleDelete(product)}
-                      className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:border-red-200"
                     >
-                      <Trash2 className="h-4 w-4" />
-                      Excluir
+                      <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>
                 </div>

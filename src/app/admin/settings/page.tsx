@@ -134,7 +134,9 @@ export default function SettingsPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Logo</label>
                 <p className="text-xs text-gray-500 mb-2">Logo horizontal usado no header do catálogo</p>
-                <div className="flex items-start gap-4">
+                
+                {/* Desktop Layout */}
+                <div className="hidden md:flex items-start gap-4">
                   {logoUrl && (
                     <div className="h-16 w-48 bg-gray-100 rounded-xl overflow-hidden shrink-0 flex items-center justify-center p-2">
                       <img src={logoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
@@ -152,6 +154,27 @@ export default function SettingsPage() {
                     </Button>
                     <p className="text-xs text-gray-400 mt-1">JPG, PNG. Recomendado: 400x100px ou formato horizontal</p>
                   </div>
+                  <input ref={logoRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                </div>
+
+                {/* Mobile Layout */}
+                <div className="md:hidden space-y-3">
+                  {logoUrl && (
+                    <div className="w-full h-24 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center p-3">
+                      <img src={logoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
+                    </div>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => logoRef.current?.click()}
+                    loading={uploadingLogo}
+                    className="w-full"
+                  >
+                    <Upload className="h-4 w-4" />
+                    {logoUrl ? 'Trocar logo' : 'Enviar logo'}
+                  </Button>
+                  <p className="text-xs text-gray-400">JPG, PNG. Recomendado: 400x100px ou formato horizontal</p>
                   <input ref={logoRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                 </div>
               </div>

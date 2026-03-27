@@ -118,12 +118,12 @@ export default function AdminDashboard() {
       </div>
 
       {trialWarning?.type === 'expiring' && (
-        <div style={{ background: '#FFFBEB', borderLeft: '4px solid #F59E0B', borderRadius: 10, padding: '14px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ background: '#FFFBEB', borderLeft: '4px solid #F59E0B', borderRadius: 10, padding: '14px 20px', marginBottom: 24, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12 }}>
           <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
-          <div className="flex-1">
+          <div className="flex-1" style={{ minWidth: '200px' }}>
             <p className="text-sm text-amber-800">Seu período de teste expira em <strong>{trialWarning.days} dia{trialWarning.days !== 1 ? 's' : ''}</strong>. Assine agora por apenas R$ 49,90/mês e continue recebendo pedidos sem interrupção.</p>
           </div>
-          <a href="https://wa.me/5554981219406?text=Olá!%20Quero%20assinar%20o%20Sistema%20de%20Pedidos%20Fosfo%20por%20R%24%2049%2C90%2Fmês." target="_blank" rel="noopener noreferrer" style={{ background: '#F59E0B', color: '#fff', fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+          <a href="https://wa.me/5554981219406?text=Olá!%20Quero%20assinar%20o%20Sistema%20de%20Pedidos%20Fosfo%20por%20R%24%2049%2C90%2Fmês." target="_blank" rel="noopener noreferrer" style={{ background: '#F59E0B', color: '#fff', fontSize: 13, fontWeight: 600, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
             Assinar via WhatsApp
           </a>
         </div>

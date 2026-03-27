@@ -105,12 +105,12 @@ export default function CategoriesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="w-full md:w-auto">
           <h1 className="text-2xl font-bold text-gray-900">Categorias</h1>
           <p className="text-gray-500 mt-1">Organize seus produtos por categorias</p>
         </div>
-        <Button onClick={handleOpenCreate}>
+        <Button onClick={handleOpenCreate} className="w-full md:w-auto">
           <Plus className="h-4 w-4" />
           Nova categoria
         </Button>
@@ -130,50 +130,98 @@ export default function CategoriesPage() {
         </Card>
       ) : (
         <Card className="p-0 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Nome</th>
-                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Produtos</th>
-                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
-                <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((cat) => (
-                <tr key={cat.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="font-medium text-gray-900">{cat.name}</p>
-                      {cat.description && (
-                        <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{cat.description}</p>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm text-gray-600">
-                      {cat.product_count} {cat.product_count === 1 ? 'produto' : 'produtos'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Badge variant={cat.is_active ? 'success' : 'default'}>
-                      {cat.is_active ? 'Ativa' : 'Inativa'}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(cat)} title="Editar">
-                        <Pencil className="h-4 w-4 text-gray-500" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleOpenDelete(cat)} title="Excluir">
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </td>
+          {/* Desktop/Tablet Table */}
+          <div className="hidden md:block">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-100 bg-gray-50/50">
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Nome</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Produtos</th>
+                  <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
+                  <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Ações</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {categories.map((cat) => (
+                  <tr key={cat.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div>
+                        <p className="font-medium text-gray-900">{cat.name}</p>
+                        {cat.description && (
+                          <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{cat.description}</p>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-gray-600">
+                        {cat.product_count} {cat.product_count === 1 ? 'produto' : 'produtos'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Badge variant={cat.is_active ? 'success' : 'default'}>
+                        {cat.is_active ? 'Ativa' : 'Inativa'}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(cat)} title="Editar">
+                          <Pencil className="h-4 w-4 text-gray-500" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleOpenDelete(cat)} title="Excluir">
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden divide-y divide-gray-100">
+            {categories.map((cat) => (
+              <div key={cat.id} className="p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="h-12 w-12 bg-gray-100 rounded-xl flex items-center justify-center shrink-0">
+                    <FolderOpen className="h-6 w-6 text-gray-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-gray-900">{cat.name}</h3>
+                    {cat.description && (
+                      <p className="text-sm text-gray-500 line-clamp-2 mt-1">{cat.description}</p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm text-gray-600">
+                    {cat.product_count} {cat.product_count === 1 ? 'produto' : 'produtos'}
+                  </span>
+                  <Badge variant={cat.is_active ? 'success' : 'default'}>
+                    {cat.is_active ? 'Ativa' : 'Inativa'}
+                  </Badge>
+                </div>
+                
+                <div className="flex items-center justify-end gap-1 pt-2 border-t border-gray-100">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleOpenEdit(cat)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleOpenDelete(cat)}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
         </Card>
       )}
 

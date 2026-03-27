@@ -6,7 +6,7 @@ import { Card, Badge } from '@/components/ui'
 import { 
   Package, ShoppingCart, Clock, TrendingUp, DollarSign, CheckCircle, 
   Store, ArrowLeft, LayoutDashboard, Settings, Image, FolderOpen,
-  ExternalLink, Plus, Edit, Trash2
+  ExternalLink, Plus, Edit, Trash2, Menu, X
 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { createClient } from '@/lib/supabase'
@@ -44,6 +44,7 @@ export default function DemoAdminPage() {
   const [showOrderModal, setShowOrderModal] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [showProductModal, setShowProductModal] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     loadDemoData()
@@ -291,7 +292,7 @@ export default function DemoAdminPage() {
         return (
           <>
             <Card>
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <h2 className="text-lg font-semibold text-gray-900">Lista de Produtos</h2>
                 <button className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-medium opacity-50 cursor-not-allowed">
                   <Plus className="h-4 w-4" />
@@ -416,7 +417,7 @@ export default function DemoAdminPage() {
         return (
           <>
             <Card>
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <h2 className="text-lg font-semibold text-gray-900">Todos os Pedidos</h2>
                 <span className="text-sm text-gray-500">{recentOrders.length} pedidos</span>
               </div>
@@ -553,7 +554,7 @@ export default function DemoAdminPage() {
       case 'categories':
         return (
           <Card>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
               <h2 className="text-lg font-semibold text-gray-900">Categorias</h2>
               <button className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-medium opacity-50 cursor-not-allowed">
                 <Plus className="h-4 w-4" />
@@ -574,8 +575,8 @@ export default function DemoAdminPage() {
       case 'banners':
         return (
           <Card>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Banners do Catálogo</h2>
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">Banners do Catálogo</h2>
               <button className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-medium opacity-50 cursor-not-allowed">
                 <Plus className="h-4 w-4" />
                 Novo Banner
@@ -736,10 +737,15 @@ export default function DemoAdminPage() {
     }
   }
 
+  const getTabLabel = () => {
+    const item = menuItems.find(m => m.id === activeTab)
+    return item?.label || 'Dashboard'
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Tarja Superior Demo */}
-      <div className="bg-blue-600 text-white py-2 px-4 flex flex-col sm:flex-row items-center justify-between gap-2 z-50">
+      {/* Tarja Superior Demo - Desktop only */}
+      <div className="hidden lg:flex bg-blue-600 text-white py-2 px-4 flex-col sm:flex-row items-center justify-between gap-2 shrink-0">
         <div className="flex items-center gap-2 text-sm">
           <span className="font-bold">🎯 Catálogo Demonstração</span>
           <span className="hidden sm:inline">•</span>
@@ -767,8 +773,17 @@ export default function DemoAdminPage() {
         </div>
       </div>
 
-      <div className="flex flex-1">
-        {/* Sidebar - EXATAMENTE igual ao admin real */}
+      <div className="flex flex-1 relative">
+        {/* Overlay mobile */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Sidebar Desktop */}
         <aside className="hidden lg:block w-64 bg-gray-950 text-white flex flex-col shrink-0">
           {/* Logo */}
           <div className="p-5 border-b border-white/10">
@@ -802,9 +817,107 @@ export default function DemoAdminPage() {
         </nav>
         </aside>
 
-        {/* Main content - EXATAMENTE igual ao admin real */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <main className="flex-1 p-6 lg:p-8">
+        {/* Sidebar Mobile */}
+        <aside
+          className={`
+            fixed inset-y-0 left-0 z-50 w-72 bg-gray-950 text-white flex flex-col
+            transform transition-transform duration-300 ease-in-out
+            lg:hidden
+            ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+          `}
+          aria-label="Menu de navegação"
+        >
+          <div className="p-5 border-b border-white/10 shrink-0 flex items-center justify-between">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-9 w-9 bg-white/10 rounded-lg flex items-center justify-center shrink-0">
+                <Store className="h-5 w-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate">Doce Sabor</p>
+                <p className="text-xs text-gray-400">Painel Admin</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="ml-3 shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+              aria-label="Fechar menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+            {menuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveTab(item.id)
+                  setMobileMenuOpen(false)
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150 ${
+                  activeTab === item.id
+                    ? 'bg-white/15 text-white font-medium'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <item.icon className="h-4.5 w-4.5 shrink-0" />
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+          <header className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 bg-gray-900 border-b border-white/10 shadow-sm shrink-0">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-2 -ml-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all"
+              aria-label="Abrir menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <span className="text-sm font-semibold text-white absolute left-1/2 -translate-x-1/2">
+              {getTabLabel()}
+            </span>
+            <a
+              href="/demo"
+              target="_blank"
+              className="p-2 -mr-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all"
+              aria-label="Ver catálogo"
+            >
+              <ExternalLink className="h-4.5 w-4.5" />
+            </a>
+          </header>
+          <main className="flex-1 p-4 lg:p-6 overflow-y-auto pt-20 lg:pt-6">
+            {/* Tarja Demo - Mobile only */}
+            <div className="lg:hidden bg-blue-600 text-white py-3 px-4 rounded-xl mb-6 -mt-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-bold">🎯 Catálogo Demonstração</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <a
+                    href="/demo"
+                    className="px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded text-xs font-medium transition-colors"
+                  >
+                    Ver Catálogo Demo
+                  </a>
+                  <a
+                    href="/"
+                    className="px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded text-xs font-medium transition-colors"
+                  >
+                    Voltar para Home
+                  </a>
+                  <a
+                    href="/register"
+                    className="px-3 py-1.5 bg-white text-blue-600 rounded text-xs font-bold hover:bg-blue-50 transition-colors"
+                  >
+                    Criar meu catálogo →
+                  </a>
+                </div>
+              </div>
+            </div>
+
             {renderContent()}
           </main>
         </div>

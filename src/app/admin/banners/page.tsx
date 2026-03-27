@@ -87,15 +87,15 @@ export default function BannersPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="w-full md:w-auto">
           <h1 className="text-2xl font-bold text-gray-900">Banners</h1>
           <p className="text-gray-500 mt-1">Gerencie os banners do seu catálogo</p>
           <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mt-2 inline-block">
             <p className="text-sm text-gray-700 font-medium">📐 Dimensão recomendada: 1200x400px (ratio 3:1)</p>
           </div>
         </div>
-        <Button onClick={() => fileRef.current?.click()} loading={uploading}>
+        <Button onClick={() => fileRef.current?.click()} loading={uploading} className="w-full md:w-auto">
           <Plus className="h-4 w-4" />
           Novo banner
         </Button>
@@ -133,14 +133,15 @@ export default function BannersPage() {
         <div className="space-y-4">
           {banners.map((banner, idx) => (
             <Card key={banner.id} className="p-0 overflow-hidden">
-              <div className="flex">
+              {/* Desktop Layout */}
+              <div className="hidden md:flex">
                 {/* Image preview */}
-                <div className="w-48 h-28 shrink-0 bg-gray-100">
+                <div className="w-48 h-28 shrink-0 bg-gray-100 rounded-xl overflow-hidden">
                   <img src={banner.image_url} alt="" className="w-full h-full object-cover" />
                 </div>
 
                 {/* Info */}
-                <div className="flex-1 p-4 flex items-center justify-between">
+                <div className="flex-1 p-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-medium text-gray-900">
                       {banner.title || `Banner ${idx + 1}`}
@@ -154,7 +155,48 @@ export default function BannersPage() {
                     </Badge>
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <Button variant="ghost" size="icon" onClick={() => handleMove(banner, 'up')} disabled={idx === 0}>
+                      <ArrowUp className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleMove(banner, 'down')} disabled={idx === banners.length - 1}>
+                      <ArrowDown className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleToggle(banner)}>
+                      {banner.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(banner)}>
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mobile Layout */}
+              <div className="md:hidden">
+                {/* Image full width */}
+                <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden">
+                  <img src={banner.image_url} alt="" className="w-full h-full object-cover" />
+                </div>
+
+                {/* Info and actions below */}
+                <div className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {banner.title || `Banner ${idx + 1}`}
+                      </p>
+                      <Badge variant={banner.is_active ? 'success' : 'warning'} className="mt-1">
+                        {banner.is_active ? (
+                          <><Eye className="h-3 w-3 mr-1" /> Ativo</>
+                        ) : (
+                          <><EyeOff className="h-3 w-3 mr-1" /> Inativo</>
+                        )}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-1 pt-2 border-t border-gray-100">
                     <Button variant="ghost" size="icon" onClick={() => handleMove(banner, 'up')} disabled={idx === 0}>
                       <ArrowUp className="h-4 w-4" />
                     </Button>

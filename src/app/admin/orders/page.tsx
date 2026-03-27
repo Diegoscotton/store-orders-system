@@ -182,7 +182,10 @@ export default function OrdersPage() {
 
   function handlePrint() {
     const ordersToPrint = orders.filter((o) => selected.has(o.id))
-    if (ordersToPrint.length === 0) return
+    if (ordersToPrint.length === 0) {
+      toast({ type: 'error', title: 'Nenhum pedido selecionado', description: 'Selecione ao menos um pedido para imprimir' })
+      return
+    }
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Pedidos</title>
     <style>
@@ -256,17 +259,22 @@ export default function OrdersPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Pedidos</h1>
           <p className="text-gray-500 mt-1">{orders.length} pedido{orders.length !== 1 ? 's' : ''}</p>
         </div>
-        {selected.size > 0 && (
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handlePrint}>
-              <Printer className="h-4 w-4" />
-              Imprimir ({selected.size})
-            </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            variant={selected.size > 0 ? "default" : "outline"} 
+            size="sm" 
+            onClick={handlePrint}
+            className={selected.size > 0 ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""}
+          >
+            <Printer className="h-4 w-4" />
+            Imprimir{selected.size > 0 ? ` (${selected.size})` : ''}
+          </Button>
+          {selected.size > 0 && (
             <button
               onClick={() => handleBatchMark('delivered')}
               className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg font-medium transition-all duration-150 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
@@ -274,8 +282,8 @@ export default function OrdersPage() {
               <CheckCircle className="h-4 w-4" />
               Marcar entregue ({selected.size})
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Search */}
@@ -298,7 +306,7 @@ export default function OrdersPage() {
       </div>
 
       {/* Status tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2 mb-6">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.value}
@@ -340,7 +348,9 @@ export default function OrdersPage() {
 
       {!loading && orders.length > 0 && (
         <Card className="p-0 overflow-hidden">
-          <table className="w-full">
+          {/* Desktop/Tablet Table */}
+          <div className="hidden md:block">
+            <table className="w-full">
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="px-6 py-3 text-left w-10">
@@ -418,6 +428,71 @@ export default function OrdersPage() {
               ))}
             </tbody>
           </table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden divide-y divide-gray-100">
+            {filteredOrders.map((order) => (
+              <div key={order.id} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(order.id)}
+                      onChange={() => toggleSelect(order.id)}
+                      className="rounded border-gray-300 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-gray-900">#{order.order_number}</span>
+                        <Badge className={ORDER_STATUS_COLORS[order.status]}>
+                          {STATUS_ICONS[order.status]}
+                          <span className="ml-1">{ORDER_STATUS_LABELS[order.status]}</span>
+                        </Badge>
+                      </div>
+                      <p className="text-sm font-medium text-gray-900">{order.customer_name}</p>
+                      <p className="text-xs text-gray-500">{formatPhone(order.customer_phone)}</p>
+                    </div>
+                  </div>
+                  {order.customer_phone && (
+                    <a
+                      href={`https://wa.me/55${order.customer_phone.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors shrink-0"
+                      title="Contatar cliente"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </a>
+                  )}
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-semibold text-gray-900">{formatCurrency(order.total_amount || order.total || 0)}</span>
+                  <span className="text-xs text-gray-500">{formatDate(order.created_at)}</span>
+                </div>
+                
+                <div className="flex items-center justify-end gap-1 pt-2 border-t border-gray-100">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => openDetails(order)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  {getNextStatus(order.status) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleStatusChange(order.id, getNextStatus(order.status)!)}
+                    >
+                      {ORDER_STATUS_LABELS[getNextStatus(order.status)!]}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </Card>
       )}
 
