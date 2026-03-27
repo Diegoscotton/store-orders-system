@@ -22,6 +22,7 @@ export default function SettingsPage() {
 
   const [saving, setSaving] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [hasChanges, setHasChanges] = useState(false)
 
   const logoRef = useRef<HTMLInputElement>(null)
 
@@ -37,6 +38,20 @@ export default function SettingsPage() {
       setLogoUrl(store.logo_url)
     }
   }, [store])
+
+  // Track changes
+  useEffect(() => {
+    if (!store) return
+    const hasFieldChanges = 
+      name !== store.name ||
+      slug !== store.slug ||
+      description !== (store.description || '') ||
+      primaryColor !== (store.primary_color || '#000000') ||
+      unmaskPhone(whatsappNumber) !== (store.whatsapp_number || '') ||
+      whatsappEnabled !== store.whatsapp_enabled ||
+      deliveryEnabled !== (store.delivery_enabled || false)
+    setHasChanges(hasFieldChanges)
+  }, [name, slug, description, primaryColor, whatsappNumber, whatsappEnabled, deliveryEnabled, store])
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -304,22 +319,28 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Fixed Footer Actions */}
-      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-gray-200 shadow-lg z-30">
-        <div className="px-6 py-4 flex items-center justify-end gap-3">
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            Cancelar
-          </Button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 text-base rounded-xl font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-          >
-            {saving && <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
-            Salvar alterações
-          </button>
+      {/* Fixed Footer Actions - Show only when there are changes */}
+      {hasChanges && (
+        <div className="fixed bottom-0 left-0 md:left-64 right-0 bg-white border-t border-gray-200 shadow-lg z-30">
+          <div className="px-4 md:px-6 py-4 flex flex-col md:flex-row items-stretch md:items-center justify-end gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => window.location.reload()}
+              className="w-full md:w-auto"
+            >
+              Cancelar
+            </Button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-base rounded-xl font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+            >
+              {saving && <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
+              Salvar alterações
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

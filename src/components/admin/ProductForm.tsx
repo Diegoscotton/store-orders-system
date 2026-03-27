@@ -50,6 +50,17 @@ export default function ProductForm({ storeId, categories, product }: Props) {
   const [categoryId, setCategoryId] = useState(product?.category_id || '')
   const [isActive, setIsActive] = useState(product?.is_active ?? true)
 
+  // Track changes
+  useEffect(() => {
+    const hasFieldChanges = 
+      name !== (product?.name || '') ||
+      description !== (product?.description || '') ||
+      price !== (product?.price || 0) ||
+      categoryId !== (product?.category_id || '') ||
+      isActive !== (product?.is_active ?? true)
+    setHasChanges(hasFieldChanges)
+  }, [name, description, price, categoryId, isActive, product])
+
   // Images
   const [images, setImages] = useState(product?.images || [])
   const [uploading, setUploading] = useState(false)
@@ -64,6 +75,7 @@ export default function ProductForm({ storeId, categories, product }: Props) {
 
   const [saving, setSaving] = useState(false)
   const [showVariantAlert, setShowVariantAlert] = useState(false)
+  const [hasChanges, setHasChanges] = useState(false)
   const isEditing = !!product
 
   // DnD sensors
@@ -496,22 +508,28 @@ export default function ProductForm({ storeId, categories, product }: Props) {
         </div>
       </div>
 
-      {/* Fixed Footer Actions */}
-      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-gray-200 shadow-lg z-30">
-        <div className="px-6 py-4 flex items-center justify-end gap-3">
-          <Button variant="outline" onClick={() => router.push('/admin/products')}>
-            Cancelar
-          </Button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 text-base rounded-xl font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-          >
-            {saving && <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
-            {isEditing ? 'Salvar alterações' : 'Criar produto'}
-          </button>
+      {/* Fixed Footer Actions - Show only when there are changes or creating new product */}
+      {(hasChanges || !isEditing) && (
+        <div className="fixed bottom-0 left-0 md:left-64 right-0 bg-white border-t border-gray-200 shadow-lg z-30">
+          <div className="px-4 md:px-6 py-4 flex flex-col md:flex-row items-stretch md:items-center justify-end gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => router.push('/admin/products')}
+              className="w-full md:w-auto"
+            >
+              Cancelar
+            </Button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-base rounded-xl font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+            >
+              {saving && <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
+              {isEditing ? 'Salvar alterações' : 'Criar produto'}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
