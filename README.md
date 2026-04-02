@@ -14,7 +14,7 @@ Sistema SaaS multi-tenant para gerenciamento de lojas online com catálogo de pr
 
 **Terminal nativo do Mac** (não o Windsurf):
 ```bash
-cd ~/store-orders-system && npm run dev
+cd ~/Documents/web/AI/windsurf/store-orders-system && npm run dev
 ```
 
 Se der erro de porta em uso:

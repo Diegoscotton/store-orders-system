@@ -60,7 +60,7 @@ Plataforma (LP + Auth + Master Admin)
 Página pública premium que apresenta a plataforma.
 
 **Seções (ordem atual):**
-- Hero — headline + mockup visual do app
+- Hero — headline + mockup visual do app (device frame realista com UI interna)
 - O Problema — comparativo WhatsApp vs Sistema (dois cards lado a lado, vermelho/verde)
 - Como funciona — 3 passos visuais
 - Funcionalidades — cards com ícones
@@ -69,15 +69,36 @@ Página pública premium que apresenta a plataforma.
 - FAQ — inclui "Por que não usar só o WhatsApp?", "Quanto custa?", "Preciso de técnico?"
 - CTA final — fundo escuro (#111c14), "Testa agora. Decide depois.", pills na base
 
+**Navbar:**
+- Ícone Store verde (#639922) ao lado do texto "Sistema de Pedidos Fosfo"
+- Menu mobile com scroll suave para âncoras e navegação normal para rotas
+- Links: Como funciona, Funcionalidades, FAQ, Ver demo, Entrar, Criar catálogo grátis
+
+**Hero Section:**
+- Badge: "30 dias para testar · sem cartão"
+- Título: "Seu catálogo online pronto em minutos." (max-w-1xl)
+- Botões: "Criar catálogo grátis" (verde) + "Ver demonstração" (branco, ícone Play)
+- Pills: 30 dias para testar, Sem cartão, Pronto em 2 minutos
+
+**HeroMockup (Device Frame):**
+- Smartphone realista (280px × 580px) com notch e bordas escuras
+- UI da loja dentro: header verde, tabs, produtos, carrinho
+- Cards flutuantes:
+  - "47 Pedidos hoje" (top-left) com ponto verde pulsante
+  - Card de notificação (top-right) alternando entre 3 pedidos a cada 3s
+  - Card WhatsApp (bottom-left) com mensagem automática
+- Background: círculos coloridos animados + blur + linhas diagonais
+- Animações Framer Motion em 3 fases
+
 **Regras de copy:**
 - "catálogo" no lugar de "loja" em todo o copy
 - Métricas (500+ lojas, 50K pedidos) estão ocultas com `hidden` — não deletar
 - "Centenas de pequenos negócios..." deve ser removido ou substituído por algo factual
 
 **Links:**
-- "Ver demonstração" → `/demo`
-- "Ver admin demo" → `/demo-admin`
-- "Criar meu catálogo" → `/register`
+- "Ver demonstração" → `/demo` (loja pública com slug 'demo')
+- "Ver admin demo" → `/demo-admin` (painel admin público sem autenticação)
+- "Criar catálogo grátis" → `/register`
 - "Entrar" → `/login`
 
 ---
@@ -187,7 +208,36 @@ Página pública premium que apresenta a plataforma.
 
 ---
 
-### 5. Master Admin (/master)
+### 5. Demo Público
+
+**Loja Demo (`/demo`):**
+- Loja pública acessível via slug `demo`
+- Produtos e categorias populados com dados realistas (confeitaria)
+- Todas as funcionalidades da vitrine funcionais: filtros, carrinho, checkout
+- Banners promocionais ativos
+- Serve como demonstração para potenciais clientes
+
+**Admin Demo (`/demo-admin`):**
+- Painel administrativo público sem necessidade de autenticação
+- Interface standalone com sistema de tabs para navegação
+- **Tabs disponíveis:**
+  - Dashboard: métricas, gráficos, pedidos recentes
+  - Produtos: listagem com fotos, preços, categorias
+  - Pedidos: histórico com status e detalhes
+  - Categorias: lista de categorias da loja
+  - Banners: banners promocionais configurados
+  - Configurações: dados da loja demo
+- **Funcionalidades:**
+  - Visualização completa (somente leitura)
+  - Modais de detalhes para pedidos e produtos
+  - Dados mockados quando loja demo não tem conteúdo real
+  - Menu mobile responsivo
+  - Link para voltar à landing page
+- **Importante:** Não exibe features de assinatura, indicação ou suporte (modo demo puro)
+
+---
+
+### 6. Master Admin (/master)
 
 **Sidebar:**
 - Dashboard
@@ -260,10 +310,9 @@ src/
 │   ├── page.tsx                    # Landing Page
 │   ├── login/page.tsx
 │   ├── register/page.tsx
-│   ├── demo/page.tsx               # Loja demo (futuro)
-│   ├── demo-admin/page.tsx         # Admin demo sem senha (futuro)
+│   ├── demo-admin/page.tsx         # Admin demo público (implementado)
 │   ├── [slug]/
-│   │   ├── page.tsx                # Loja pública
+│   │   ├── page.tsx                # Loja pública (inclui /demo)
 │   │   └── checkout/page.tsx
 │   ├── admin/
 │   │   ├── layout.tsx
@@ -343,9 +392,10 @@ src/
 4. **Sem alert()** — usar toasts
 5. **Loading states** — skeleton em listagens, spinner em ações
 6. **Tratamento de erros** — try/catch com feedback visual
-7. **Demo isolada** — `is_demo = true` remove features de assinatura, indicação e suporte
+7. **Demo isolada** — loja demo usa slug `demo`, admin demo em `/demo-admin` (standalone, sem features de assinatura/indicação/suporte)
 8. **Imagens otimizadas** — next/image quando possível
 9. **TypeScript strict** — tipos definidos para tudo
+10. **Admin demo público** — rota `/demo-admin` sem autenticação, dados mockados quando necessário
 
 ---
 
@@ -376,7 +426,10 @@ O sistema organiza o que chega no WhatsApp — sem fazer o cliente largar o que 
 ### Captação inicial
 - Abordagem direta via WhatsApp (scripts por nicho — a fazer)
 - Foco local: Bento Gonçalves e região
-- Demo sem cadastro como principal ferramenta de conversão
+- **Demo sem cadastro como principal ferramenta de conversão:**
+  - Loja demo acessível em `/demo`
+  - Admin demo acessível em `/demo-admin` (sem senha)
+  - Visitante pode explorar todas as funcionalidades antes de se cadastrar
 - Link de indicação na sidebar do admin incentiva usuários a compartilhar
 
 ### Trial

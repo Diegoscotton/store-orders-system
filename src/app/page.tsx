@@ -1,903 +1,882 @@
 "use client";
+
+import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  Package, ShoppingCart, MessageCircle, BarChart3,
+  CheckCircle2, XCircle, ArrowRight, ChevronDown,
+  Palette, Globe, Layers, Menu, X, Store, LayoutDashboard,
+  Cake, Coffee, Aperture, Navigation, Briefcase, Play,
+} from "lucide-react";
 
-const ORDERS = [
-  { name: "Ana Lima",  item: "Açaí 500ml — Granola",     total: "R$ 28,00", time: "agora", initials: "AL", color: "#16A34A" },
-  { name: "Carlos M.", item: "Pizza Grande — Calabresa",  total: "R$ 56,00", time: "2min",  initials: "CM", color: "#2563EB" },
-  { name: "Julia S.",  item: "Brigadeiro Gourmet ×4",     total: "R$ 32,00", time: "5min",  initials: "JS", color: "#9333EA" },
-  { name: "Pedro R.",  item: "Combo Açaí + Suco",         total: "R$ 44,00", time: "8min",  initials: "PR", color: "#D97706" },
-];
+// ─── Motion config ────────────────────────────────────────────────────────────
+const E: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const BASE = { duration: 0.75, ease: E };
+const fadeUp   = { hidden: { opacity: 0, y: 28 },   visible: { opacity: 1, y: 0,  transition: BASE } };
+const fadeLeft  = { hidden: { opacity: 0, x: -36 }, visible: { opacity: 1, x: 0,  transition: BASE } };
+const fadeRight = { hidden: { opacity: 0, x: 36 },  visible: { opacity: 1, x: 0,  transition: BASE } };
+const stg = (delay = 0.1, dc = 0) => ({ hidden: {}, visible: { transition: { staggerChildren: delay, delayChildren: dc } } });
 
-const FEATURES = [
-  { title: "Catálogo personalizado",     desc: "Logo, cores e banner com a identidade da sua marca.",
-    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
-  { title: "Produtos com variações", desc: "Tamanhos, sabores, cores — cada um com seu preço.",
-    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> },
-  { title: "Carrinho inteligente",   desc: "Seus clientes montam o pedido com facilidade.",
-    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> },
-  { title: "Pedido por WhatsApp",    desc: "Receba os detalhes do pedido direto no seu WhatsApp.",
-    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
-  { title: "Painel completo",        desc: "Gerencie produtos, pedidos e métricas em um só lugar.",
-    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
-  { title: "100% responsivo",        desc: "Funciona perfeitamente no celular e no computador.",
-    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> },
-];
+// ─── Image paths — mova para /public/mockups/ conforme instruções ─────────────
+const IMG = {
+  desktopDashboard: "/mockups/desktop-dashboard.png",
+  desktopCatalogo:  "/mockups/desktop-catalogo.png",
+};
 
+// ─── FAQ data ─────────────────────────────────────────────────────────────────
 const FAQ = [
-  { q: "Preciso pagar para começar?",              a: "Não. Você testa o sistema na prática, cria sua página, adiciona produtos e recebe pedidos — sem custo inicial." },
-  { q: "Quanto tempo leva para criar meu catálogo?", a: "Menos de 2 minutos. Basta fazer o cadastro, escolher o nome e você já pode começar a adicionar produtos." },
-  { q: "Como meus clientes fazem pedidos?",        a: "Acessam o link do seu catálogo, navegam pelos produtos, adicionam ao carrinho e finalizam. Você recebe no painel e pode encaminhar ao WhatsApp." },
-  { q: "Posso personalizar a aparência do catálogo?",  a: "Sim. Logo, cores da marca e banners — tudo para o catálogo ter a cara do seu negócio." },
-  { q: "Funciona no celular?",                     a: "Perfeitamente. Tanto o catálogo público quanto o painel admin são 100% responsivos e funcionam muito bem em smartphones e tablets." },
-  { q: "Posso ter produtos com variações?",        a: "Sim. Tamanhos, sabores, cores — cada variação pode ter seu próprio preço. Perfeito para catálogos de alimentos, roupas e muito mais." },
-  { q: "Tem limite de produtos ou pedidos?",       a: "Não. Adicione quantos produtos quiser e receba quantos pedidos vierem — sem restrições artificiais." },
-  { q: "Como funciona a integração com WhatsApp?", a: "Ao confirmar um pedido, o sistema gera a mensagem formatada com todos os dados e abre direto no WhatsApp do dono do catálogo." },
-  { q: "Por que não usar só o WhatsApp?", a: "WhatsApp é ótimo pra conversar. Mas pra receber pedido vira bagunça: áudio, print, mensagem que some. Com o sistema de pedidos, seu cliente acessa o link, monta o carrinho, e você recebe tudo certinho — ainda no WhatsApp, mas organizado." },
-  { q: "Quanto custa depois do período grátis?", a: "Durante o teste é 100% gratuito, sem cartão. Depois, o plano tem um valor acessível pra qualquer pequeno negócio. Você decide se quer continuar só depois de testar — sem compromisso." },
-  { q: "Preciso de site, domínio ou técnico?", a: "Não. É só criar a conta, configurar seu catálogo e compartilhar o link. Nada de programador, hospedagem ou domínio." },
+  { q: "Preciso pagar para começar?",               a: "Não. Você tem 30 dias para testar sem cartão de crédito e sem compromisso. Só começa a pagar se decidir continuar." },
+  { q: "Quanto tempo leva para criar meu catálogo?", a: "Em torno de 2 minutos. Você cria sua conta, dá um nome ao catálogo, cadastra seus produtos e já tem um link para compartilhar." },
+  { q: "Como meus clientes fazem pedidos?",          a: "Eles acessam o link do seu catálogo, escolhem os produtos, montam o carrinho e finalizam. Você recebe o pedido no painel e, se quiser, também no WhatsApp." },
+  { q: "Posso personalizar a aparência?",            a: "Sim. Você pode adicionar logo, escolher a cor principal e adicionar banners. O catálogo fica com a identidade da sua marca." },
+  { q: "Funciona no celular?",                       a: "Funciona perfeitamente. Tanto o catálogo para seus clientes quanto o painel foram feitos pensando no uso no celular." },
+  { q: "Posso ter produtos com variações?",          a: "Sim. Variações como tamanho, sabor, cor — cada uma com seu próprio preço. O cliente escolhe na hora de adicionar ao carrinho." },
+  { q: "Tem limite de produtos ou pedidos?",         a: "Não há limite. Você pode cadastrar quantos produtos quiser e receber quantos pedidos precisar." },
+  { q: "Como funciona a integração com WhatsApp?",   a: "Quando o cliente finaliza o pedido, ele é redirecionado ao WhatsApp com uma mensagem já formatada com todos os detalhes." },
+  { q: "Por que não usar só o WhatsApp?",            a: "WhatsApp é ótimo para conversar, mas péssimo para organizar pedido. Aqui cada pedido tem número, status e fica registrado — sem sumir na conversa." },
+  { q: "Quanto custa depois do período grátis?",     a: "Depois dos 30 dias, você decide se quer continuar. Entramos em contato via WhatsApp para fechar a assinatura." },
+  { q: "Preciso de site, domínio ou técnico?",       a: "Não. Tudo já está pronto. Você só precisa criar a conta e começar a usar. Sem instalar nada, sem configurar servidor." },
 ];
 
-const STEPS = [
-  { num: "01", title: "Configure seu catálogo",     desc: "Cadastre-se, escolha o nome e personalize com logo e cores. Menos de 2 minutos para estar no ar.",
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
-  { num: "02", title: "Cadastre seus produtos", desc: "Fotos, preços e variações como tamanho, sabor ou cor. Organize tudo por categorias.",
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> },
-  { num: "03", title: "Receba pedidos",         desc: "Clientes acessam pelo link, montam o carrinho e finalizam. Você recebe no painel e no WhatsApp.",
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> },
+// ─── Categorias para o carrossel ──────────────────────────────────────────────
+const CATS = [
+  { label: "Confeitaria", icon: Cake, images: ["/categories/01_Bolo_Cenoura_Coberto.jpg", "/categories/02_Torta_Limao_Merengada.jpg", "/categories/03_Pao_de_Mel_Embalado.jpg"] },
+  { label: "Doceria", icon: Coffee, images: ["/categories/04_Doces_Gourmet_Caixa_A.jpg", "/categories/04_Doces_Gourmet_Caixa_B.jpg", "/categories/05_Doce_de_Coco_Caseiro.jpg"] },
+  { label: "Artesanato", icon: Aperture, images: ["/categories/08_Tapete_Croche_Colorido.jpg", "/categories/07_Cachecol_Trico_Pronto.jpg", "/categories/09_Boneca_Pano_Artesanal.jpg"] },
+  { label: "Gastronomia", icon: Navigation, images: ["/categories/10_Marmita_Feijoada_Completa.jpg", "/categories/11_Pizza_Artesanal_Pronta.jpg", "/categories/12_Massa_ao_Sugo_Prata.jpg"] },
 ];
 
-const STATS = [
-  { value: "500+", label: "Lojas ativas",          icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
-  { value: "50K+", label: "Pedidos por mês",        icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> },
-  { value: "10K+", label: "Produtos cadastrados",   icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> },
-  { value: "2min", label: "Para estar no ar",       icon: <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+const CAROUSEL_SLIDES = [
+  ["/categories/01_Bolo_Cenoura_Coberto.jpg", "/categories/04_Doces_Gourmet_Caixa_A.jpg", "/categories/08_Tapete_Croche_Colorido.jpg", "/categories/10_Marmita_Feijoada_Completa.jpg"],
+  ["/categories/02_Torta_Limao_Merengada.jpg", "/categories/04_Doces_Gourmet_Caixa_B.jpg", "/categories/07_Cachecol_Trico_Pronto.jpg", "/categories/11_Pizza_Artesanal_Pronta.jpg"],
+  ["/categories/03_Pao_de_Mel_Embalado.jpg", "/categories/05_Doce_de_Coco_Caseiro.jpg", "/categories/09_Boneca_Pano_Artesanal.jpg", "/categories/12_Massa_ao_Sugo_Prata.jpg"],
 ];
 
-// ── Sub-components ──────────────────────────────────────────────
+const TRUST = ["30 dias para testar", "Sem cartão", "Pronto em 2 minutos"];
 
-function PhoneMockup() {
-  const products = [
-    { emoji: "🍇", name: "Açaí 500ml",    price: "R$ 22,00", badge: "Popular", badgeBg: "#DCFCE7", badgeColor: "#166534" },
-    { emoji: "🍕", name: "Combo Família", price: "R$ 89,00", badge: null },
-    { emoji: "🍫", name: "Brigadeiro ×6", price: "R$ 36,00", badge: "Novo",    badgeBg: "#FEF9C3", badgeColor: "#854D0E" },
-  ];
-  return (
-    <div style={{ width: 210, flexShrink: 0, background: "#111", borderRadius: 36, padding: 8,
-      boxShadow: "0 32px 64px rgba(0,0,0,0.22), 0 0 0 1px rgba(255,255,255,0.07)" }}>
-      <div style={{ width: 60, height: 18, background: "#111", borderRadius: 9, margin: "0 auto 6px" }} />
-      <div style={{ background: "#fff", borderRadius: 26, overflow: "hidden", minHeight: 400 }}>
-        <div style={{ background: "#16A34A", padding: "14px 14px 10px", color: "#fff" }}>
-          <div style={{ fontSize: 9, opacity: .7, letterSpacing: ".1em", textTransform: "uppercase", marginBottom: 3 }}>AÇAÍ CENTRAL</div>
-          <div style={{ fontWeight: 700, fontSize: 14 }}>Olá! O que vai querer? 👋</div>
-        </div>
-        <div style={{ display: "flex", gap: 5, padding: "8px 10px 4px" }}>
-          {["Todos","Açaí","Combos","Bebidas"].map((c,i) => (
-            <div key={c} style={{ fontSize: 9, fontWeight: 600, padding: "3px 8px", borderRadius: 20, flexShrink: 0,
-              background: i===0?"#16A34A":"#F3F4F6", color: i===0?"#fff":"#6B7280" }}>{c}</div>
-          ))}
-        </div>
-        <div style={{ padding: "4px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
-          {products.map(p => (
-            <div key={p.name} style={{ display: "flex", alignItems: "center", gap: 8,
-              background: "#F9FAFB", borderRadius: 10, padding: "7px 8px", border: "1px solid #F3F4F6" }}>
-              <div style={{ width: 34, height: 34, borderRadius: 9, background: "#DCFCE7",
-                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{p.emoji}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: "#111827" }}>{p.name}</div>
-                <div style={{ fontSize: 10, color: "#16A34A", fontWeight: 700 }}>{p.price}</div>
-              </div>
-              {p.badge && <div style={{ fontSize: 8, fontWeight: 700, padding: "2px 5px", borderRadius: 5,
-                background: p.badgeBg, color: p.badgeColor }}>{p.badge}</div>}
-              <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#16A34A",
-                color: "#fff", display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 14, fontWeight: 700, flexShrink: 0 }}>+</div>
-            </div>
-          ))}
-        </div>
-        <div style={{ padding: "8px 10px 14px" }}>
-          <div style={{ background: "#16A34A", borderRadius: 10, padding: "9px 12px",
-            display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ color: "#fff", fontSize: 10, fontWeight: 700 }}>🛒  Ver carrinho</div>
-            <div style={{ background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 9,
-              fontWeight: 700, padding: "2px 6px", borderRadius: 6 }}>2 itens</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+// ─── Scroll Progress ───────────────────────────────────────────────────────────
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
+  return <motion.div className="fixed top-0 left-0 right-0 h-[2px] bg-[#639922] origin-left z-50" style={{ scaleX }} />;
 }
 
-function OrderNotification() {
-  const [idx, setIdx] = useState(0);
-  const [show, setShow] = useState(true);
-  useEffect(() => {
-    const t = setInterval(() => {
-      setShow(false);
-      setTimeout(() => { setIdx(i => (i+1) % ORDERS.length); setShow(true); }, 350);
-    }, 3000);
-    return () => clearInterval(t);
-  }, []);
-  const o = ORDERS[idx];
-  return (
-    <div style={{ background: "#fff", borderRadius: 14, padding: "10px 14px", width: 258,
-      boxShadow: "0 4px 24px rgba(0,0,0,0.09), 0 0 0 1px rgba(0,0,0,0.05)",
-      display: "flex", alignItems: "center", gap: 10,
-      opacity: show ? 1 : 0, transform: show ? "translateY(0)" : "translateY(5px)",
-      transition: "opacity .3s, transform .3s" }}>
-      <div style={{ width: 34, height: 34, borderRadius: "50%", background: o.color+"18",
-        color: o.color, display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 10, fontWeight: 800, flexShrink: 0 }}>{o.initials}</div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>{o.name}</span>
-          <span style={{ fontSize: 10, color: "#9CA3AF" }}>{o.time}</span>
-        </div>
-        <div style={{ fontSize: 10, color: "#6B7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{o.item}</div>
-        <div style={{ fontSize: 10, fontWeight: 700, color: "#16A34A", marginTop: 1 }}>{o.total}</div>
-      </div>
-    </div>
-  );
-}
-
-function WhatsAppCard() {
-  return (
-    <div style={{ background: "#fff", borderRadius: 14, padding: "12px 14px", width: 228,
-      boxShadow: "0 4px 24px rgba(0,0,0,0.09), 0 0 0 1px rgba(0,0,0,0.05)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-        <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#dcfce7",
-          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>💬</div>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#111827" }}>WhatsApp</div>
-          <div style={{ fontSize: 9, color: "#9CA3AF" }}>Mensagem automática</div>
-        </div>
-      </div>
-      <div style={{ background: "#DCF8C6", borderRadius: "10px 10px 2px 10px",
-        padding: "8px 10px", fontSize: 9.5, color: "#1a1a1a", lineHeight: 1.6 }}>
-        🧾 <b>Novo Pedido #047</b><br />
-        👤 Ana Lima · (51) 99999-8888<br /><br />
-        • 1× Açaí 500ml — R$ 22,00<br />
-        • 1× Granola extra — R$ 6,00<br /><br />
-        💰 <b>Total: R$ 28,00</b>
-      </div>
-      <div style={{ fontSize: 9, color: "#9CA3AF", textAlign: "right", marginTop: 4 }}>✓✓ Entregue</div>
-    </div>
-  );
-}
-
-function StatCard({ value, label }) {
-  return (
-    <div style={{ background: "#fff", borderRadius: 12, padding: "10px 14px",
-      boxShadow: "0 4px 20px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.05)",
-      display: "flex", alignItems: "center", gap: 10 }}>
-      <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#16A34A", flexShrink: 0 }} />
-      <div>
-        <div style={{ fontSize: 15, fontWeight: 800, color: "#111827", lineHeight: 1 }}>{value}</div>
-        <div style={{ fontSize: 10, color: "#9CA3AF", marginTop: 2 }}>{label}</div>
-      </div>
-    </div>
-  );
-}
-
-function TrustPill({ icon, children }) {
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 8,
-      fontSize: 13, color: "#374151", fontWeight: 500,
-      background: "#fff", border: "1px solid #E5E7EB",
-      borderRadius: 100, padding: "6px 14px", whiteSpace: "nowrap" }}>
-      {icon}
-      {children}
-    </span>
-  );
-}
-
-function CategoryCard({ images }) {
-  const [idx, setIdx] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setIdx(i => (i+1) % images.length), 4000);
-    return () => clearInterval(t);
-  }, [images]);
-  return (
-    <div style={{ borderRadius:16, overflow:"hidden", position:"relative", aspectRatio:"1", background:"#F3F4F6" }}>
-      {images.map((src, i) => (
-        <img key={src} src={src} alt="" style={{
-          position:"absolute", inset:0, width:"100%", height:"100%",
-          objectFit:"cover", display:"block",
-          opacity: i === idx ? 1 : 0,
-          transition:"opacity 0.8s ease",
-        }} />
-      ))}
-    </div>
-  );
-}
-
-function FaqItem({ q, a }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div onClick={() => setOpen(!open)}
-      style={{ borderBottom: "1px solid #F3F4F6", cursor: "pointer" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, padding: "18px 0" }}>
-        <span style={{ fontSize: 14.5, fontWeight: 600, color: "#111827", lineHeight: 1.4 }}>{q}</span>
-        <span style={{
-          width: 26, height: 26, borderRadius: "50%", flexShrink: 0,
-          border: open ? "1.5px solid #86EFAC" : "1.5px solid #E5E7EB",
-          background: open ? "#F0FDF4" : "transparent",
-          display: "inline-flex", alignItems: "center", justifyContent: "center",
-          transition: "border-color .2s, background .2s",
-        }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-            stroke={open ? "#16A34A" : "#9CA3AF"} strokeWidth="2.5"
-            strokeLinecap="round" strokeLinejoin="round"
-            style={{ transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform .22s ease, stroke .2s" }}>
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </span>
-      </div>
-      {open && <p style={{ margin: "0 0 16px", fontSize: 13.5, color: "#6B7280", lineHeight: 1.7 }}>{a}</p>}
-    </div>
-  );
-}
-
-// ── Main ────────────────────────────────────────────────────────
-
-export default function FosfoHome() {
+// ─── Navbar ───────────────────────────────────────────────────────────────────
+function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [platformName, setPlatformName] = useState("Sistema de Pedidos Fosfo");
+  const [open, setOpen]         = useState(false);
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", fn);
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  useEffect(() => {
-    fetch("/api/platform-settings")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data?.platform_name) setPlatformName(data.platform_name);
-      })
-      .catch(() => {});
-  }, []);
-
-  const handleSmoothScroll = (e, targetId) => {
-    e.preventDefault();
-    setMobileMenuOpen(false);
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
+  const navLinks = [
+    { href: "#como-funciona", label: "Como funciona" },
+    { href: "#funcionalidades", label: "Funcionalidades" },
+    { href: "#faq",            label: "FAQ" },
+    { href: "/demo",           label: "Ver demo" },
+  ];
 
   return (
-    <div style={{ fontFamily: "'DM Sans','Helvetica Neue',sans-serif", background: "#fff", color: "#111827", overflowX: "hidden" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes floatA { 0%,100%{transform:translateY(0) rotate(-0.5deg)} 50%{transform:translateY(-12px) rotate(0.5deg)} }
-        @keyframes floatB { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-        @keyframes floatC { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-        .fade-up { animation: fadeUp .65s ease both; }
-        .d1{animation-delay:.05s} .d2{animation-delay:.15s} .d3{animation-delay:.25s} .d4{animation-delay:.35s} .d5{animation-delay:.45s}
-        .float-a { animation: floatA 5s ease-in-out infinite; }
-        .float-b { animation: floatB 4s ease-in-out infinite .5s; }
-        .float-c { animation: floatC 5.5s ease-in-out infinite 1s; }
-        .nav-link { font-size:14px; color:#6B7280; font-weight:500; text-decoration:none; transition:color .15s; }
-        .nav-link:hover { color:#111827; }
-        .btn-green { display:inline-flex; align-items:center; gap:7px; background:#16A34A; color:#fff; font-size:14px; font-weight:600; padding:11px 22px; border-radius:9px; text-decoration:none; border:none; cursor:pointer; transition:background .15s,transform .12s; }
-        .btn-green:hover { background:#15803D; transform:translateY(-1px); }
-        .btn-outline { display:inline-flex; align-items:center; gap:7px; background:#fff; color:#374151; font-size:14px; font-weight:600; padding:11px 22px; border-radius:9px; text-decoration:none; border:1.5px solid #E5E7EB; cursor:pointer; transition:border-color .15s,background .12s,transform .12s; }
-        .btn-outline:hover { border-color:#D1D5DB; background:#F9FAFB; transform:translateY(-1px); }
-        .step-card { background:#fff; border:1px solid #E5E7EB; border-radius:16px; padding:32px 24px 36px; position:relative; overflow:hidden; transition:border-color .2s,box-shadow .2s; display:flex; flex-direction:column; align-items:center; text-align:center; }
-        .step-card:hover { border-color:#BBF7D0; box-shadow:0 8px 32px rgba(22,163,74,.08); }
-        .feat-card { background:#fff; border:1px solid #F3F4F6; border-radius:12px; padding:24px; transition:border-color .2s,box-shadow .2s; }
-        .feat-card:hover { border-color:#D1FAE5; box-shadow:0 4px 20px rgba(22,163,74,.07); }
-        .demo-row { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:#FAFAF9; border:1px solid #F3F4F6; border-radius:12px; text-decoration:none; transition:border-color .15s; cursor:pointer; }
-        .demo-row:hover { border-color:#D1FAE5; }
-        .section { padding:96px 0; }
-        .container { max-width:1100px; margin:0 auto; padding:0 24px; }
-        .section-label { font-size:11.5px; font-weight:600; color:#16A34A; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; }
-        .section-title { font-size:clamp(26px,3vw,34px); font-weight:800; color:#111827; letter-spacing:-.03em; line-height:1.15; }
-        @media(max-width:860px){.hero-grid,.demo-grid,.faq-grid{grid-template-columns:1fr!important} .visual-col{display:none!important} .stats-grid{grid-template-columns:repeat(2,1fr)!important} .steps-grid,.feat-grid{grid-template-columns:1fr!important} .demo-text-col,.faq-text-col{text-align:center!important}}
-        .mobile-menu-toggle { display: none; }
-        @media(max-width:768px){
-          .stats-grid{grid-template-columns:repeat(2,1fr)!important}
-          .categories-grid{grid-template-columns:repeat(2,1fr)!important}
-          .nav-center{display:none!important}
-          .nav-desktop-buttons{display:none!important}
-          .mobile-menu-toggle{display:block!important}
-          .section{padding:48px 0!important}
-          .btn-green, .btn-outline{width:100%!important;justify-content:center!important}
-          .footer-links{display:none!important}
-          .cta-benefits{flex-direction:column!important;align-items:center!important}
-        }
-        @media(max-width:580px){
-          .problem-comparison{grid-template-columns:1fr!important}
-        }
-        .mobile-menu-overlay { position: fixed; top: 60px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 99; }
-        .mobile-menu-overlay.open { opacity: 1; pointer-events: auto; }
-        .mobile-menu { position: fixed; top: 60px; right: -100%; width: 280px; height: calc(100vh - 60px); background: #fff; box-shadow: -4px 0 24px rgba(0,0,0,0.1); transition: right 0.3s ease; z-index: 100; overflow-y: auto; }
-        .mobile-menu.open { right: 0; }
-        .mobile-menu-item { display: block; padding: 16px 24px; color: #374151; font-size: 15px; font-weight: 500; text-decoration: none; border-bottom: 1px solid #F3F4F6; transition: background 0.2s; }
-        .mobile-menu-item:hover { background: #F9FAFB; }
-        .mobile-menu-button { padding: 12px 20px !important; margin: 16px 24px; font-size: 13px !important; box-sizing: border-box; max-width: calc(100% - 48px) !important; }
-      `}</style>
-
-      {/* NAVBAR */}
-      <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:100, height:60,
-        display:"flex", alignItems:"center", padding:"0 32px",
-        background: scrolled ? "rgba(255,255,255,0.92)" : "#fff",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
-        borderBottom:`1px solid ${scrolled?"rgba(0,0,0,0.07)":"#F3F4F6"}`,
-        transition:"background .2s, border-color .2s" }}>
-        <div style={{ maxWidth:1100, margin:"0 auto", width:"100%", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <a href="/" style={{ textDecoration:"none", display:"flex", alignItems:"center", gap:9 }}>
-            <div style={{ width:32, height:32, borderRadius:9, background:"#111827",
-              display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
+    <motion.nav
+      initial={{ y: -72, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.9, ease: E }}
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
+        scrolled ? "bg-white/90 backdrop-blur-lg border-b border-slate-200/80 shadow-sm" : "bg-transparent"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 bg-[#639922] rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+              <Store className="w-5 h-5 text-white" />
             </div>
-            <span style={{ fontSize:17, fontWeight:800, color:"#111827", letterSpacing:"-.04em" }}>{platformName}</span>
-          </a>
-          <div className="nav-center" style={{ display:"flex", gap:28 }}>
-            <a href="#como-funciona" className="nav-link">Como funciona</a>
-            <a href="#funcionalidades" className="nav-link">Funcionalidades</a>
-            <a href="#faq" className="nav-link">FAQ</a>
+            <span className="font-bold text-lg text-slate-900 tracking-tight">
+              Sistema de Pedidos Fosfo
+            </span>
+          </Link>
+
+          <div className="hidden md:flex items-center gap-8">
+            {navLinks.map(({ href, label }) => (
+              <a key={label} href={href} className="text-sm text-slate-600 hover:text-slate-900 transition-colors">{label}</a>
+            ))}
           </div>
-          <div className="nav-desktop-buttons" style={{ display:"flex", alignItems:"center", gap:8 }}>
-            <a href="/login" className="nav-link" style={{ padding:"6px 12px", borderRadius:8 }}>Entrar</a>
-            <a href="/register" className="btn-green" style={{ fontSize:13, padding:"8px 16px" }}>Criar meu catálogo grátis</a>
+
+          <div className="hidden md:flex items-center gap-3">
+            <Link href="/login" className="text-sm text-slate-600 hover:text-slate-900 transition-colors px-3 py-2">Entrar</Link>
+            <Link href="/register" className="text-sm font-semibold bg-[#639922] hover:bg-[#527a1c] text-white px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-md hover:shadow-[#639922]/20">
+              Criar meu catálogo grátis
+            </Link>
           </div>
-          <button 
-            className="mobile-menu-toggle"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{ background:"none", border:"none", cursor:"pointer", padding:8 }}
-            aria-label="Menu">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              {mobileMenuOpen ? (
-                <>
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
-                </>
-              ) : (
-                <>
-                  <line x1="3" y1="12" x2="21" y2="12"/>
-                  <line x1="3" y1="6" x2="21" y2="6"/>
-                  <line x1="3" y1="18" x2="21" y2="18"/>
-                </>
-              )}
-            </svg>
+
+          <button onClick={() => setOpen(!open)} className="md:hidden p-2 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors">
+            <AnimatePresence mode="wait" initial={false}>
+              {open
+                ? <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}><X className="w-5 h-5" /></motion.span>
+                : <motion.span key="m" initial={{ rotate: 90, opacity: 0 }}  animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}><Menu className="w-5 h-5" /></motion.span>
+              }
+            </AnimatePresence>
           </button>
         </div>
-      </nav>
-
-      {/* Mobile Menu Overlay */}
-      <div 
-        className={`mobile-menu-overlay ${mobileMenuOpen ? 'open' : ''}`}
-        onClick={() => setMobileMenuOpen(false)}
-      />
-
-      {/* Mobile Menu */}
-      <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
-        <a href="#como-funciona" className="mobile-menu-item" onClick={(e) => handleSmoothScroll(e, 'como-funciona')}>Como funciona</a>
-        <a href="#funcionalidades" className="mobile-menu-item" onClick={(e) => handleSmoothScroll(e, 'funcionalidades')}>Funcionalidades</a>
-        <a href="#faq" className="mobile-menu-item" onClick={(e) => handleSmoothScroll(e, 'faq')}>FAQ</a>
-        <a href="/demo" className="mobile-menu-item">Ver demo</a>
-        <a href="/login" className="mobile-menu-item">Entrar</a>
-        <a href="/register" className="btn-green mobile-menu-button" style={{ width:"calc(100% - 48px)", justifyContent:"center" }}>Criar meu catálogo grátis</a>
       </div>
 
-      {/* HERO */}
-      <section style={{ paddingTop:60, minHeight:"100vh", display:"flex", alignItems:"center",
-        background:"#fff", position:"relative", overflow:"hidden" }}>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.35, ease: E }}
+            className="md:hidden bg-white/95 backdrop-blur-lg border-b border-slate-200 overflow-hidden"
+          >
+            <div className="px-4 py-5 flex flex-col gap-4">
+              {navLinks.map(({ href, label }) => 
+                href.startsWith('#') ? (
+                  <a 
+                    key={label} 
+                    href={href} 
+                    className="text-slate-700 font-medium" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setOpen(false);
+                      setTimeout(() => {
+                        const element = document.querySelector(href);
+                        if (element) {
+                          const offset = 80;
+                          const elementPosition = element.getBoundingClientRect().top;
+                          const offsetPosition = elementPosition + window.pageYOffset - offset;
+                          window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                          });
+                        }
+                      }, 100);
+                    }}
+                  >
+                    {label}
+                  </a>
+                ) : (
+                  <Link 
+                    key={label} 
+                    href={href} 
+                    className="text-slate-700 font-medium"
+                    onClick={() => setOpen(false)}
+                  >
+                    {label}
+                  </Link>
+                )
+              )}
+              <hr className="border-slate-100" />
+              <Link href="/login" className="text-slate-700" onClick={() => setOpen(false)}>Entrar</Link>
+              <Link href="/register" className="font-semibold bg-[#639922] text-white px-4 py-2.5 rounded-xl text-center" onClick={() => setOpen(false)}>
+                Criar meu catálogo grátis
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
+  );
+}
 
-        {/* organic contour background */}
-        <svg style={{ position:"absolute", right:-20, top:0, height:"100%", width:"62%",
-          zIndex:0, pointerEvents:"none" }}
-          viewBox="0 0 520 800" xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="xMidYMid slice" fill="none">
-          <path d="M 520 720 C 420 690, 340 620, 280 540 C 220 460, 180 370, 160 280 C 148 220, 150 160, 170 100" stroke="#D1FAE5" strokeWidth="1" opacity="1"/>
-          <path d="M 520 680 C 430 648, 352 576, 294 492 C 236 408, 196 316, 178 224 C 166 162, 168 100, 190 40" stroke="#BBF7D0" strokeWidth="1" opacity="0.9"/>
-          <path d="M 520 636 C 440 602, 364 528, 308 442 C 252 356, 212 262, 196 168 C 184 104, 186 40, 210 -20" stroke="#86EFAC" strokeWidth="0.8" opacity="0.7"/>
-          <path d="M 520 592 C 450 556, 376 480, 322 392 C 268 304, 228 208, 214 112 C 202 46, 204 -20, 230 -82" stroke="#4ADE80" strokeWidth="0.7" opacity="0.45"/>
-          <path d="M 520 548 C 460 510, 388 432, 336 342 C 284 252, 244 154, 232 56 C 220 -12, 222 -80, 250 -144" stroke="#22C55E" strokeWidth="0.6" opacity="0.25"/>
-          <path d="M 520 780 C 410 750, 326 676, 264 590 C 202 504, 160 408, 138 314 C 124 250, 126 186, 148 124" stroke="#D1FAE5" strokeWidth="1.2" opacity="0.8"/>
-          <path d="M 520 820 C 400 792, 308 716, 244 628 C 180 540, 136 442, 112 346 C 96 280, 98 214, 122 150" stroke="#BBF7D0" strokeWidth="1" opacity="0.6"/>
-          <path d="M 520 860 C 392 834, 292 756, 226 666 C 160 576, 114 476, 88 378 C 70 310, 72 242, 98 176" stroke="#D1FAE5" strokeWidth="1.4" opacity="0.5"/>
-          <path d="M 380 800 C 330 762, 270 682, 230 596 C 190 510, 168 410, 158 318 C 150 254, 152 190, 172 128" stroke="#D1FAE5" strokeWidth="1.5" opacity="0.45"/>
-          <path d="M 340 800 C 298 760, 248 676, 212 586 C 176 496, 158 394, 150 300 C 143 234, 146 168, 168 104" stroke="#BBF7D0" strokeWidth="1" opacity="0.3"/>
-          <path d="M 300 800 C 266 758, 224 670, 192 576 C 160 482, 144 378, 138 282 C 132 214, 136 146, 160 80" stroke="#D1FAE5" strokeWidth="0.8" opacity="0.18"/>
+// ─── Hero: Device mockup com UI interna ──────────────────────────────────────
+function HeroMockup() {
+  const [phase, setPhase] = useState(0);
+  const [cardIndex, setCardIndex] = useState(0);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase(1), 1600);
+    const t2 = setTimeout(() => setPhase(2), 3300);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCardIndex((prev) => (prev + 1) % 3);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const cardContents = [
+    { name: "Ana Lima", initials: "AL", item: "Açaí 500ml — Granola", price: "R$ 28,00" },
+    { name: "Carlos M.", initials: "CM", item: "Combo Família", price: "R$ 89,00" },
+    { name: "Julia S.", initials: "JS", item: "Brigadeiro ×6", price: "R$ 36,00" },
+  ];
+
+  const currentCard = cardContents[cardIndex];
+
+  return (
+    <div className="relative w-full max-w-[280px] mx-auto lg:mx-0">
+      {/* Background decorativo com blur e elementos flutuantes */}
+      <div className="absolute inset-0 -m-32 pointer-events-none overflow-visible">
+        {/* Círculos decorativos com blur */}
+        <motion.div 
+          className="absolute top-10 -left-16 w-40 h-40 rounded-full bg-[#639922]/20 blur-3xl"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.3, 0.2] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute -top-8 right-8 w-32 h-32 rounded-full bg-blue-400/15 blur-2xl"
+          animate={{ scale: [1, 1.3, 1], opacity: [0.15, 0.25, 0.15] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        />
+        <motion.div 
+          className="absolute bottom-20 -right-12 w-36 h-36 rounded-full bg-purple-400/15 blur-3xl"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.15, 0.2, 0.15] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        />
+        <motion.div 
+          className="absolute -bottom-10 left-12 w-28 h-28 rounded-full bg-[#639922]/15 blur-2xl"
+          animate={{ scale: [1, 1.25, 1], opacity: [0.1, 0.2, 0.1] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        />
+        
+        {/* Linhas diagonais sutis */}
+        <svg className="absolute inset-0 w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="diagonals" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+              <line x1="0" y1="0" x2="0" y2="60" stroke="#639922" strokeWidth="0.5" opacity="0.3" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#diagonals)" />
         </svg>
-        <div style={{ position:"absolute", left:0, top:0, bottom:0, width:"52%",
-          background:"linear-gradient(to right, #fff 65%, transparent 100%)", zIndex:1, pointerEvents:"none" }} />
-        <div style={{ position:"absolute", top:0, left:0, right:0, height:120,
-          background:"linear-gradient(to bottom, #fff, transparent)", zIndex:1, pointerEvents:"none" }} />
-        <div style={{ position:"absolute", bottom:0, left:0, right:0, height:120,
-          background:"linear-gradient(to top, #fff, transparent)", zIndex:1, pointerEvents:"none" }} />
-
-        <div className="container" style={{ width:"100%", position:"relative", zIndex:2 }}>
-          <div className="hero-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr",
-            gap:64, alignItems:"center", paddingTop:48, paddingBottom:72 }}>
-            <div>
-              <div className="fade-up d1" style={{ marginBottom:24 }}>
-                <TrustPill>
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <circle cx="5" cy="5" r="3" fill="#16A34A"/>
-                    <circle cx="5" cy="5" r="5" stroke="#86EFAC" strokeWidth="1"/>
-                  </svg>
-                  30 dias para testar · sem cartão
-                </TrustPill>
-              </div>
-              <h1 className="fade-up d2" style={{ fontSize:"clamp(36px,4.5vw,54px)", fontWeight:800,
-                color:"#0A0A09", lineHeight:1.08, letterSpacing:"-.03em", marginBottom:20 }}>
-                Seu catálogo online{" "}
-                <span style={{ color:"#16A34A", position:"relative", display:"inline-block" }}>
-                  pronto
-                  <svg viewBox="0 0 180 8" fill="none" style={{ position:"absolute", bottom:-4, left:0, width:"100%" }}>
-                    <path d="M2 5.5C40 2 80 6.5 178 3" stroke="#BBF7D0" strokeWidth="3" strokeLinecap="round"/>
-                  </svg>
-                </span>{" "}em minutos.
-              </h1>
-              <p className="fade-up d3" style={{ fontSize:17, color:"#6B7280", lineHeight:1.65,
-                maxWidth:420, marginBottom:36, fontWeight:400 }}>
-                Cadastre seus produtos, compartilhe o link e comece a receber pedidos organizados — com carrinho, variações e notificação no WhatsApp.
-              </p>
-              <div className="fade-up d4" style={{ display:"flex", flexWrap:"wrap", gap:10, marginBottom:32 }}>
-                <a href="/register" className="btn-green">
-                  Criar meu catálogo grátis
-                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </a>
-                <a href="/demo" className="btn-outline">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z" fill="currentColor" stroke="none"/></svg>
-                  Ver demonstração
-                </a>
-              </div>
-              <div className="fade-up d5" style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
-                <TrustPill icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}>
-                  30 dias para testar
-                </TrustPill>
-                <TrustPill icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}>
-                  Sem cartão
-                </TrustPill>
-                <TrustPill icon={<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>}>
-                  Pronto em 2 minutos
-                </TrustPill>
-              </div>
-            </div>
-
-            <div className="visual-col" style={{ position:"relative", height:580,
-              display:"flex", alignItems:"center", justifyContent:"center" }}>
-              <div style={{ position:"absolute", width:380, height:380, borderRadius:"50%",
-                background:"radial-gradient(circle, #DCFCE7 0%, transparent 70%)", opacity:.6, zIndex:0 }} />
-              <div className="float-b" style={{ position:"absolute", top:60, left:-10, zIndex:3 }}>
-                <StatCard value="47" label="Pedidos hoje" />
-              </div>
-              <div className="float-a" style={{ position:"relative", zIndex:2 }}>
-                <PhoneMockup />
-              </div>
-              <div className="float-b" style={{ position:"absolute", top:44, right:-32, zIndex:3 }}>
-                <OrderNotification />
-              </div>
-              <div className="float-c" style={{ position:"absolute", bottom:44, left:-36, zIndex:3 }}>
-                <WhatsAppCard />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="hidden">
-      {/* STATS */}
-      <section style={{ borderTop:"1px solid #F3F4F6", borderBottom:"1px solid #F3F4F6", background:"#fff" }}>
-        <div className="container">
-          <div className="stats-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)" }}>
-            {STATS.map((s, i) => (
-              <div key={s.label} style={{ padding:"28px 20px", borderRight: i < 3 ? "1px solid #F3F4F6" : "none",
-                display:"flex", flexDirection:"column", alignItems:"center", gap:12, textAlign:"center" }}>
-                <div style={{ width:38, height:38, borderRadius:10, background:"#F0FDF4",
-                  border:"1px solid #BBF7D0", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                  {s.icon}
-                </div>
-                <div>
-                  <div style={{ fontSize:26, fontWeight:800, color:"#0A0A09", letterSpacing:"-.04em", lineHeight:1 }}>{s.value}</div>
-                  <div style={{ fontSize:12, color:"#9CA3AF", marginTop:3 }}>{s.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
       </div>
 
-      {/* O PROBLEMA */}
-      <section className="section" style={{ background:"#fff" }}>
-        <div className="container">
-          <div style={{ textAlign:"center", marginBottom:48 }}>
-            <div className="section-label">O problema</div>
-            <h2 style={{ fontSize:"clamp(28px,3.2vw,38px)", fontWeight:800, color:"#111827",
-              letterSpacing:"-.03em", lineHeight:1.2, marginBottom:16 }}>
-              WhatsApp para vender é ótimo.<br />Para organizar pedido, nem tanto.
-            </h2>
-            <p style={{ fontSize:17, color:"#6B7280", lineHeight:1.65, maxWidth:560, margin:"0 auto" }}>
-              Pedido que some na conversa. Cliente que muda de ideia. Você que não sabe quanto vendeu no dia.
-            </p>
-          </div>
-          <div className="problem-comparison" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, maxWidth:760, margin:"0 auto" }}>
-            {/* Card Esquerdo - Sem o sistema */}
-            <div style={{ background:"#fff", border:"1px solid #E5E7EB", borderRadius:12, padding:32, 
-              boxShadow:"0 1px 3px rgba(0,0,0,0.05)" }}>
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:24 }}>
-                <div style={{ width:40, height:40, borderRadius:12, background:"#FEF2F2", border:"1px solid #FEE2E2",
-                  display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                  </svg>
+      {/* Card "47 Pedidos hoje" — top-left, bem afastado */}
+      <motion.div
+        initial={{ opacity: 0, y: 12, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: E, delay: 0.3 }}
+        className="absolute top-8 -left-32 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-3 w-36"
+      >
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-2 h-2 rounded-full bg-[#639922] animate-pulse" />
+          <span className="text-[9px] font-semibold text-slate-600">Pedidos hoje</span>
+        </div>
+        <p className="text-3xl font-black text-slate-900 leading-none">47</p>
+      </motion.div>
+
+      {/* Card de notificação — top-right, mais à direita e acima, phase 1, alterna conteúdo */}
+      <AnimatePresence mode="wait">
+        {phase >= 1 && (
+          <motion.div
+            key={cardIndex}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.4, ease: E }}
+            className="absolute -top-4 -right-28 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-3 w-48"
+          >
+            <div className="flex items-start gap-2">
+              <div className="w-8 h-8 bg-[#639922]/15 rounded-full flex items-center justify-center text-[11px] font-black text-[#639922] flex-shrink-0">
+                {currentCard.initials}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-1 mb-0.5">
+                  <span className="text-[11px] font-bold text-slate-800">{currentCard.name}</span>
+                  <span className="text-[9px] text-slate-400 flex-shrink-0">agora</span>
                 </div>
-                <div style={{ fontSize:13, fontWeight:600, color:"#6B7280", letterSpacing:".02em", textTransform:"uppercase" }}>Sem o sistema</div>
-              </div>
-              <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
-                {[
-                  { title:"Pedidos perdidos", desc:"sumindo no meio das conversas" },
-                  { title:"Zero registro", desc:"quem pediu o quê? Ninguém sabe" },
-                  { title:"Retrabalho constante", desc:"preço e variação digitados na mão" },
-                  { title:"Sem visão de faturamento", desc:"quanto você vendeu hoje?" }
-                ].map((item, i) => (
-                  <div key={i} style={{ display:"flex", gap:12, alignItems:"start" }}>
-                    <div style={{ width:18, height:18, borderRadius:"50%", border:"2px solid #FEE2E2",
-                      display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:2 }}>
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <div style={{ fontSize:14.5, fontWeight:600, color:"#111827", lineHeight:1.4, marginBottom:3 }}>{item.title}</div>
-                      <div style={{ fontSize:13.5, color:"#6B7280", lineHeight:1.5 }}>{item.desc}</div>
-                    </div>
-                  </div>
-                ))}
+                <p className="text-[10px] text-slate-500">{currentCard.item}</p>
+                <p className="text-[11px] font-bold text-[#639922] mt-1">{currentCard.price}</p>
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {/* Card Direito - Com o sistema */}
-            <div style={{ background:"#fff", border:"1px solid #E5E7EB", borderRadius:12, padding:32,
-              boxShadow:"0 1px 3px rgba(0,0,0,0.05)" }}>
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:24 }}>
-                <div style={{ width:40, height:40, borderRadius:12, background:"#F0FDF4", border:"1px solid #DCFCE7",
-                  display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                </div>
-                <div style={{ fontSize:13, fontWeight:600, color:"#6B7280", letterSpacing:".02em", textTransform:"uppercase" }}>Com o sistema</div>
+      {/* Card WhatsApp — bottom-left, mais afastado, phase 2 */}
+      <AnimatePresence>
+        {phase >= 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 12, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.55, ease: E }}
+            className="absolute bottom-16 -left-24 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-3 w-56"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <MessageCircle className="w-3.5 h-3.5 text-white" />
               </div>
-              <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
-                {[
-                  { title:"Tudo numerado e organizado", desc:"cada pedido com status e horário" },
-                  { title:"Catálogo completo", desc:"cliente escolhe direto, sem erro" },
-                  { title:"WhatsApp automático", desc:"notificação pré-formatada no pedido" },
-                  { title:"Painel completo", desc:"pedidos, produtos e faturamento do dia" }
-                ].map((item, i) => (
-                  <div key={i} style={{ display:"flex", gap:12, alignItems:"start" }}>
-                    <div style={{ width:18, height:18, borderRadius:"50%", border:"2px solid #DCFCE7",
-                      display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, marginTop:2 }}>
-                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <div style={{ fontSize:14.5, fontWeight:600, color:"#111827", lineHeight:1.4, marginBottom:3 }}>{item.title}</div>
-                      <div style={{ fontSize:13.5, color:"#6B7280", lineHeight:1.5 }}>{item.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <span className="text-[11px] font-semibold text-slate-700">WhatsApp</span>
+              <span className="text-[9px] text-slate-400 ml-auto">Mensagem automática</span>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* COMO FUNCIONA */}
-      <section className="section" id="como-funciona">
-        <div className="container">
-          <div style={{ textAlign:"center", marginBottom:48 }}>
-            <div className="section-label">Como funciona</div>
-            <h2 className="section-title">Três passos para começar<br />a receber pedidos</h2>
-          </div>
-          <div className="steps-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14 }}>
-            {STEPS.map(s => (
-              <div key={s.num} className="step-card">
-                <div style={{ position:"relative", width:56, height:56, marginBottom:20 }}>
-                  <div style={{ width:56, height:56, borderRadius:14, background:"#F0FDF4",
-                    border:"1px solid #BBF7D0", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                    {s.icon}
-                  </div>
-                  <div style={{ position:"absolute", top:-8, right:-8, width:22, height:22, borderRadius:"50%",
-                    background:"#111827", border:"2px solid #fff", display:"flex", alignItems:"center",
-                    justifyContent:"center", fontSize:9, fontWeight:800, color:"#fff" }}>{s.num}</div>
-                </div>
-                <h3 style={{ fontSize:16, fontWeight:700, color:"#111827", letterSpacing:"-.02em", marginBottom:8 }}>{s.title}</h3>
-                <p style={{ fontSize:13.5, color:"#6B7280", lineHeight:1.7 }}>{s.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:8, marginTop:28 }}>
-            <div style={{ width:8, height:8, borderRadius:"50%", background:"#16A34A" }} />
-            <div style={{ width:40, height:1, background:"#E5E7EB" }} />
-            <div style={{ width:8, height:8, borderRadius:"50%", background:"#D1D5DB" }} />
-            <div style={{ width:40, height:1, background:"#E5E7EB" }} />
-            <div style={{ width:8, height:8, borderRadius:"50%", background:"#D1D5DB" }} />
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURES */}
-      <section className="section" id="funcionalidades"
-        style={{ background:"#FAFAF9", borderTop:"1px solid #F3F4F6", borderBottom:"1px solid #F3F4F6" }}>
-        <div className="container">
-          <div style={{ textAlign:"center", marginBottom:48 }}>
-            <div className="section-label">Funcionalidades</div>
-            <h2 className="section-title">Tudo que você precisa</h2>
-            <p style={{ fontSize:16, color:"#6B7280", marginTop:10 }}>Funcionalidades pensadas para facilitar sua vida</p>
-          </div>
-          <div className="feat-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:16 }}>
-            {FEATURES.map(f => (
-              <div key={f.title} className="feat-card">
-                <div style={{ width:36, height:36, borderRadius:9, background:"#F0FDF4",
-                  border:"1px solid #D1FAE5", display:"flex", alignItems:"center",
-                  justifyContent:"center", marginBottom:14 }}>{f.icon}</div>
-                <h3 style={{ fontSize:14, fontWeight:700, color:"#111827", marginBottom:6 }}>{f.title}</h3>
-                <p style={{ fontSize:13, color:"#6B7280", lineHeight:1.65 }}>{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FEITO PARA PEQUENOS PRODUTORES */}
-      <section className="section" style={{ background:"#fff", borderBottom:"1px solid #F3F4F6" }}>
-        <div className="container">
-          <div style={{ textAlign:"center", marginBottom:32 }}>
-            <div className="section-label">Para quem é</div>
-            <h2 className="section-title" style={{ marginBottom:8 }}>Feito para pequenos produtores</h2>
-            <p style={{ fontSize:16, color:"#6B7280", marginBottom:24 }}>Confeitarias, docerias, artesãos e empreendedores locais</p>
-            <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", gap:10 }}>
-              {[
-                { label:"Confeitaria",      icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 11H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2z"/><path d="M12 11V7a4 4 0 0 1 8 0"/><path d="M12 11V7a4 4 0 0 0-8 0"/></svg> },
-                { label:"Doceria",          icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> },
-                { label:"Artesanato",       icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg> },
-                { label:"Gastronomia",      icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg> },
-                { label:"Pequenos negócios",icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> },
-              ].map(p => (
-                <div key={p.label} style={{ display:"inline-flex", alignItems:"center", gap:8,
-                  background:"#F3F4F6", borderRadius:100, padding:"7px 16px",
-                  fontSize:13, fontWeight:600, color:"#111827" }}>
-                  {p.icon}{p.label}
-                </div>
-              ))}
+            <div className="bg-[#dcf8c6] rounded-xl px-3 py-2.5 text-[10px] leading-relaxed text-slate-700 space-y-1">
+              <p>🧾 <strong>Novo Pedido #047</strong></p>
+              <p>👤 Ana Lima · (51) 99999-8888</p>
+              <p className="pt-1">• 1× Açaí 500ml — R$22,00</p>
+              <p>• 1× Granola extra — R$6,00</p>
+              <p className="pt-1">💰 <strong>Total: R$ 28,00</strong></p>
             </div>
-          </div>
-
-          <div className="categories-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:40 }}>
-            <CategoryCard images={["/categories/01_Bolo_Cenoura_Coberto.jpg","/categories/02_Torta_Limao_Merengada.jpg","/categories/03_Pao_de_Mel_Embalado.jpg"]} />
-            <CategoryCard images={["/categories/04_Doces_Gourmet_Caixa_A.jpg","/categories/04_Doces_Gourmet_Caixa_B.jpg","/categories/05_Doce_de_Coco_Caseiro.jpg"]} />
-            <CategoryCard images={["/categories/07_Cachecol_Trico_Pronto.jpg","/categories/08_Tapete_Croche_Colorido.jpg","/categories/09_Boneca_Pano_Artesanal.jpg"]} />
-            <CategoryCard images={["/categories/10_Marmita_Feijoada_Completa.jpg","/categories/11_Pizza_Artesanal_Pronta.jpg","/categories/12_Massa_ao_Sugo_Prata.jpg"]} />
-          </div>
-
-          <div style={{ textAlign:"center" }}>
-            <p style={{ fontSize:15, color:"#6B7280", marginBottom:24, lineHeight:1.65 }}>
-              Centenas de pequenos negócios já estão vendendo online com o{" "}
-              <strong style={{ color:"#111827", fontWeight:700 }}>Fosfo Pedidos</strong>
-            </p>
-            <a href="/register" className="btn-green">
-              Criar meu catálogo grátis
-              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* DEMO */}
-      <section className="section" style={{ background:"#FAFAF9" }}>
-        <div className="container">
-          <div className="demo-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:56, alignItems:"center" }}>
-            <div className="demo-text-col">
-              <div className="section-label">Veja ao vivo</div>
-              <h2 style={{ fontSize:"clamp(24px,2.8vw,32px)", fontWeight:800, color:"#111827",
-                letterSpacing:"-.03em", lineHeight:1.15, marginBottom:14 }}>Teste agora,<br />sem cadastro.</h2>
-              <p style={{ fontSize:15, color:"#6B7280", lineHeight:1.65, marginBottom:0 }}>
-                Explore nosso catálogo demo com produtos reais, carrinho funcional e checkout completo. O painel admin também está aberto para você ver como funciona a gestão de pedidos.
-              </p>
+            <div className="flex justify-end mt-1.5">
+              <span className="text-[9px] text-slate-400">✓✓ Entregue</span>
             </div>
-            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-              {[
-                { label:"Catálogo público",  desc:"Catálogo com variações e carrinho",        href:"/demo", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> },
-                { label:"Painel admin",  desc:"Gestão de pedidos, produtos e métricas",   href:"/demo-admin", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg> },
-              ].map(item => (
-                <a key={item.label} href={item.href} style={{
-                  display:"flex", alignItems:"center", justifyContent:"space-between",
-                  padding:"24px", background:"#fff",
-                  border:"2px solid #E5E7EB", borderRadius:16,
-                  textDecoration:"none", transition:"all .2s ease",
-                  boxShadow:"0 1px 3px rgba(0,0,0,0.05)"
-                }}
-                  onMouseEnter={e => { 
-                    e.currentTarget.style.borderColor="#16A34A"; 
-                    e.currentTarget.style.background="#F0FDF4"; 
-                    e.currentTarget.style.boxShadow="0 8px 24px rgba(22,163,74,.12)"; 
-                    e.currentTarget.style.transform="translateY(-2px)";
-                    const btn = e.currentTarget.querySelector('.access-btn');
-                    if(btn) { btn.style.background="#16A34A"; btn.style.color="#fff"; }
-                  }}
-                  onMouseLeave={e => { 
-                    e.currentTarget.style.borderColor="#E5E7EB"; 
-                    e.currentTarget.style.background="#fff"; 
-                    e.currentTarget.style.boxShadow="0 1px 3px rgba(0,0,0,0.05)"; 
-                    e.currentTarget.style.transform="translateY(0)";
-                    const btn = e.currentTarget.querySelector('.access-btn');
-                    if(btn) { btn.style.background="#F0FDF4"; btn.style.color="#16A34A"; }
-                  }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-                    <div style={{ width:44, height:44, borderRadius:12, background:"#F0FDF4", border:"1px solid #BBF7D0", display:"flex", alignItems:"center", justifyContent:"center", color:"#16A34A" }}>
-                      {item.icon}
-                    </div>
-                    <div>
-                      <div style={{ fontSize:15, fontWeight:700, color:"#111827", marginBottom:4 }}>{item.label}</div>
-                      <div style={{ fontSize:13, color:"#6B7280" }}>{item.desc}</div>
-                    </div>
-                  </div>
-                  <div className="access-btn" style={{ 
-                    display:"inline-flex", alignItems:"center", gap:6,
-                    padding:"10px 18px", background:"#F0FDF4", color:"#16A34A",
-                    borderRadius:10, fontSize:13, fontWeight:600,
-                    transition:"all .2s ease", whiteSpace:"nowrap"
-                  }}>
-                    Acessar
-                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5"
-                      strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* FAQ */}
-      <section className="section" id="faq"
-        style={{ background:"#FAFAF9", borderTop:"1px solid #F3F4F6" }}>
-        <div className="container">
-          <div className="faq-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1.6fr", gap:80, alignItems:"start" }}>
-            <div className="faq-text-col" style={{ position:"sticky", top:80 }}>
-              <div className="section-label">Dúvidas frequentes</div>
-              <h2 style={{ fontSize:"clamp(22px,2.5vw,28px)", fontWeight:800, color:"#111827",
-                letterSpacing:"-.03em", lineHeight:1.2, marginBottom:14 }}>
-                Tudo que você precisa saber antes de começar.
-              </h2>
-              <p style={{ fontSize:13.5, color:"#9CA3AF", lineHeight:1.65 }}>
-                Ainda tem dúvidas? Fale com a gente pelo WhatsApp.
-              </p>
+      {/* Device frame (celular) - proporções realistas de smartphone */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: E, delay: 0.1 }}
+        className="relative z-10 w-full"
+      >
+        {/* Shell do device - aspect ratio 9:19.5 típico de smartphones */}
+        <div className="relative bg-slate-900 rounded-[2.5rem] shadow-2xl p-2.5 mx-auto" style={{ width: '280px', height: '580px' }}>
+          {/* Notch */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 bg-slate-900 rounded-b-2xl z-10" />
+          
+          {/* Tela interna */}
+          <div className="relative bg-white rounded-[2rem] overflow-hidden h-full">
+            {/* Header verde */}
+            <div className="bg-[#639922] px-4 pt-7 pb-3">
+              <p className="text-xs font-black text-white tracking-widest">AÇAÍ CENTRAL</p>
+              <p className="text-[10px] text-white/80 mt-1">Olá! O que vai querer? 👋</p>
             </div>
-            <div>
-              {FAQ.map(item => <FaqItem key={item.q} q={item.q} a={item.a} />)}
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* CTA FINAL */}
-      <section className="section">
-        <div className="container" style={{ paddingLeft:16, paddingRight:16 }}>
-          <div style={{ position:"relative", background:"#111c14", borderRadius:20, padding:"clamp(32px, 8vw, 72px) clamp(16px, 5vw, 32px)", 
-            overflow:"hidden", textAlign:"center" }}>
-            {/* Glow effect */}
-            <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", 
-              width:600, height:400, background:"radial-gradient(circle, rgba(99,153,34,0.2) 0%, transparent 70%)",
-              pointerEvents:"none", zIndex:0 }}></div>
-            
-            {/* Content */}
-            <div style={{ position:"relative", zIndex:1, maxWidth:560, margin:"0 auto" }}>
-              {/* Top pill */}
-              <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(99,153,34,0.18)",
-                border:"1px solid rgba(99,153,34,0.4)", borderRadius:99, padding:"6px 14px", marginBottom:24 }}>
-                <div style={{ width:5, height:5, borderRadius:"50%", background:"#97C459" }}></div>
-                <span style={{ fontSize:12.5, fontWeight:600, color:"#97C459", letterSpacing:".01em" }}>
-                  30 dias grátis · sem cartão
+            {/* Tabs */}
+            <div className="flex gap-1.5 px-4 py-3 bg-slate-50 border-b border-slate-100">
+              {["Todos", "Açaí", "Combos", "Bebidas"].map((c, i) => (
+                <span key={c} className={`text-[9px] px-2.5 py-1 rounded-full font-medium transition-colors ${i === 0 ? "bg-[#639922] text-white" : "bg-white text-slate-600 border border-slate-200"}`}>
+                  {c}
                 </span>
-              </div>
-
-              {/* Headline */}
-              <h2 style={{ fontSize:"clamp(32px,4vw,48px)", fontWeight:800, color:"#f0f0ea",
-                letterSpacing:"-.03em", lineHeight:1.15, marginBottom:16 }}>
-                Testa agora.<br />Decide depois.
-              </h2>
-
-              {/* Subtitle */}
-              <p style={{ fontSize:17, color:"rgba(240,240,234,0.5)", lineHeight:1.65, marginBottom:32 }}>
-                30 dias sem custo, sem compromisso. Você cria, seus clientes pedem — e você decide se ficou bom.
-              </p>
-
-              {/* CTA Button */}
-              <div style={{ marginBottom:16 }}>
-                <a href="/register" style={{ display:"inline-flex", alignItems:"center", gap:8,
-                  background:"#639922", color:"#fff", borderRadius:10, padding:"14px 24px",
-                  fontSize:14, fontWeight:600, textDecoration:"none", transition:"all 0.2s", 
-                  maxWidth:"100%", boxSizing:"border-box", width:"100%", justifyContent:"center" }}>
-                  <span style={{ whiteSpace:"nowrap" }}>Criar meu catálogo agora</span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </a>
-              </div>
-
-              {/* Mobile-specific button adjustments */}
-              <style jsx>{`
-                @media (max-width: 480px) {
-                  a[href="/register"] {
-                    padding: 12px 20px !important;
-                    font-size: 13px !important;
-                    width: 100% !important;
-                  }
-                }
-              `}</style>
-
-              {/* Login link */}
-              <p style={{ fontSize:13.5, color:"rgba(240,240,234,0.35)", marginBottom:32 }}>
-                Já tem conta? <a href="/login" style={{ color:"rgba(240,240,234,0.5)", textDecoration:"underline", fontWeight:500 }}>Entrar</a>
-              </p>
-
-              {/* Bottom pills */}
-              <div style={{ display:"flex", justifyContent:"center", flexWrap:"wrap", gap:10 }}>
-                <div style={{ display:"flex", alignItems:"center", gap:7, background:"rgba(255,255,255,0.06)",
-                  border:"0.5px solid rgba(255,255,255,0.12)", borderRadius:99, padding:"7px 16px" }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#639922" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                  <span style={{ fontSize:12, color:"rgba(240,240,234,0.55)", fontWeight:500 }}>30 dias para testar</span>
-                </div>
-                <div style={{ display:"flex", alignItems:"center", gap:7, background:"rgba(255,255,255,0.06)",
-                  border:"0.5px solid rgba(255,255,255,0.12)", borderRadius:99, padding:"7px 16px" }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#639922" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                  </svg>
-                  <span style={{ fontSize:12, color:"rgba(240,240,234,0.55)", fontWeight:500 }}>Sem cartão</span>
-                </div>
-                <div style={{ display:"flex", alignItems:"center", gap:7, background:"rgba(255,255,255,0.06)",
-                  border:"0.5px solid rgba(255,255,255,0.12)", borderRadius:99, padding:"7px 16px" }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#639922" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                  </svg>
-                  <span style={{ fontSize:12, color:"rgba(240,240,234,0.55)", fontWeight:500 }}>Pronto em 2 minutos</span>
-                </div>
-              </div>
+              ))}
             </div>
+
+            {/* Lista de produtos */}
+            <div className="px-4 py-3 space-y-2 bg-white">
+              {[
+                { emoji: "🍇", name: "Açaí 500ml", price: "R$ 22,00", badge: "Popular" },
+                { emoji: "🍕", name: "Combo Família", price: "R$ 89,00", badge: null },
+                { emoji: "🍫", name: "Brigadeiro ×6", price: "R$ 36,00", badge: "Novo" },
+              ].map(({ emoji, name, price, badge }) => (
+                <div key={name} className="flex items-center justify-between bg-slate-50 rounded-xl px-3 py-2 border border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base leading-none">{emoji}</span>
+                    <div>
+                      <p className="text-[10px] font-semibold text-slate-800 flex items-center gap-1.5">
+                        {name}
+                        {badge && <span className="text-[7px] font-bold bg-[#639922]/10 text-[#639922] px-1.5 py-0.5 rounded uppercase tracking-wide">{badge}</span>}
+                      </p>
+                      <p className="text-[10px] font-bold text-[#639922] mt-0.5">{price}</p>
+                    </div>
+                  </div>
+                  <button className="w-5 h-5 bg-[#639922] text-white rounded-full text-xs flex items-center justify-center font-bold flex-shrink-0 hover:bg-[#527a1c] transition-colors">+</button>
+                </div>
+              ))}
+            </div>
+
+            {/* Barra carrinho */}
+            <div className="mx-4 mb-4 bg-[#639922] rounded-xl px-3 py-2.5 flex items-center justify-between shadow-lg">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="w-3.5 h-3.5 text-white" />
+                <span className="text-white text-[10px] font-semibold">Ver carrinho</span>
+              </div>
+              <span className="text-white/80 text-[9px] font-medium">2 itens</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── Carrossel de categorias com pills Lucide e 4 imagens por slide ──────────
+function CategoryCarousel() {
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setActiveSlide((p) => (p + 1) % CAROUSEL_SLIDES.length), 4000);
+    return () => clearInterval(t);
+  }, []);
+
+  const currentSlide = CAROUSEL_SLIDES[activeSlide];
+  const categoryLabels = ["Confeitaria", "Doceria", "Artesanato", "Gastronomia"];
+
+  return (
+    <div>
+      {/* Pills estáticos com ícones Lucide */}
+      <div className="flex flex-wrap gap-2 justify-center mb-8">
+        {CATS.map((c) => {
+          const Icon = c.icon;
+          return (
+            <div
+              key={c.label}
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium border border-slate-200 bg-white text-slate-600"
+            >
+              <Icon className="w-4 h-4" />
+              {c.label}
+            </div>
+          );
+        })}
+        <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium border border-slate-200 bg-white text-slate-600">
+          <Briefcase className="w-4 h-4" />
+          Pequenos negócios
+        </div>
+      </div>
+
+      {/* Grid 4 colunas — carrossel de imagens */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeSlide}
+          initial={{ opacity: 0, x: 22 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -22 }}
+          transition={{ duration: 0.45, ease: E }}
+          className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+        >
+          {currentSlide.map((src, i) => (
+            <motion.div
+              key={src}
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: i * 0.07, ease: E }}
+              whileHover={{ scale: 1.04, zIndex: 10 }}
+              className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 cursor-pointer"
+            >
+              <Image src={src} alt={categoryLabels[i]} fill className="object-cover" />
+              <div className="absolute inset-0 bg-black/0 hover:bg-black/8 transition-colors duration-300" />
+            </motion.div>
+          ))}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Dots indicadores */}
+      <div className="flex justify-center items-center gap-2 mt-7">
+        {CAROUSEL_SLIDES.map((_, i) => (
+          <motion.button
+            key={i}
+            onClick={() => setActiveSlide(i)}
+            className="h-1.5 rounded-full bg-[#639922] cursor-pointer"
+            animate={{ width: i === activeSlide ? 24 : 8, opacity: i === activeSlide ? 1 : 0.3 }}
+            transition={{ duration: 0.3, ease: E }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── FAQ item ─────────────────────────────────────────────────────────────────
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <motion.div variants={fadeUp} className="border border-slate-200 rounded-xl overflow-hidden bg-white">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50/80 transition-colors duration-200"
+      >
+        <span className="font-medium text-slate-800 pr-5 text-sm leading-snug">{q}</span>
+        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.3, ease: E }} className="text-slate-400 flex-shrink-0">
+          <ChevronDown className="w-4 h-4" />
+        </motion.span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.4, ease: E }}
+            className="overflow-hidden"
+          >
+            <p className="px-5 pb-4 pt-2 text-slate-500 text-sm leading-relaxed border-t border-slate-100">{a}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// ─── Section header ───────────────────────────────────────────────────────────
+function SectionHeader({ eyebrow, title, sub }: { eyebrow: string; title: React.ReactNode; sub?: string }) {
+  return (
+    <motion.div
+      className="text-center mb-14"
+      initial="hidden" whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      variants={stg(0.1)}
+    >
+      <motion.p variants={fadeUp} className="text-xs font-bold text-[#639922] uppercase tracking-[0.18em] mb-3">{eyebrow}</motion.p>
+      <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight max-w-3xl mx-auto">{title}</motion.h2>
+      {sub && <motion.p variants={fadeUp} className="mt-4 text-slate-500 max-w-xl mx-auto leading-relaxed">{sub}</motion.p>}
+    </motion.div>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
+      <ScrollProgress />
+      <Navbar />
+
+      {/* ══ HERO ══ */}
+      <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
+        {/* Mesh orbs */}
+        <div className="absolute inset-0 pointer-events-none select-none">
+          <motion.div className="absolute -top-40 right-0 w-[680px] h-[680px] rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(99,153,34,0.13) 0%, transparent 65%)" }}
+            animate={{ y: [0, -28, 0], x: [0, 18, 0] }} transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }} />
+          <motion.div className="absolute top-1/2 -left-60 w-[560px] h-[560px] rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(132,204,22,0.09) 0%, transparent 65%)" }}
+            animate={{ y: [0, 32, 0], x: [0, -12, 0] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }} />
+          <motion.div className="absolute bottom-10 right-1/3 w-[440px] h-[440px] rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 65%)" }}
+            animate={{ y: [0, -22, 0] }} transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 5 }} />
+        </div>
+        <div className="absolute inset-0 opacity-[0.025] pointer-events-none"
+          style={{ backgroundImage: "radial-gradient(circle, #64748b 1px, transparent 1px)", backgroundSize: "30px 30px" }} />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 flex flex-col lg:flex-row items-center gap-14 lg:gap-10">
+          {/* Copy */}
+          <motion.div className="flex-1 text-center lg:text-left max-w-1xl" variants={stg(0.11)} initial="hidden" animate="visible">
+            <motion.div variants={fadeUp}>
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#639922]/10 text-[#639922] border border-[#639922]/20 mb-7">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#639922] animate-pulse" />
+                30 dias para testar · sem cartão
+              </span>
+            </motion.div>
+
+            <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-[3.5rem] font-bold tracking-tight text-slate-900 leading-[1.1] mb-6">
+              Seu catálogo online{" "}
+              <span className="text-[#639922]">pronto em minutos.</span>
+            </motion.h1>
+
+            <motion.p variants={fadeUp} className="text-lg sm:text-xl text-slate-500 leading-relaxed mb-9 max-w-xl mx-auto lg:mx-0">
+              Cadastre seus produtos, compartilhe o link e comece a receber pedidos organizados — com carrinho, variações e notificação no WhatsApp.
+            </motion.p>
+
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-10">
+              <Link href="/register" className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#639922] hover:bg-[#527a1c] text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-[#639922]/30 hover:-translate-y-0.5 whitespace-nowrap">
+                Criar catálogo grátis
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+              <Link href="/demo" className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 font-medium rounded-xl transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 whitespace-nowrap">
+                Ver demonstração
+                <Play className="w-4 h-4" />
+              </Link>
+            </motion.div>
+
+            <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-x-6 gap-y-2 justify-center lg:justify-start">
+              {TRUST.map((t) => (
+                <span key={t} className="flex items-center gap-1.5 text-sm text-slate-400">
+                  <CheckCircle2 className="w-4 h-4 text-[#639922]" />
+                  {t}
+                </span>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          {/* Mockup animado */}
+          <motion.div
+            className="flex-1 flex justify-center lg:justify-end"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, ease: E, delay: 0.2 }}
+          >
+            <HeroMockup />
+          </motion.div>
+        </div>
+
+        <motion.div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-slate-300"
+          animate={{ y: [0, 9, 0] }} transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}>
+          <ChevronDown className="w-6 h-6" />
+        </motion.div>
+      </section>
+
+      {/* ══ O PROBLEMA ══ */}
+      <section className="py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            eyebrow="O problema"
+            title="WhatsApp para vender é ótimo. Para organizar pedido, nem tanto."
+            sub="Pedido que some na conversa. Cliente que muda de ideia. Você que não sabe quanto vendeu no dia."
+          />
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {/* Sem sistema */}
+            <motion.div
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeLeft}
+              whileHover={{ y: -4 }} transition={{ duration: 0.3, ease: E }}
+              className="group relative rounded-2xl border border-red-200 bg-white p-7 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-red-50/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-5">
+                  <XCircle className="w-5 h-5 text-red-400" />
+                  <h3 className="font-bold text-slate-800">Sem o sistema</h3>
+                </div>
+                <ul className="space-y-3.5">
+                  {[
+                    { l: "Pedidos perdidos",         s: "sumindo no meio das conversas" },
+                    { l: "Zero registro",            s: "quem pediu o quê? Ninguém sabe" },
+                    { l: "Retrabalho constante",     s: "preço e variação digitados na mão" },
+                    { l: "Sem visão de faturamento", s: "quanto você vendeu hoje?" },
+                  ].map(({ l, s }) => (
+                    <li key={l} className="flex gap-3 items-start">
+                      <XCircle className="w-4 h-4 text-red-300 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-slate-700">{l}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{s}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.div>
+
+            {/* Com sistema */}
+            <motion.div
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeRight}
+              whileHover={{ y: -4 }} transition={{ duration: 0.3, ease: E }}
+              className="group relative rounded-2xl border border-[#639922]/25 bg-white p-7 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-[#639922]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative">
+                <div className="flex items-center gap-2 mb-5">
+                  <CheckCircle2 className="w-5 h-5 text-[#639922]" />
+                  <h3 className="font-bold text-slate-800">Com o sistema</h3>
+                </div>
+                <ul className="space-y-3.5">
+                  {[
+                    { l: "Tudo numerado e organizado", s: "cada pedido com status e horário" },
+                    { l: "Catálogo completo",          s: "cliente escolhe direto, sem erro" },
+                    { l: "WhatsApp automático",        s: "notificação pré-formatada no pedido" },
+                    { l: "Painel completo",            s: "pedidos, produtos e faturamento do dia" },
+                  ].map(({ l, s }) => (
+                    <li key={l} className="flex gap-3 items-start">
+                      <CheckCircle2 className="w-4 h-4 text-[#639922] flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-slate-700">{l}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{s}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer style={{ borderTop:"1px solid #F3F4F6", padding:"24px", background:"#fff" }}>
-        <div className="container" style={{ display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:9 }}>
-            <div style={{ width:28, height:28, borderRadius:8, background:"#111827",
-              display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-              </svg>
-            </div>
-            <span style={{ fontSize:14, fontWeight:700, color:"#374151", letterSpacing:"-.03em" }}>{platformName}</span>
-            <span style={{ fontSize:13, color:"#D1D5DB", margin:"0 4px" }}>·</span>
-            <span style={{ fontSize:13, color:"#9CA3AF" }}>© 2026</span>
-          </div>
-          <div className="footer-links" style={{ display:"flex", gap:20 }}>
-            {[["Demo","/demo"],["Login","/login"],["Cadastrar","/register"]].map(([l,h]) => (
-              <a key={l} href={h} style={{ fontSize:13, color:"#9CA3AF", textDecoration:"none" }}>{l}</a>
+      {/* ══ COMO FUNCIONA ══ */}
+      <section id="como-funciona" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader eyebrow="Como funciona" title="Três passos para começar a receber pedidos" />
+          <motion.div className="grid md:grid-cols-3 gap-6" initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={stg(0.14)}>
+            {[
+              { num: "01", title: "Configure seu catálogo", desc: "Cadastre-se, escolha o nome e personalize com logo e cores. Menos de 2 minutos para estar no ar.", icon: <Palette className="w-4 h-4" /> },
+              { num: "02", title: "Cadastre seus produtos", desc: "Fotos, preços e variações como tamanho, sabor ou cor. Organize tudo por categorias.", icon: <Package className="w-4 h-4" /> },
+              { num: "03", title: "Receba pedidos",         desc: "Clientes acessam pelo link, montam o carrinho e finalizam. Você recebe no painel e no WhatsApp.", icon: <ShoppingCart className="w-4 h-4" /> },
+            ].map(({ num, title, desc, icon }) => (
+              <motion.div key={num} variants={fadeUp} whileHover={{ y: -6, scale: 1.01 }} transition={{ duration: 0.3, ease: E }} className="group relative">
+                <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-[#639922]/35 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative rounded-2xl border border-slate-200 bg-white p-8 h-full transition-shadow duration-300 group-hover:shadow-2xl group-hover:shadow-slate-200/70">
+                  {/* Número + ícone na mesma linha */}
+                  <div className="flex items-center gap-3 mb-5">
+                    <span className="text-5xl font-black text-slate-100 leading-none">{num}</span>
+                    <div className="w-9 h-9 rounded-xl bg-[#639922]/10 flex items-center justify-center text-[#639922] transition-all duration-300 group-hover:bg-[#639922] group-hover:text-white flex-shrink-0">
+                      {icon}
+                    </div>
+                  </div>
+                  <h3 className="font-bold text-lg text-slate-800 mb-2 leading-snug">{title}</h3>
+                  <p className="text-slate-500 leading-relaxed text-sm">{desc}</p>
+                </div>
+              </motion.div>
             ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══ FUNCIONALIDADES ══ */}
+      <section id="funcionalidades" className="py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader eyebrow="Funcionalidades" title="Tudo que você precisa" sub="Pensadas para facilitar sua vida, desde o primeiro produto até o último pedido do dia." />
+          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={stg(0.08)}>
+            {[
+              { icon: <Palette />,     title: "Catálogo personalizado", desc: "Logo, cores e banner com a identidade da sua marca." },
+              { icon: <Layers />,      title: "Produtos com variações",  desc: "Tamanhos, sabores, cores — cada um com seu preço." },
+              { icon: <ShoppingCart />,title: "Carrinho inteligente",    desc: "Seus clientes montam o pedido com facilidade." },
+              { icon: <MessageCircle />,title: "Pedido por WhatsApp",   desc: "Receba os detalhes do pedido direto no seu WhatsApp." },
+              { icon: <BarChart3 />,   title: "Painel completo",        desc: "Gerencie produtos, pedidos e métricas em um só lugar." },
+              { icon: <Globe />,       title: "100% responsivo",        desc: "Funciona perfeitamente no celular e no computador." },
+            ].map(({ icon, title, desc }) => (
+              <motion.div key={title} variants={fadeUp} whileHover={{ scale: 1.02, y: -4 }} transition={{ duration: 0.3, ease: E }} className="group relative">
+                <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-[#639922] via-[#84cc16] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative bg-white rounded-2xl border border-slate-200 p-6 h-full group-hover:border-transparent transition-colors duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-[#639922]/10 flex items-center justify-center text-[#639922] mb-4 transition-all duration-300 group-hover:bg-[#639922] group-hover:text-white [&>svg]:w-5 [&>svg]:h-5">
+                    {icon}
+                  </div>
+                  <h3 className="font-bold text-slate-800 mb-1.5">{title}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══ PARA QUEM É ══ */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader eyebrow="Para quem é" title="Feito para pequenos produtores" sub="Confeitarias, docerias, artesãos e empreendedores locais" />
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }} transition={{ duration: 0.7, ease: E }}>
+            <CategoryCarousel />
+          </motion.div>
+          <motion.div className="text-center mt-14" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <p className="text-slate-500 mb-6">
+              Centenas de pequenos negócios já estão vendendo online com o{" "}
+              <strong className="text-slate-700">Fosfo Pedidos</strong>
+            </p>
+            <Link href="/register" className="group inline-flex items-center gap-2 px-7 py-3.5 bg-[#639922] hover:bg-[#527a1c] text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-[#639922]/25 hover:-translate-y-0.5">
+              Criar meu catálogo grátis
+              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══ VEJA AO VIVO ══ */}
+      <section className="py-24 bg-slate-50 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            eyebrow="Veja ao vivo"
+            title="Teste agora, sem cadastro."
+            sub="Explore nosso catálogo demo com produtos reais, carrinho funcional e checkout completo. O painel admin também está aberto para você ver como funciona a gestão de pedidos."
+          />
+
+          {/* Imagem do dashboard sem gradientes sobrepostos */}
+          <motion.div
+            className="relative mb-12 mx-auto max-w-3xl"
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.85, ease: E }}
+          >
+            {/* Sombra colorida por baixo */}
+            <div className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-[#639922]/15 to-slate-300/30 blur-xl pointer-events-none" />
+            {/* Container */}
+            <div className="relative rounded-2xl overflow-hidden border border-slate-200/80 shadow-2xl shadow-slate-900/8">
+              {/* Barra browser */}
+              <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 border-b border-slate-200">
+                <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                <div className="flex-1 mx-3 py-0.5 px-3 bg-white rounded text-[10px] text-slate-400 font-mono border border-slate-200 text-center">fosfo.app/admin</div>
+              </div>
+              <div className="relative">
+                <Image src={IMG.desktopDashboard} alt="Painel administrativo Fosfo" width={1200} height={675} className="w-full" />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Cards de acesso */}
+          <motion.div className="grid sm:grid-cols-2 gap-5 max-w-2xl mx-auto" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stg(0.1)}>
+            {[
+              { href: "/demo",       icon: <Store className="w-5 h-5" />,         title: "Catálogo público", desc: "Catálogo com variações e carrinho",            cta: "Acessar" },
+              { href: "/demo-admin", icon: <LayoutDashboard className="w-5 h-5" />,title: "Painel admin",    desc: "Gestão de pedidos, produtos e métricas",       cta: "Acessar" },
+            ].map(({ href, icon, title, desc, cta }) => (
+              <motion.div key={href} variants={fadeUp} whileHover={{ y: -5 }} transition={{ duration: 0.3, ease: E }}>
+                <Link href={href} className="group flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 hover:border-[#639922]/30 hover:shadow-xl hover:shadow-slate-200/60 transition-all duration-300">
+                  <div className="flex items-start justify-between">
+                    <div className="w-11 h-11 rounded-xl bg-[#639922]/10 flex items-center justify-center text-[#639922] group-hover:bg-[#639922] group-hover:text-white transition-all duration-300">
+                      {icon}
+                    </div>
+                    <div className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 group-hover:border-[#639922] group-hover:text-[#639922] group-hover:bg-[#639922]/5 transition-all duration-300">
+                      <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-800 mb-1">{title}</p>
+                    <p className="text-sm text-slate-500">{desc}</p>
+                  </div>
+                  <span className="text-sm font-semibold text-[#639922]">{cta} →</span>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══ FAQ ══ */}
+      <section id="faq" className="py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
+            {/* Esquerda: título fixo no scroll */}
+            <motion.div
+              initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={stg(0.1)}
+              className="md:sticky md:top-24"
+            >
+              <motion.p variants={fadeUp} className="text-xs font-bold text-[#639922] uppercase tracking-[0.18em] mb-3">Dúvidas frequentes</motion.p>
+              <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl font-bold text-slate-900 leading-tight mb-5">
+                Tudo que você precisa saber antes de começar.
+              </motion.h2>
+              <motion.p variants={fadeUp} className="text-slate-500 leading-relaxed mb-8">
+                Ainda tem dúvidas? Fale com a gente pelo WhatsApp.
+              </motion.p>
+              <motion.div variants={fadeUp}>
+                <Link href="/register" className="group inline-flex items-center gap-2 px-6 py-3 bg-[#639922] hover:bg-[#527a1c] text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-[#639922]/25 hover:-translate-y-0.5">
+                  Começar grátis
+                  <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+              </motion.div>
+            </motion.div>
+
+            {/* Direita: perguntas */}
+            <motion.div className="space-y-2" initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={stg(0.05)}>
+              {FAQ.map((item) => <FaqItem key={item.q} q={item.q} a={item.a} />)}
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ CTA FINAL ══ */}
+      <section className="py-28 bg-[#111c14] relative overflow-hidden">
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(ellipse, rgba(99,153,34,0.22) 0%, transparent 65%)" }}
+          animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <div className="absolute inset-0 opacity-[0.035] pointer-events-none"
+          style={{ backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+
+        <div className="relative max-w-4xl mx-auto px-4 text-center">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={stg(0.11)}>
+            <motion.p variants={fadeUp} className="text-xs font-bold text-[#639922] uppercase tracking-[0.18em] mb-4">30 dias grátis · sem cartão</motion.p>
+            <motion.h2 variants={fadeUp} className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight">Testa agora. Decide depois.</motion.h2>
+            <motion.p variants={fadeUp} className="text-lg text-white/55 mb-10 max-w-lg mx-auto leading-relaxed">
+              30 dias sem custo, sem compromisso. Você cria, seus clientes pedem — e você decide se ficou bom.
+            </motion.p>
+            <motion.div variants={fadeUp}>
+              <Link href="/register" className="group inline-flex items-center justify-center gap-2 px-9 py-4 bg-[#639922] hover:bg-[#527a1c] text-white font-bold text-lg rounded-xl transition-all duration-300 hover:shadow-2xl hover:shadow-[#639922]/35 hover:-translate-y-1 mb-5">
+                Criar meu catálogo agora
+                <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+            </motion.div>
+            <motion.p variants={fadeUp} className="text-sm text-white/35">
+              Já tem conta?{" "}
+              <Link href="/login" className="text-white/60 hover:text-white underline transition-colors">Entrar</Link>
+            </motion.p>
+            <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2 mt-10">
+              {TRUST.map((t) => (
+                <span key={t} className="flex items-center gap-1.5 text-sm text-white/40">
+                  <CheckCircle2 className="w-4 h-4 text-[#639922]" />{t}
+                </span>
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══ FOOTER ══ */}
+      <footer className="py-7 bg-[#0c160f] border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-sm text-white/25">Sistema de Pedidos Fosfo · © 2026</p>
+          <div className="flex items-center gap-6">
+            <Link href="/demo"     className="text-sm text-white/25 hover:text-white/50 transition-colors">Demo</Link>
+            <Link href="/login"    className="text-sm text-white/25 hover:text-white/50 transition-colors">Login</Link>
+            <Link href="/register" className="text-sm text-white/25 hover:text-white/50 transition-colors">Cadastrar</Link>
           </div>
         </div>
       </footer>

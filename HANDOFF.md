@@ -1,5 +1,5 @@
 # HANDOFF — Sistema de Pedidos Fosfo
-> Última atualização: 26/03/2026 — Sessão 7
+> Última atualização: 02/04/2026 — Sessão 9
 
 ## Como usar este arquivo
 Cole este documento no início de um novo chat (Claude ou Windsurf) para retomar o desenvolvimento.
@@ -52,22 +52,75 @@ Envie junto o `PROJECT_CONTEXT.md` e cole apenas os arquivos relevantes à taref
 - [x] Funções RPC no Supabase
 - [x] Banners de trial no dashboard admin
 
-### ⏳ Fase 5 — Demo + LP (PRÓXIMA)
-- [ ] Loja Demo funcional com produtos realistas
-- [ ] Admin Demo com acesso aberto (sem senha)
+### ✅ Fase 5 — Demo + LP (COMPLETA)
+- [x] Loja Demo funcional com produtos realistas (slug: demo)
+- [x] Admin Demo com acesso aberto (rota: /demo-admin)
 - [x] Revisão completa do copy da Landing Page
 - [x] Redesign seção "O Problema" (comparativo visual dois cards)
 - [x] Redesign CTA final (fundo escuro, pills)
+- [x] Refinamento UI da Landing Page (navbar, hero, mockup)
 
-### ⬜ Fase 6 — Polish
+### ⏳ Fase 6 — Polish (PRÓXIMA)
 - [ ] Responsividade mobile (admin + loja + LP)
 - [ ] Refinamento UI loja pública
 - [ ] Refinamento UI admin
-- [ ] Deploy Vercel
+- [ ] Testes completos de fluxo
+- [ ] Deploy Vercel final
 
 ---
 
 ## Histórico de Desenvolvimento
+
+### Sessão 9 (02/04/2026) — Refinamento Landing Page
+
+**Navbar:**
+- [x] Ícone Store verde (#639922) adicionado ao lado do logo
+- [x] Texto alterado para "Sistema de Pedidos Fosfo"
+- [x] Menu mobile com scroll suave para âncoras (#como-funciona, #funcionalidades, #faq)
+- [x] Links normais (/demo, /login, /register) funcionando corretamente
+- [x] Diferenciação automática entre âncoras e rotas no menu mobile
+
+**Hero Section:**
+- [x] Título mantido: "Seu catálogo online pronto em minutos."
+- [x] Largura máxima da div ajustada para max-w-1xl
+- [x] Botão principal: "Criar catálogo grátis" (texto reduzido)
+- [x] Botão secundário: "Ver demonstração" com ícone Play à direita
+- [x] Ambos os botões com whitespace-nowrap para uma linha
+
+**HeroMockup (Device Frame):**
+- [x] Proporções realistas de smartphone (280px × 580px, aspect ratio 9:19.5)
+- [x] Device frame com notch e bordas escuras
+- [x] UI da loja renderizada dentro do celular (header verde, tabs, produtos, carrinho)
+- [x] Cards flutuantes reposicionados:
+  - "47 Pedidos hoje" (top-left, -left-32) com ponto verde pulsante
+  - Card de notificação (top-right, -top-4 -right-28) alternando entre 3 pedidos a cada 3s
+  - Card WhatsApp (bottom-left, bottom-16 -left-24) com mensagem automática
+- [x] Background decorativo com círculos coloridos animados + blur + linhas diagonais
+- [x] Animações Framer Motion em 3 fases (0 → 1 → 2)
+
+**Melhorias Técnicas:**
+- [x] Alternância automática de conteúdo no card de notificação (Ana Lima, Carlos M., Julia S.)
+- [x] AnimatePresence com mode="wait" para transições suaves
+- [x] Background com 4 círculos blur (verde, azul, roxo) com animações independentes
+- [x] Todas as cores verdes atualizadas para #639922
+
+### Sessão 8 (02/04/2026) — Admin Demo Implementado
+
+**Admin Demo:**
+- [x] Rota `/demo-admin` criada com acesso público (sem autenticação)
+- [x] Dashboard completo com métricas da loja demo
+- [x] Visualização de produtos, pedidos, categorias, banners e configurações
+- [x] Interface responsiva com menu mobile
+- [x] Dados mockados quando loja demo não tem conteúdo
+- [x] Modais de visualização para pedidos e produtos
+- [x] Sistema de tabs para navegação entre seções
+- [x] Sem features de assinatura/indicação/suporte (modo demo puro)
+
+**Loja Demo:**
+- [x] Loja com slug `demo` funcional no storefront
+- [x] Produtos e categorias populados via script
+- [x] Carrinho e checkout funcionais
+- [x] Banners promocionais ativos
 
 ### Sessão 7 (26/03/2026) — Melhorias no Admin + LP
 
@@ -244,6 +297,7 @@ profiles, stores, store_users, categories, products, product_images, product_var
 - `src/app/master/settings/page.tsx` — Configurações da plataforma
 - `src/app/admin/page.tsx` — Dashboard admin (banners trial + cards acesso rápido)
 - `src/app/admin/start/page.tsx` — Página onboarding "Por onde começar"
+- `src/app/demo-admin/page.tsx` — Admin demo público (sem autenticação)
 - `src/app/[slug]/page.tsx` — Loja pública + página inativa
 - `src/app/page.tsx` — Landing Page
 
@@ -259,7 +313,7 @@ profiles, stores, store_users, categories, products, product_images, product_var
 6. **Loja inativa:** Página premium com design escuro, mensagem amigável e CTA.
 7. **Banners de trial no admin:** Amarelo (≤10 dias), Laranja (expirado). Não bloqueia o painel.
 8. **Personalização da loja:** Apenas logo + cor primária + banner.
-9. **Demo:** Loja demo + admin demo sem senha. Campo `is_demo` identifica. Nenhuma das melhorias do admin (banner assinatura, indicação, suporte) aparece na demo.
+9. **Demo:** Loja demo (slug: `demo`) + admin demo (rota: `/demo-admin`) sem senha. Campo `is_demo` identifica. Admin demo é uma página standalone com tabs, sem features de assinatura/indicação/suporte.
 10. **URL das lojas:** seusite.com/slug-da-loja
 11. **Estrutura de arquivos:** Seguir convenções Next.js App Router
 
@@ -326,6 +380,14 @@ profiles, stores, store_users, categories, products, product_images, product_var
 - ✅ Modal de confirmação para exclusão
 - ✅ Configurações da plataforma (trial padrão)
 
+### 🎭 Demo Público
+- ✅ Loja demo acessível via `/demo`
+- ✅ Admin demo acessível via `/demo-admin` (sem autenticação)
+- ✅ Dashboard com métricas, produtos, pedidos, categorias, banners
+- ✅ Interface responsiva com menu mobile
+- ✅ Dados mockados quando necessário
+- ✅ Modais de visualização (somente leitura)
+
 ### 🛠️ Infraestrutura
 - ✅ Multi-tenancy completo (isolamento por store_id)
 - ✅ Row Level Security (RLS) no Supabase
@@ -341,7 +403,7 @@ profiles, stores, store_users, categories, products, product_images, product_var
 
 **Terminal nativo do Mac** (não o Windsurf):
 ```bash
-cd ~/store-orders-system && npm run dev
+cd ~/Documents/web/AI/windsurf/store-orders-system && npm run dev
 ```
 
 Se der erro de porta em uso:
@@ -351,20 +413,23 @@ lsof -ti:3000,3001,3002,3003 | xargs kill -9 ; npm run dev
 
 ---
 
-## Próxima sessão — Fase 5
+## Próxima sessão — Fase 6
 
-### Prioridade 1: Loja Demo
-- Criar loja com slug `demo` no Supabase
-- Popular com categorias e produtos realistas (ex: açaí, confeitaria)
-- Garantir que todas as features da vitrine funcionem (variações, carrinho, checkout)
+### Prioridade 1: Responsividade Mobile
+- [ ] Testar e ajustar admin em dispositivos móveis
+- [ ] Testar e ajustar loja pública em dispositivos móveis
+- [ ] Testar e ajustar landing page em dispositivos móveis
+- [ ] Garantir navegação fluida em telas pequenas
 
-### Prioridade 2: Admin Demo
-- Rota `/demo/admin` com acesso aberto (sem autenticação)
-- Mostrar o painel admin com dados da loja demo
-- Visitante navega mas não salva (ou salva em modo demo)
-- **Importante:** nenhuma das features de assinatura/indicação/suporte deve aparecer na demo
+### Prioridade 2: Refinamento UI/UX
+- [ ] Revisar espaçamentos e alinhamentos
+- [ ] Melhorar feedback visual de ações
+- [ ] Otimizar carregamento de imagens
+- [ ] Adicionar estados de loading onde necessário
 
-### Prioridade 3: Scripts de captação
-- Script A — Confeitarias e docerias
-- Script B — Açaiterias e lanchonetes
-- Script C — Artesãos e produtores caseiros
+### Prioridade 3: Testes e Deploy
+- [ ] Testar fluxo completo de cadastro → criação de loja → produtos → pedidos
+- [ ] Testar fluxo de checkout via WhatsApp
+- [ ] Validar funcionamento do painel master
+- [ ] Deploy final no Vercel
+- [ ] Configurar domínio personalizado (fosfo.com.br)
