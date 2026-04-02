@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getMasterStores, toggleStoreActive, extendStoreTrial, setStoreFree, deleteStore } from '@/services/masterService'
+import { getMasterStores, toggleStoreActive, extendStoreTrial, setStoreFree, deleteStore, getDefaultTrialDays } from '@/services/masterService'
 import type { StoreWithOwner } from '@/services/masterService'
 import { Button, Card, Badge, Modal, ModalContent, Input, useToast, Skeleton } from '@/components/ui'
 import { Store, Eye, ExternalLink, Power, PowerOff, Clock, Package, ShoppingCart, Calendar, User, Phone, Mail, Gift, X, Trash2, Search, FlaskConical } from 'lucide-react'
@@ -101,9 +101,10 @@ export default function MasterStoresPage() {
     }
   }
 
-  function openTrialModal(storeId: string) {
+  async function openTrialModal(storeId: string) {
     setTrialStoreId(storeId)
-    setTrialDays('30')
+    const defaultDays = await getDefaultTrialDays()
+    setTrialDays(String(defaultDays))
     setTrialModalOpen(true)
   }
 

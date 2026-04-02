@@ -135,16 +135,29 @@ export async function getMasterUsers() {
   }))
 }
 
-export async function getPlatformSettings() {
+export async function getPlatformSettings(): Promise<Record<string, string>> {
+  const supabase = createClient()
+  const { data, error } = await supabase.from('platform_settings').select('*')
+  if (error) throw error
+  
+  const settings: Record<string, string> = {}
+  data?.forEach((row) => {
+    settings[row.key] = row.value
+  })
+  
+  return settings
+}
+
+export async function getDefaultTrialDays(): Promise<number> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('platform_settings')
-    .select('*')
-
-  if (error) throw error
-  const settings: Record<string, string> = {}
-  data?.forEach((s) => { settings[s.key] = s.value })
-  return settings
+    .select('value')
+    .eq('key', 'default_trial_days')
+    .single()
+  
+  if (error || !data) return 30 // Fallback para 30 dias
+  return parseInt(data.value, 10) || 30
 }
 
 export async function updatePlatformSetting(key: string, value: string) {

@@ -270,14 +270,19 @@ function StoreContent({ store, products, banners, categories }: Props) {
 
       {/* Footer */}
       <footer className="border-t border-gray-200 py-6 mt-8">
-        <div className="max-w-6xl mx-auto px-4 text-center">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-3 text-center">
           <a
-            href="https://fosfo.com.br"
-            target="_blank"
-            rel="noopener noreferrer"
+            href={`/${store.slug}`}
+            className="text-sm text-gray-600 hover:text-gray-900 transition-colors font-medium"
+          >
+            {store.name}
+          </a>
+          <span className="hidden sm:inline text-gray-300">·</span>
+          <a
+            href="/"
             className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
           >
-            Powered by Fosfo
+            Sistema de Pedidos - Fosfo
           </a>
         </div>
       </footer>

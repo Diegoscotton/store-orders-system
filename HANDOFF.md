@@ -71,6 +71,28 @@ Envie junto o `PROJECT_CONTEXT.md` e cole apenas os arquivos relevantes à taref
 
 ## Histórico de Desenvolvimento
 
+### Sessão 10 (02/04/2026) — Trial Dinâmico + Footers
+
+**Sistema de Trial Dinâmico:**
+- [x] Schema SQL atualizado: trial padrão de 14 para 30 dias
+- [x] Função `getDefaultTrialDays()` criada em masterService (fallback: 30 dias)
+- [x] Landing Page 100% dinâmica - busca trial do banco ao carregar
+- [x] 6 ocorrências de "30 dias" substituídas por variável `{trialDays}`:
+  - Badge hero: "{trialDays} dias para testar · sem cartão"
+  - FAQ (2x): "Você tem {trialDays} dias..." e "Depois dos {trialDays} dias..."
+  - TRUST pills: "{trialDays} dias para testar"
+  - CTA final (2x): "{trialDays} dias grátis" e "{trialDays} dias sem custo..."
+- [x] Modal de extensão no Master Stores busca valor padrão do banco
+- [x] Alteração no Master Settings reflete em toda plataforma instantaneamente
+- [x] Apenas novas lojas são afetadas (lojas existentes mantêm prazo original)
+
+**Footers:**
+- [x] Landing Page: "Sistema de Pedidos Fosfo · © 2026" com link para https://fosfo.com.br
+- [x] Lojas públicas: "{Nome da Loja} · Sistema de Pedidos - Fosfo"
+  - Nome da loja linka para `/{slug}` (própria loja)
+  - "Sistema de Pedidos - Fosfo" linka para `/` (home da plataforma)
+- [x] Layout responsivo (empilha verticalmente no mobile)
+
 ### Sessão 9 (02/04/2026) — Refinamento Landing Page
 
 **Navbar:**

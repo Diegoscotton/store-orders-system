@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { getDefaultTrialDays } from "@/services/masterService";
 import {
   Package, ShoppingCart, MessageCircle, BarChart3,
   CheckCircle2, XCircle, ArrowRight, ChevronDown,
@@ -26,19 +27,7 @@ const IMG = {
 };
 
 // ─── FAQ data ─────────────────────────────────────────────────────────────────
-const FAQ = [
-  { q: "Preciso pagar para começar?",               a: "Não. Você tem 30 dias para testar sem cartão de crédito e sem compromisso. Só começa a pagar se decidir continuar." },
-  { q: "Quanto tempo leva para criar meu catálogo?", a: "Em torno de 2 minutos. Você cria sua conta, dá um nome ao catálogo, cadastra seus produtos e já tem um link para compartilhar." },
-  { q: "Como meus clientes fazem pedidos?",          a: "Eles acessam o link do seu catálogo, escolhem os produtos, montam o carrinho e finalizam. Você recebe o pedido no painel e, se quiser, também no WhatsApp." },
-  { q: "Posso personalizar a aparência?",            a: "Sim. Você pode adicionar logo, escolher a cor principal e adicionar banners. O catálogo fica com a identidade da sua marca." },
-  { q: "Funciona no celular?",                       a: "Funciona perfeitamente. Tanto o catálogo para seus clientes quanto o painel foram feitos pensando no uso no celular." },
-  { q: "Posso ter produtos com variações?",          a: "Sim. Variações como tamanho, sabor, cor — cada uma com seu próprio preço. O cliente escolhe na hora de adicionar ao carrinho." },
-  { q: "Tem limite de produtos ou pedidos?",         a: "Não há limite. Você pode cadastrar quantos produtos quiser e receber quantos pedidos precisar." },
-  { q: "Como funciona a integração com WhatsApp?",   a: "Quando o cliente finaliza o pedido, ele é redirecionado ao WhatsApp com uma mensagem já formatada com todos os detalhes." },
-  { q: "Por que não usar só o WhatsApp?",            a: "WhatsApp é ótimo para conversar, mas péssimo para organizar pedido. Aqui cada pedido tem número, status e fica registrado — sem sumir na conversa." },
-  { q: "Quanto custa depois do período grátis?",     a: "Depois dos 30 dias, você decide se quer continuar. Entramos em contato via WhatsApp para fechar a assinatura." },
-  { q: "Preciso de site, domínio ou técnico?",       a: "Não. Tudo já está pronto. Você só precisa criar a conta e começar a usar. Sem instalar nada, sem configurar servidor." },
-];
+// FAQ será dinâmico, definido no componente principal com trial_days
 
 // ─── Categorias para o carrossel ──────────────────────────────────────────────
 const CATS = [
@@ -54,7 +43,7 @@ const CAROUSEL_SLIDES = [
   ["/categories/03_Pao_de_Mel_Embalado.jpg", "/categories/05_Doce_de_Coco_Caseiro.jpg", "/categories/09_Boneca_Pano_Artesanal.jpg", "/categories/12_Massa_ao_Sugo_Prata.jpg"],
 ];
 
-const TRUST = ["30 dias para testar", "Sem cartão", "Pronto em 2 minutos"];
+// TRUST será dinâmico, definido no componente principal
 
 // ─── Scroll Progress ───────────────────────────────────────────────────────────
 function ScrollProgress() {
@@ -507,6 +496,28 @@ function SectionHeader({ eyebrow, title, sub }: { eyebrow: string; title: React.
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
+  const [trialDays, setTrialDays] = useState(30) // Fallback padrão
+
+  useEffect(() => {
+    getDefaultTrialDays().then(days => setTrialDays(days)).catch(() => setTrialDays(30))
+  }, [])
+
+  const TRUST = [`${trialDays} dias para testar`, "Sem cartão", "Pronto em 2 minutos"]
+  
+  const FAQ = [
+    { q: "Preciso pagar para começar?", a: `Não. Você tem ${trialDays} dias para testar sem cartão de crédito e sem compromisso. Só começa a pagar se decidir continuar.` },
+    { q: "Quanto tempo leva para criar meu catálogo?", a: "Em torno de 2 minutos. Você cria sua conta, dá um nome ao catálogo, cadastra seus produtos e já tem um link para compartilhar." },
+    { q: "Como meus clientes fazem pedidos?", a: "Eles acessam o link do seu catálogo, escolhem os produtos, montam o carrinho e finalizam. Você recebe o pedido no painel e, se quiser, também no WhatsApp." },
+    { q: "Posso personalizar a aparência?", a: "Sim. Você pode adicionar logo, escolher a cor principal e adicionar banners. O catálogo fica com a identidade da sua marca." },
+    { q: "Funciona no celular?", a: "Funciona perfeitamente. Tanto o catálogo para seus clientes quanto o painel foram feitos pensando no uso no celular." },
+    { q: "Posso ter produtos com variações?", a: "Sim. Variações como tamanho, sabor, cor — cada uma com seu próprio preço. O cliente escolhe na hora de adicionar ao carrinho." },
+    { q: "Tem limite de produtos ou pedidos?", a: "Não há limite. Você pode cadastrar quantos produtos quiser e receber quantos pedidos precisar." },
+    { q: "Como funciona a integração com WhatsApp?", a: "Quando o cliente finaliza o pedido, ele é redirecionado ao WhatsApp com uma mensagem já formatada com todos os detalhes." },
+    { q: "Por que não usar só o WhatsApp?", a: "WhatsApp é ótimo para conversar, mas péssimo para organizar pedido. Aqui cada pedido tem número, status e fica registrado — sem sumir na conversa." },
+    { q: "Quanto custa depois do período grátis?", a: `Depois dos ${trialDays} dias, você decide se quer continuar. Entramos em contato via WhatsApp para fechar a assinatura.` },
+    { q: "Preciso de site, domínio ou técnico?", a: "Não. Tudo já está pronto. Você só precisa criar a conta e começar a usar. Sem instalar nada, sem configurar servidor." },
+  ]
+
   return (
     <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
       <ScrollProgress />
@@ -535,7 +546,7 @@ export default function LandingPage() {
             <motion.div variants={fadeUp}>
               <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#639922]/10 text-[#639922] border border-[#639922]/20 mb-7">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#639922] animate-pulse" />
-                30 dias para testar · sem cartão
+                {trialDays} dias para testar · sem cartão
               </span>
             </motion.div>
 
@@ -843,10 +854,10 @@ export default function LandingPage() {
 
         <div className="relative max-w-4xl mx-auto px-4 text-center">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={stg(0.11)}>
-            <motion.p variants={fadeUp} className="text-xs font-bold text-[#639922] uppercase tracking-[0.18em] mb-4">30 dias grátis · sem cartão</motion.p>
+            <motion.p variants={fadeUp} className="text-xs font-bold text-[#639922] uppercase tracking-[0.18em] mb-4">{trialDays} dias grátis · sem cartão</motion.p>
             <motion.h2 variants={fadeUp} className="text-5xl sm:text-6xl font-bold text-white mb-6 leading-tight">Testa agora. Decide depois.</motion.h2>
             <motion.p variants={fadeUp} className="text-lg text-white/55 mb-10 max-w-lg mx-auto leading-relaxed">
-              30 dias sem custo, sem compromisso. Você cria, seus clientes pedem — e você decide se ficou bom.
+              {trialDays} dias sem custo, sem compromisso. Você cria, seus clientes pedem — e você decide se ficou bom.
             </motion.p>
             <motion.div variants={fadeUp}>
               <Link href="/register" className="group inline-flex items-center justify-center gap-2 px-9 py-4 bg-[#639922] hover:bg-[#527a1c] text-white font-bold text-lg rounded-xl transition-all duration-300 hover:shadow-2xl hover:shadow-[#639922]/35 hover:-translate-y-1 mb-5">
@@ -872,7 +883,9 @@ export default function LandingPage() {
       {/* ══ FOOTER ══ */}
       <footer className="py-7 bg-[#0c160f] border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-sm text-white/25">Sistema de Pedidos Fosfo · © 2026</p>
+          <a href="https://fosfo.com.br" target="_blank" rel="noopener noreferrer" className="text-sm text-white/25 hover:text-white/50 transition-colors">
+            Sistema de Pedidos Fosfo · © 2026
+          </a>
           <div className="flex items-center gap-6">
             <Link href="/demo"     className="text-sm text-white/25 hover:text-white/50 transition-colors">Demo</Link>
             <Link href="/login"    className="text-sm text-white/25 hover:text-white/50 transition-colors">Login</Link>

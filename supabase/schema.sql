@@ -41,7 +41,7 @@ CREATE TABLE stores (
   
   -- Trial / Status
   is_active BOOLEAN DEFAULT TRUE,
-  trial_ends_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days'),
+  trial_ends_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '30 days'),
   
   -- Metadata
   created_at TIMESTAMPTZ DEFAULT NOW(),

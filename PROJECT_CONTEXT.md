@@ -12,7 +12,7 @@
 - Usar "catálogo online" no lugar de "loja" — evita remeter a e-commerce
 - Tom: próximo, acolhedor, quase pessoal — nunca corporativo
 - Proposta central: organizar pedidos que chegam pelo WhatsApp, não substituí-lo
-- Trial: 14 dias grátis, sem cartão. Preço pós-trial: R$49,90/mês (não exposto na LP inicialmente)
+- Trial: 30 dias grátis (dinâmico, configurável em `/master/settings`), sem cartão. Preço pós-trial: R$49,90/mês (não exposto na LP inicialmente)
 
 ---
 
@@ -90,6 +90,12 @@ Página pública premium que apresenta a plataforma.
 - Background: círculos coloridos animados + blur + linhas diagonais
 - Animações Framer Motion em 3 fases
 
+**Trial Dinâmico:**
+- Landing Page busca `default_trial_days` do banco ao carregar (fallback: 30 dias)
+- Todas as menções ao trial são dinâmicas: badge hero, FAQ, TRUST pills, CTA final
+- Alteração em `/master/settings` reflete instantaneamente em toda plataforma
+- Apenas novas lojas são afetadas (lojas existentes mantêm prazo original)
+
 **Regras de copy:**
 - "catálogo" no lugar de "loja" em todo o copy
 - Métricas (500+ lojas, 50K pedidos) estão ocultas com `hidden` — não deletar
@@ -100,6 +106,10 @@ Página pública premium que apresenta a plataforma.
 - "Ver admin demo" → `/demo-admin` (painel admin público sem autenticação)
 - "Criar catálogo grátis" → `/register`
 - "Entrar" → `/login`
+
+**Footer:**
+- "Sistema de Pedidos Fosfo · © 2026" com link para https://fosfo.com.br
+- Abre em nova aba, efeito hover
 
 ---
 
@@ -146,6 +156,12 @@ Página pública premium que apresenta a plataforma.
 - Vitrine continua visível
 - Pedidos bloqueados
 - Página premium com mensagem amigável
+
+**Footer:**
+- "{Nome da Loja} · Sistema de Pedidos - Fosfo"
+- Nome da loja linka para `/{slug}` (própria loja)
+- "Sistema de Pedidos - Fosfo" linka para `/` (home da plataforma)
+- Layout responsivo (empilha verticalmente no mobile)
 
 ---
 
