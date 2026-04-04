@@ -50,13 +50,18 @@ export default function MasterUsersPage() {
   async function handleDeleteUser() {
     if (!pendingDeleteUser || deleteConfirmInput !== pendingDeleteUser.full_name) return
     try {
+      console.log('Deletando usuário:', pendingDeleteUser.id)
       await deleteUser(pendingDeleteUser.id)
+      console.log('Usuário deletado com sucesso')
       toast({ type: 'success', title: 'Usuário excluído' })
       setUsers(prev => prev.filter(u => u.id !== pendingDeleteUser.id))
       setDeleteModalOpen(false)
       setPendingDeleteUser(null)
-    } catch {
-      toast({ type: 'error', title: 'Erro ao excluir usuário' })
+      // Recarregar lista após 500ms para confirmar exclusão
+      setTimeout(() => loadUsers(), 500)
+    } catch (error: any) {
+      console.error('Erro ao deletar usuário:', error)
+      toast({ type: 'error', title: 'Erro ao excluir usuário', description: error.message })
     }
   }
 
@@ -209,7 +214,15 @@ export default function MasterUsersPage() {
           <div className="space-y-4">
             <div className="bg-red-50 border border-red-200 rounded-xl p-3">
               <p className="text-sm text-red-700 font-medium">⚠️ Esta ação é irreversível.</p>
-              <p className="text-sm text-red-600 mt-1">O usuário e sua loja vinculada serão deletados permanentemente.</p>
+              <p className="text-sm text-red-600 mt-1">
+                O usuário será deletado permanentemente.
+                {pendingDeleteUser?.store && (
+                  <> A loja <strong>"{pendingDeleteUser.store.name}"</strong> vinculada a ele também será excluída.</>
+                )}
+                {!pendingDeleteUser?.store && (
+                  <> Este usuário não possui loja vinculada.</>
+                )}
+              </p>
             </div>
             <p className="text-sm text-gray-600">
               Para confirmar, digite o nome do usuário: <strong>{pendingDeleteUser?.full_name}</strong>

@@ -198,20 +198,14 @@ export async function deleteStore(storeId: string): Promise<void> {
 }
 
 export async function deleteUser(userId: string): Promise<void> {
-  const supabase = createClient()
-  // Deleta a loja do usuário primeiro
-  const { data: storeUser } = await supabase
-    .from('store_users')
-    .select('store_id')
-    .eq('user_id', userId)
-    .single()
-  if (storeUser?.store_id) {
-    await supabase.from('stores').delete().eq('id', storeUser.store_id)
+  const response = await fetch('/api/admin/delete-user', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId }),
+  })
+
+  if (!response.ok) {
+    const data = await response.json()
+    throw new Error(data.error || 'Erro ao excluir usuário')
   }
-  // Deleta o profile
-  const { error } = await supabase
-    .from('profiles')
-    .delete()
-    .eq('id', userId)
-  if (error) throw error
 }

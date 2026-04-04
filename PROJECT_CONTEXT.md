@@ -108,23 +108,46 @@ Página pública premium que apresenta a plataforma.
 - "Entrar" → `/login`
 
 **Footer:**
-- "Sistema de Pedidos Fosfo · © 2026" com link para https://fosfo.com.br
+- "Sistema de Pedidos Fosfo · 2026" com link para https://fosfo.com.br
 - Abre em nova aba, efeito hover
 
 ---
 
-### 2. Autenticação
+### 2. Autenticação e OAuth
 
 **Páginas:**
-- `/login` — Login com email/senha
-- `/register` — Cadastro de novo usuário + criação automática da loja
+- `/login` — Login com email/senha + botão "Continuar com Google"
+- `/register` — Cadastro com nome, email, telefone, senha + nome da loja (cria loja + vincula) + botão "Continuar com Google"
+- `/forgot-password` — Solicita email para recuperação de senha
+- `/reset-password` — Define nova senha via link do email
+- `/register/complete` — Completar cadastro para usuários que entraram via Google (escolher nome do catálogo)
+- `/auth/callback` — Processa OAuth do Google e redireciona conforme contexto
 
-**Fluxo de registro:**
-1. Usuário preenche: nome, email, senha, nome da loja
-2. Sistema cria conta no Supabase Auth
-3. Sistema cria a loja com slug gerado automaticamente
-4. Sistema cria vínculo `store_users` (role: admin)
-5. Redireciona para `/admin`
+**Fluxo tradicional (email/senha):**
+1. Usuário se registra → cria conta + loja + vincula
+2. Trigger `handle_new_user()` cria profile automaticamente
+3. Redirect para `/admin` (ou `/master` se role = master)
+
+**Fluxo OAuth (Google):**
+1. Usuário clica "Continuar com Google" em `/login` ou `/register`
+2. Autentica no Google → redireciona para `/auth/callback`
+3. Callback verifica se usuário já tem loja:
+   - **Tem loja:** redireciona para `/admin` (ou `/master` se master)
+   - **Não tem loja:** redireciona para `/register/complete` para escolher nome do catálogo
+4. Em `/register/complete`: cria loja + vincula usuário → redireciona para `/admin`
+
+**Recuperação de senha:**
+1. Usuário clica "Esqueci minha senha" em `/login`
+2. Digita email em `/forgot-password`
+3. Recebe email com link (template personalizado no Supabase)
+4. Clica no link → vai para `/reset-password`
+5. Define nova senha → redireciona para `/admin`
+
+**Segurança:**
+- Middleware protege rotas `/admin` e `/master`
+- Usuários logados são redirecionados de `/login`, `/register`, `/forgot-password`
+- `/reset-password` não requer autenticação (token vem na URL)
+- OAuth usa `redirectTo` para callback seguro
 
 ---
 

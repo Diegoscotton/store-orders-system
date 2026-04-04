@@ -1,5 +1,5 @@
 # HANDOFF — Sistema de Pedidos Fosfo
-> Última atualização: 02/04/2026 — Sessão 9
+> Última atualização: 04/04/2026 — Sessão 11
 
 ## Como usar este arquivo
 Cole este documento no início de um novo chat (Claude ou Windsurf) para retomar o desenvolvimento.
@@ -70,6 +70,81 @@ Envie junto o `PROJECT_CONTEXT.md` e cole apenas os arquivos relevantes à taref
 ---
 
 ## Histórico de Desenvolvimento
+
+### Sessão 11 (04/04/2026) — OAuth Google + Recuperação de Senha + Bug Fixes
+
+**Login Social com Google:**
+- [x] Botão "Continuar com Google" adicionado em `/login` e `/register`
+- [x] Separador visual "ou" entre formulário tradicional e OAuth
+- [x] Logo oficial do Google inline (SVG, sem dependências externas)
+- [x] Rota `/auth/callback` criada para processar OAuth
+- [x] Callback verifica se usuário tem loja:
+  - Tem loja → redireciona para `/admin` (ou `/master` se master)
+  - Não tem loja → redireciona para `/register/complete`
+- [x] Página `/register/complete` criada para novos usuários Google
+  - Mostra nome do usuário do Google
+  - Pede apenas nome do catálogo
+  - Cria loja + vincula usuário → redireciona para `/admin`
+  - Layout dois painéis consistente com login/register
+- [x] Middleware atualizado para incluir `/register/complete`
+- [x] Aguarda 800ms após OAuth para trigger criar profile
+
+**Recuperação de Senha:**
+- [x] Link "Esqueci minha senha" adicionado em `/login` (abaixo do campo senha)
+- [x] Página `/forgot-password` criada:
+  - Formulário solicita email
+  - Envia email via `supabase.auth.resetPasswordForEmail()`
+  - Sempre mostra sucesso (não revela se email existe)
+  - Layout dois painéis consistente
+- [x] Página `/reset-password` criada:
+  - Formulário com nova senha + confirmação
+  - Validação: senhas devem coincidir e ter mínimo 6 caracteres
+  - Atualiza senha via `supabase.auth.updateUser()`
+  - Redireciona para `/admin` após sucesso
+- [x] Template de email personalizado criado (`email-templates/reset-password.html`):
+  - Header escuro com logo e "Sistema de Pedidos Fosfo"
+  - Mensagem amigável com emoji
+  - Botão CTA grande e visível
+  - Aviso de expiração em destaque (1 hora)
+  - Footer com link fosfo.com.br
+  - Design responsivo e profissional
+- [x] Instruções de configuração no Supabase (`email-templates/COMO_CONFIGURAR.md`)
+- [x] Middleware atualizado para incluir `/forgot-password` e `/reset-password`
+
+**Correção de Bug - Exclusão de Usuários no Master Admin:**
+- [x] Bug identificado: usuários deletados voltavam ao recarregar página
+- [x] Causa: apenas profile era deletado, não o registro em `auth.users`
+- [x] Solução implementada:
+  - API route `/api/admin/delete-user` criada com `service_role` key
+  - Deleta loja vinculada (por `owner_id` ou fallback `store_users`)
+  - Deleta profile da tabela `profiles`
+  - Deleta usuário de `auth.users` usando `adminSupabase.auth.admin.deleteUser()`
+  - Validação de permissão master antes de executar
+- [x] `masterService.deleteUser()` refatorado para chamar API route
+- [x] Modal de confirmação atualizado para mencionar loja vinculada explicitamente
+- [x] Logs detalhados adicionados para debug (cliente e servidor)
+- [x] Arquivo `.env.local` corrigido (chaves JWT estavam quebradas em múltiplas linhas)
+- [x] Variável `SUPABASE_SERVICE_ROLE_KEY` configurada corretamente
+
+**Arquivos criados/modificados:**
+- `src/app/login/page.tsx` — botão Google + link esqueci senha
+- `src/app/register/page.tsx` — botão Google
+- `src/app/forgot-password/page.tsx` — nova página
+- `src/app/reset-password/page.tsx` — nova página
+- `src/app/register/complete/page.tsx` — nova página
+- `src/app/auth/callback/route.ts` — nova rota OAuth
+- `src/app/api/admin/delete-user/route.ts` — nova API route
+- `src/services/masterService.ts` — função deleteUser refatorada
+- `src/app/master/users/page.tsx` — modal e logs atualizados
+- `src/middleware.ts` — rotas OAuth e recuperação adicionadas
+- `email-templates/reset-password.html` — template de email
+- `email-templates/COMO_CONFIGURAR.md` — instruções
+- `.env.local` — corrigido (chaves em linhas únicas)
+
+**Configuração necessária (manual):**
+- ⚠️ Ativar provider Google no Supabase Dashboard (Authentication > Providers > Google)
+- ⚠️ Configurar Client ID e Client Secret do Google Cloud Console
+- ⚠️ Configurar template de email no Supabase Dashboard (copiar `reset-password.html`)
 
 ### Sessão 10 (02/04/2026) — Trial Dinâmico + Footers
 

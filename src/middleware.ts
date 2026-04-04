@@ -57,8 +57,8 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Redirect logged users away from login/register
-  if (user && (req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/register')) {
+  // Redirect logged users away from login/register/forgot-password
+  if (user && (req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/register' || req.nextUrl.pathname === '/forgot-password')) {
     // Check if master
     const { data: profile } = await supabase
       .from('profiles')
@@ -76,5 +76,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/master/:path*', '/login', '/register'],
+  matcher: ['/admin/:path*', '/master/:path*', '/login', '/register', '/forgot-password', '/reset-password', '/register/complete'],
 }
