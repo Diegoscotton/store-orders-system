@@ -82,6 +82,7 @@ export default function ProductForm({ storeId, categories, product }: Props) {
   const [saving, setSaving] = useState(false)
   const [showVariantAlert, setShowVariantAlert] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
+  const [hasImageChanges, setHasImageChanges] = useState(false)
   const isEditing = !!product
 
   // DnD sensors
@@ -111,6 +112,7 @@ export default function ProductForm({ storeId, categories, product }: Props) {
       if (oldIndex !== -1 && newIndex !== -1) {
         const newImages = arrayMove(images, oldIndex, newIndex)
         setImages(newImages)
+        setHasImageChanges(true)
         toast({ type: 'success', title: 'Ordem atualizada visualmente' })
       }
     }
@@ -172,6 +174,7 @@ export default function ProductForm({ storeId, categories, product }: Props) {
           }
           
           console.log('=== POSIÇÕES SALVAS COM SUCESSO ===')
+          setHasImageChanges(false)
           toast({ type: 'success', title: 'Ordem das imagens salva' })
         } catch (posError) {
           console.error('Error saving image positions:', posError)
@@ -538,7 +541,7 @@ export default function ProductForm({ storeId, categories, product }: Props) {
       </div>
 
       {/* Fixed Footer Actions - Show only when there are changes or creating new product */}
-      {(hasChanges || !isEditing) && (
+      {(hasChanges || hasImageChanges || !isEditing) && (
         <div className="fixed bottom-0 left-0 md:left-64 right-0 bg-white border-t border-gray-200 shadow-lg z-30">
           <div className="px-4 md:px-6 py-4 flex flex-col md:flex-row items-stretch md:items-center justify-end gap-3">
             <Button 
