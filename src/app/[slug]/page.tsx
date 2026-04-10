@@ -81,7 +81,7 @@ export default async function StorePage({ params }: Props) {
       images:product_images(id, url, position),
       variants:product_variants(
         id, name, position,
-        options:variant_options(id, name, price, position)
+        options:variant_options(id, name, price, position, is_active)
       )
     `)
     .eq('store_id', store.id)

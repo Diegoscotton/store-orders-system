@@ -281,6 +281,28 @@ export default function ProductForm({ storeId, categories, product }: Props) {
     }
   }
 
+  async function handleToggleOption(optionId: string, currentActive: boolean) {
+    try {
+      const newState = !currentActive
+      await toggleVariantOptionActive(optionId, newState)
+      setVariants((prev) =>
+        prev.map((v) => ({
+          ...v,
+          options: v.options?.map((o) =>
+            o.id === optionId ? { ...o, is_active: newState } : o
+          ),
+        }))
+      )
+      toast({
+        type: newState ? 'success' : 'info',
+        title: newState ? 'Opção ativada' : 'Opção desativada',
+        description: newState ? 'A opção está disponível novamente' : 'A opção não aparecerá na loja',
+      })
+    } catch {
+      toast({ type: 'error', title: 'Erro ao alterar status da opção' })
+    }
+  }
+
   return (
     <div className="pb-24">
       {/* Header */}
@@ -417,6 +439,7 @@ export default function ProductForm({ storeId, categories, product }: Props) {
                     onDelete={() => handleDeleteVariant(variant.id)}
                     onAddOption={(name, price) => handleAddOption(variant.id, name, price)}
                     onDeleteOption={(optId) => handleDeleteOption(variant.id, optId)}
+                    onToggleOption={handleToggleOption}
                     showAlert={showVariantAlert && (!variant.options || variant.options.length === 0)}
                   />
                 ))}
@@ -605,12 +628,14 @@ function VariantBlock({
   onDelete,
   onAddOption,
   onDeleteOption,
+  onToggleOption,
   showAlert,
 }: {
   variant: ProductVariant & { options?: VariantOption[] }
   onDelete: () => void
   onAddOption: (name: string, price: number) => void
   onDeleteOption: (optionId: string) => void
+  onToggleOption: (optionId: string, currentState: boolean) => void
   showAlert: boolean
 }) {
   const [optName, setOptName] = useState('')
@@ -670,30 +695,9 @@ function VariantBlock({
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-gray-900">{formatCurrency(opt.price)}</span>
                 <button
-                  onClick={async () => {
-                    try {
-                      const newState = !opt.is_active
-                      await toggleVariantOptionActive(opt.id, newState)
-                      // Atualizar state local
-                      setVariants(prev => prev.map(v => 
-                        v.id === variant.id 
-                          ? { ...v, options: v.options?.map(o => o.id === opt.id ? { ...o, is_active: newState } : o) }
-                          : v
-                      ))
-                      toast({
-                        title: newState ? 'Opção ativada' : 'Opção desativada',
-                        description: newState ? 'A opção está disponível novamente' : 'A opção não aparecerá na loja',
-                      })
-                    } catch (error) {
-                      toast({
-                        title: 'Erro',
-                        description: 'Não foi possível alterar o status da opção',
-                        variant: 'destructive',
-                      })
-                    }
-                  }}
+                  onClick={() => onToggleOption(opt.id, opt.is_active !== false)}
                   className="text-gray-400 hover:text-gray-700 transition-colors"
-                  title={opt.is_active === false ? 'Ativar opção' : 'Desativar opção'}
+                  title={opt.is_active === false ? 'Opção oculta na loja — clique para ativar' : 'Opção visível na loja — clique para ocultar'}
                 >
                   {opt.is_active === false ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>

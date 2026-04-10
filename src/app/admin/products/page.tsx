@@ -273,14 +273,15 @@ export default function ProductsPage() {
                                       <button
                                         key={option.id}
                                         onClick={() => handleToggleOption(product.id, variant.id, option.id, option.is_active)}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                                           option.is_active === false
-                                            ? 'bg-gray-200 text-gray-400 line-through hover:bg-gray-300'
-                                            : 'bg-gray-900 text-white hover:bg-gray-800'
+                                            ? 'bg-gray-100 text-gray-400 hover:bg-gray-200 border border-gray-200'
+                                            : 'bg-gray-900 text-white hover:bg-gray-700'
                                         }`}
-                                        title={option.is_active === false ? 'Clique para ativar' : 'Clique para desativar'}
+                                        title={option.is_active === false ? 'Opção oculta na loja — clique para ativar' : 'Opção visível na loja — clique para ocultar'}
                                       >
-                                        {option.name} {option.is_active === false ? '✗' : '✓'}
+                                        {option.is_active === false ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                                        <span className={option.is_active === false ? 'line-through' : ''}>{option.name}</span>
                                       </button>
                                     ))}
                                   </div>

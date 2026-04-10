@@ -73,6 +73,20 @@ function StoreContent({ store, products, banners, categories }: Props) {
     ? products.filter(p => p.category_id === selectedCategory)
     : products
 
+  // Filter out inactive variant options from display
+  const displayProducts = filteredProducts.map(product => {
+    if (!product.variants || product.variants.length === 0) return product
+    return {
+      ...product,
+      variants: product.variants
+        .map(v => ({
+          ...v,
+          options: v.options?.filter(o => o.is_active !== false) || [],
+        }))
+        .filter(v => v.options.length > 0), // Remove variant groups with zero active options
+    }
+  })
+
   const isDemo = store.slug === 'demo'
 
   return (
@@ -195,7 +209,7 @@ function StoreContent({ store, products, banners, categories }: Props) {
         )}
 
         {/* Products Grid */}
-        {!filteredProducts || filteredProducts.length === 0 ? (
+        {!displayProducts || displayProducts.length === 0 ? (
           <div className="text-center py-20">
             <div className="h-16 w-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <StoreIcon className="h-8 w-8 text-gray-400" />
@@ -205,7 +219,7 @@ function StoreContent({ store, products, banners, categories }: Props) {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {filteredProducts.map((product) => {
+            {displayProducts.map((product) => {
               const mainImage = product.images?.sort((a, b) => a.position - b.position)?.[0]?.url
               const available = isProductAvailable(product)
 
