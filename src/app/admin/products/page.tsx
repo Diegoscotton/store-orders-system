@@ -208,7 +208,7 @@ export default function ProductsPage() {
                         <td className="px-2 py-4">
                           {hasVariants ? (
                             <div className="flex items-center gap-2">
-                              <Badge variant="secondary" className="text-xs">
+                              <Badge variant="default" className="text-xs">
                                 {variantsSummary.active}/{variantsSummary.total} ativos
                               </Badge>
                               <button

@@ -692,7 +692,7 @@ function VariantBlock({
               <span className={`text-sm font-medium text-gray-700 ${opt.is_active === false ? 'line-through' : ''}`}>
                 {opt.name}
                 {opt.is_active === false && (
-                  <Badge variant="secondary" className="ml-2 text-xs">Indisponível</Badge>
+                  <Badge variant="warning" className="ml-2 text-xs">Indisponível</Badge>
                 )}
               </span>
               <div className="flex items-center gap-2">
