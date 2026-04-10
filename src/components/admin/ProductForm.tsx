@@ -6,11 +6,11 @@ import { Button, Input, Textarea, Card, Badge, useToast, CurrencyInput } from '@
 import {
   createProduct, updateProduct, uploadProductImage, deleteProductImage,
   addVariant, updateVariant, deleteVariant,
-  addVariantOption, updateVariantOption, deleteVariantOption,
+  addVariantOption, updateVariantOption, deleteVariantOption, toggleVariantOptionActive,
 } from '@/services/productService'
 import { formatCurrency } from '@/lib/utils'
 import { createClient } from '@/lib/supabase'
-import { Upload, X, Plus, Trash2, GripVertical, Image as ImageIcon, Package, Star } from 'lucide-react'
+import { Upload, X, Plus, Trash2, GripVertical, Image as ImageIcon, Package, Star, Eye, EyeOff } from 'lucide-react'
 import type { Product, Category, ProductVariant, VariantOption } from '@/types'
 import {
   DndContext,
@@ -655,10 +655,48 @@ function VariantBlock({
       {hasOptions && (
         <div className="space-y-2 mb-3">
           {variant.options!.map((opt) => (
-            <div key={opt.id} className="flex items-center justify-between bg-white rounded-lg px-3 py-2.5 border border-gray-200">
-              <span className="text-sm font-medium text-gray-700">{opt.name}</span>
+            <div 
+              key={opt.id} 
+              className={`flex items-center justify-between bg-white rounded-lg px-3 py-2.5 border border-gray-200 transition-opacity ${
+                opt.is_active === false ? 'opacity-50' : ''
+              }`}
+            >
+              <span className={`text-sm font-medium text-gray-700 ${opt.is_active === false ? 'line-through' : ''}`}>
+                {opt.name}
+                {opt.is_active === false && (
+                  <Badge variant="secondary" className="ml-2 text-xs">Indisponível</Badge>
+                )}
+              </span>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-gray-900">{formatCurrency(opt.price)}</span>
+                <button
+                  onClick={async () => {
+                    try {
+                      const newState = !opt.is_active
+                      await toggleVariantOptionActive(opt.id, newState)
+                      // Atualizar state local
+                      setVariants(prev => prev.map(v => 
+                        v.id === variant.id 
+                          ? { ...v, options: v.options?.map(o => o.id === opt.id ? { ...o, is_active: newState } : o) }
+                          : v
+                      ))
+                      toast({
+                        title: newState ? 'Opção ativada' : 'Opção desativada',
+                        description: newState ? 'A opção está disponível novamente' : 'A opção não aparecerá na loja',
+                      })
+                    } catch (error) {
+                      toast({
+                        title: 'Erro',
+                        description: 'Não foi possível alterar o status da opção',
+                        variant: 'destructive',
+                      })
+                    }
+                  }}
+                  className="text-gray-400 hover:text-gray-700 transition-colors"
+                  title={opt.is_active === false ? 'Ativar opção' : 'Desativar opção'}
+                >
+                  {opt.is_active === false ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
                 <button
                   onClick={() => onDeleteOption(opt.id)}
                   className="text-gray-400 hover:text-red-500 transition-colors"

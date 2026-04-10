@@ -99,6 +99,7 @@ export type VariantOption = {
   name: string
   price: number
   position: number
+  is_active: boolean
   created_at: string
 }
 

@@ -27,6 +27,7 @@ export async function getProducts(storeId: string): Promise<Product[]> {
       options: v.options?.sort((a: any, b: any) => a.position - b.position).map((o: any) => ({
         ...o,
         price: Number(o.price),
+        is_active: o.is_active ?? true,
       })) || [],
     })) || [],
   }))
@@ -58,6 +59,7 @@ export async function getProduct(id: string): Promise<Product | null> {
       options: v.options?.sort((a: any, b: any) => a.position - b.position).map((o: any) => ({
         ...o,
         price: Number(o.price),
+        is_active: o.is_active ?? true,
       })) || [],
     })) || [],
   }
@@ -221,11 +223,22 @@ export async function addVariantOption(variantId: string, name: string, price: n
   return response.json()
 }
 
-export async function updateVariantOption(optionId: string, name: string, price: number) {
+export async function updateVariantOption(optionId: string, name: string, price: number, isActive?: boolean) {
+  const supabase = createClient()
+  const updateData: any = { name, price }
+  if (isActive !== undefined) updateData.is_active = isActive
+  const { error } = await supabase
+    .from('variant_options')
+    .update(updateData)
+    .eq('id', optionId)
+  if (error) throw error
+}
+
+export async function toggleVariantOptionActive(optionId: string, isActive: boolean) {
   const supabase = createClient()
   const { error } = await supabase
     .from('variant_options')
-    .update({ name, price })
+    .update({ is_active: isActive })
     .eq('id', optionId)
   if (error) throw error
 }

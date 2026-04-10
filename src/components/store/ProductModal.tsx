@@ -40,8 +40,10 @@ export default function ProductModal({ product, isOpen, onClose, onAddToCart, pr
 
   const images = product.images?.sort((a, b) => a.position - b.position) || []
   
-  // Filter variants that have options
-  const validVariants = product.variants?.filter(v => v.options && v.options.length > 0) || []
+  // Filter variants that have active options
+  const validVariants = product.variants?.filter(v => 
+    v.options && v.options.some(o => o.is_active !== false)
+  ) || []
   const hasVariants = validVariants.length > 0
 
   const calculatePrice = () => {
@@ -232,7 +234,7 @@ export default function ProductModal({ product, isOpen, onClose, onAddToCart, pr
                         {variant.name}
                       </label>
                       <div className="grid grid-cols-2 gap-2">
-                        {variant.options?.sort((a, b) => a.position - b.position).map(option => {
+                        {variant.options?.filter(o => o.is_active !== false).sort((a, b) => a.position - b.position).map(option => {
                           const isSelected = selectedOptions[variant.id]?.id === option.id
                           return (
                             <button

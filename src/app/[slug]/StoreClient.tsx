@@ -60,6 +60,14 @@ function StoreContent({ store, products, banners, categories }: Props) {
     setTimeout(() => setCartAnimation(false), 600)
   }
 
+  // Check if product is available (has at least one active option per variant)
+  const isProductAvailable = (product: ProductWithDetails) => {
+    if (!product.variants || product.variants.length === 0) return true
+    return product.variants.every(v => 
+      v.options && v.options.some(o => o.is_active !== false)
+    )
+  }
+
   // Filter products by category
   const filteredProducts = selectedCategory
     ? products.filter(p => p.category_id === selectedCategory)
@@ -199,12 +207,17 @@ function StoreContent({ store, products, banners, categories }: Props) {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {filteredProducts.map((product) => {
               const mainImage = product.images?.sort((a, b) => a.position - b.position)?.[0]?.url
+              const available = isProductAvailable(product)
 
               return (
                 <div
                   key={product.id}
-                  className="group bg-white rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col h-full"
-                  onClick={() => handleProductClick(product)}
+                  className={`group bg-white rounded-xl sm:rounded-2xl border border-gray-100 overflow-hidden shadow-sm transition-all duration-300 flex flex-col h-full ${
+                    available 
+                      ? 'hover:shadow-xl cursor-pointer transform hover:-translate-y-1' 
+                      : 'opacity-60 cursor-not-allowed'
+                  }`}
+                  onClick={() => available && handleProductClick(product)}
                 >
                   {/* Image */}
                   <div className="aspect-square bg-gray-100 relative overflow-hidden flex-shrink-0">
@@ -226,10 +239,17 @@ function StoreContent({ store, products, banners, categories }: Props) {
                         {product.category.name}
                       </span>
                     )}
+                    {!available && (
+                      <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
+                        Indisponível
+                      </span>
+                    )}
                     {/* Quick view indicator */}
-                    <div className="absolute top-2 right-2 bg-white/95 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                      <ShoppingCart className="h-4 w-4 text-gray-700" />
-                    </div>
+                    {available && (
+                      <div className="absolute top-2 right-2 bg-white/95 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                        <ShoppingCart className="h-4 w-4 text-gray-700" />
+                      </div>
+                    )}
                   </div>
 
                   {/* Info */}
@@ -248,17 +268,22 @@ function StoreContent({ store, products, banners, categories }: Props) {
 
                     {/* Add to cart button */}
                     <button
-                      className="w-full py-2.5 rounded-xl text-sm font-medium text-white transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg flex-shrink-0"
+                      disabled={!available}
+                      className={`w-full py-2.5 rounded-xl text-sm font-medium text-white transition-all duration-200 shadow-md flex-shrink-0 ${
+                        available 
+                          ? 'transform hover:scale-105 active:scale-95 hover:shadow-lg' 
+                          : 'opacity-50 cursor-not-allowed'
+                      }`}
                       style={{ 
-                        backgroundColor: primaryColor,
-                        boxShadow: `0 4px 12px ${primaryColor}40`
+                        backgroundColor: available ? primaryColor : '#9ca3af',
+                        boxShadow: available ? `0 4px 12px ${primaryColor}40` : 'none'
                       }}
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleProductClick(product)
+                        if (available) handleProductClick(product)
                       }}
                     >
-                      Adicionar
+                      {available ? 'Adicionar' : 'Indisponível'}
                     </button>
                   </div>
                 </div>

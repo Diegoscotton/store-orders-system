@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { getProducts, deleteProduct } from '@/services/productService'
+import { getProducts, deleteProduct, toggleVariantOptionActive } from '@/services/productService'
 import { Button, Card, Badge, useToast, Skeleton } from '@/components/ui'
-import { Plus, Pencil, Trash2, Package, Eye, EyeOff, RefreshCw } from 'lucide-react'
+import { Plus, Pencil, Trash2, Package, Eye, EyeOff, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import type { Product } from '@/types'
 
@@ -15,6 +15,7 @@ export default function ProductsPage() {
   const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [expandedProducts, setExpandedProducts] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     if (store) loadProducts()
@@ -60,6 +61,57 @@ export default function ProductsPage() {
     } catch {
       toast({ type: 'error', title: 'Erro ao excluir produto' })
     }
+  }
+
+  function toggleExpanded(productId: string) {
+    setExpandedProducts(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(productId)) {
+        newSet.delete(productId)
+      } else {
+        newSet.add(productId)
+      }
+      return newSet
+    })
+  }
+
+  async function handleToggleOption(productId: string, variantId: string, optionId: string, currentState: boolean) {
+    try {
+      const newState = !currentState
+      await toggleVariantOptionActive(optionId, newState)
+      // Atualizar state local
+      setProducts(prev => prev.map(p => 
+        p.id === productId 
+          ? {
+              ...p,
+              variants: p.variants?.map(v => 
+                v.id === variantId
+                  ? { ...v, options: v.options?.map(o => o.id === optionId ? { ...o, is_active: newState } : o) }
+                  : v
+              )
+            }
+          : p
+      ))
+      toast({
+        title: newState ? 'Opção ativada' : 'Opção desativada',
+        description: newState ? 'A opção está disponível novamente' : 'A opção não aparecerá na loja',
+      })
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível alterar o status da opção',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  function getVariantsSummary(product: Product) {
+    if (!product.variants || product.variants.length === 0) return null
+    const totalOptions = product.variants.reduce((sum, v) => sum + (v.options?.length || 0), 0)
+    const activeOptions = product.variants.reduce((sum, v) => 
+      sum + (v.options?.filter(o => o.is_active !== false).length || 0), 0
+    )
+    return { total: totalOptions, active: activeOptions }
   }
 
   return (
@@ -121,6 +173,7 @@ export default function ProductsPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
                   <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[120px]">Categoria</th>
                   <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">Preço</th>
+                  <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[120px]">Variações</th>
                   <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">Status</th>
                   <th className="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-[120px]">Ações</th>
                 </tr>
@@ -128,61 +181,116 @@ export default function ProductsPage() {
               <tbody className="divide-y divide-gray-100">
                 {products.map((product) => {
                   const mainImage = product.images?.[0]?.url
+                  const variantsSummary = getVariantsSummary(product)
+                  const hasVariants = variantsSummary !== null
+                  const isExpanded = expandedProducts.has(product.id)
+                  
                   return (
-                    <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 bg-gray-100 rounded-lg overflow-hidden shrink-0">
-                            {mainImage ? (
-                              <img src={mainImage} alt="" className="h-full w-full object-cover" />
-                            ) : (
-                              <div className="h-full w-full flex items-center justify-center">
-                                <Package className="h-3 w-3 text-gray-300" />
-                              </div>
-                            )}
+                    <>
+                      <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-4 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-8 w-8 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                              {mainImage ? (
+                                <img src={mainImage} alt="" className="h-full w-full object-cover" />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center">
+                                  <Package className="h-3 w-3 text-gray-300" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
+                              {product.description && (
+                                <p className="text-xs text-gray-500 truncate">{product.description}</p>
+                              )}
+                            </div>
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
-                            {product.description && (
-                              <p className="text-xs text-gray-500 truncate">{product.description}</p>
-                            )}
+                        </td>
+                        <td className="px-2 py-4">
+                          {product.category ? (
+                            <Badge variant="default" className="text-xs truncate block">{product.category.name}</Badge>
+                          ) : (
+                            <span className="text-xs text-gray-400">—</span>
+                          )}
+                        </td>
+                        <td className="px-2 py-4">
+                          <span className="font-semibold text-gray-900 text-sm truncate block">{formatCurrency(product.price)}</span>
+                        </td>
+                        <td className="px-2 py-4">
+                          {hasVariants ? (
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary" className="text-xs">
+                                {variantsSummary.active}/{variantsSummary.total} ativos
+                              </Badge>
+                              <button
+                                onClick={() => toggleExpanded(product.id)}
+                                className="text-gray-400 hover:text-gray-700 transition-colors"
+                                title={isExpanded ? 'Recolher' : 'Expandir variações'}
+                              >
+                                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">—</span>
+                          )}
+                        </td>
+                        <td className="px-2 py-4">
+                          {product.is_active ? (
+                            <Badge variant="success" className="text-xs">
+                              <Eye className="h-2 w-2 mr-1" />
+                              Ativo
+                            </Badge>
+                          ) : (
+                            <Badge variant="warning" className="text-xs">
+                              <EyeOff className="h-2 w-2 mr-1" />
+                              Inativo
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="px-2 py-4">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => router.push(`/admin/products/${product.id}/edit`)} title="Editar">
+                              <Pencil className="h-4 w-4 text-gray-500" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDelete(product)} title="Excluir">
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-2 py-4">
-                        {product.category ? (
-                          <Badge variant="default" className="text-xs truncate block">{product.category.name}</Badge>
-                        ) : (
-                          <span className="text-xs text-gray-400">—</span>
-                        )}
-                      </td>
-                      <td className="px-2 py-4">
-                        <span className="font-semibold text-gray-900 text-sm truncate block">{formatCurrency(product.price)}</span>
-                      </td>
-                      <td className="px-2 py-4">
-                        {product.is_active ? (
-                          <Badge variant="success" className="text-xs">
-                            <Eye className="h-2 w-2 mr-1" />
-                            Ativo
-                          </Badge>
-                        ) : (
-                          <Badge variant="warning" className="text-xs">
-                            <EyeOff className="h-2 w-2 mr-1" />
-                            Inativo
-                          </Badge>
-                        )}
-                      </td>
-                      <td className="px-2 py-4">
-                        <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => router.push(`/admin/products/${product.id}/edit`)} title="Editar">
-                        <Pencil className="h-4 w-4 text-gray-500" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(product)} title="Excluir">
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                      </td>
-                    </tr>
+                        </td>
+                      </tr>
+                      
+                      {/* Linha expandida com variações */}
+                      {isExpanded && hasVariants && (
+                        <tr key={`${product.id}-expanded`} className="bg-gray-50">
+                          <td colSpan={6} className="px-4 py-3">
+                            <div className="space-y-3">
+                              {product.variants?.map((variant) => (
+                                <div key={variant.id}>
+                                  <p className="text-xs font-medium text-gray-600 mb-2">{variant.name}:</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {variant.options?.map((option) => (
+                                      <button
+                                        key={option.id}
+                                        onClick={() => handleToggleOption(product.id, variant.id, option.id, option.is_active)}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                                          option.is_active === false
+                                            ? 'bg-gray-200 text-gray-400 line-through hover:bg-gray-300'
+                                            : 'bg-gray-900 text-white hover:bg-gray-800'
+                                        }`}
+                                        title={option.is_active === false ? 'Clique para ativar' : 'Clique para desativar'}
+                                      >
+                                        {option.name} {option.is_active === false ? '✗' : '✓'}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </>
                   )
                 })}
               </tbody>
