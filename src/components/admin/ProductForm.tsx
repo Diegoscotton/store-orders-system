@@ -58,14 +58,8 @@ export default function ProductForm({ storeId, categories, product }: Props) {
       price !== (product?.price || 0) ||
       categoryId !== (product?.category_id || '') ||
       isActive !== (product?.is_active ?? true)
-    
-    // Check if image order changed
-    const originalPositions = (product?.images || []).map(img => img.id).join(',')
-    const currentPositions = images.map(img => img.id).join(',')
-    const hasImageChanges = originalPositions !== currentPositions
-    
-    setHasChanges(hasFieldChanges || hasImageChanges)
-  }, [name, description, price, categoryId, isActive, product, images])
+    setHasChanges(hasFieldChanges)
+  }, [name, description, price, categoryId, isActive, product])
 
   // Images
   const [images, setImages] = useState(product?.images || [])
