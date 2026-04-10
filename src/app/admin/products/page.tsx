@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { getProducts, deleteProduct, toggleVariantOptionActive } from '@/services/productService'
@@ -93,14 +93,14 @@ export default function ProductsPage() {
           : p
       ))
       toast({
+        type: newState ? 'success' : 'info',
         title: newState ? 'Opção ativada' : 'Opção desativada',
         description: newState ? 'A opção está disponível novamente' : 'A opção não aparecerá na loja',
       })
     } catch (error) {
       toast({
-        title: 'Erro',
-        description: 'Não foi possível alterar o status da opção',
-        variant: 'destructive',
+        type: 'error',
+        title: 'Erro ao alterar status da opção',
       })
     }
   }
@@ -186,8 +186,8 @@ export default function ProductsPage() {
                   const isExpanded = expandedProducts.has(product.id)
                   
                   return (
-                    <>
-                      <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                    <Fragment key={product.id}>
+                      <tr className="hover:bg-gray-50 transition-colors">
                         <td className="px-4 py-4">
                           <div className="flex items-center gap-3">
                             <div className="h-8 w-8 bg-gray-100 rounded-lg overflow-hidden shrink-0">
@@ -262,7 +262,7 @@ export default function ProductsPage() {
                       
                       {/* Linha expandida com variações */}
                       {isExpanded && hasVariants && (
-                        <tr key={`${product.id}-expanded`} className="bg-gray-50">
+                        <tr className="bg-gray-50">
                           <td colSpan={6} className="px-4 py-3">
                             <div className="space-y-3">
                               {product.variants?.map((variant) => (
@@ -291,7 +291,7 @@ export default function ProductsPage() {
                           </td>
                         </tr>
                       )}
-                    </>
+                    </Fragment>
                   )
                 })}
               </tbody>

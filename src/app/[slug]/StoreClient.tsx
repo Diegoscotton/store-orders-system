@@ -73,6 +73,12 @@ function StoreContent({ store, products, banners, categories }: Props) {
     ? products.filter(p => p.category_id === selectedCategory)
     : products
 
+  // Pre-compute availability BEFORE filtering out inactive options
+  const availabilityMap = new Map<string, boolean>()
+  filteredProducts.forEach(product => {
+    availabilityMap.set(product.id, isProductAvailable(product))
+  })
+
   // Filter out inactive variant options from display
   const displayProducts = filteredProducts.map(product => {
     if (!product.variants || product.variants.length === 0) return product
@@ -221,7 +227,7 @@ function StoreContent({ store, products, banners, categories }: Props) {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {displayProducts.map((product) => {
               const mainImage = product.images?.sort((a, b) => a.position - b.position)?.[0]?.url
-              const available = isProductAvailable(product)
+              const available = availabilityMap.get(product.id) ?? true
 
               return (
                 <div
