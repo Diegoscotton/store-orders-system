@@ -11,7 +11,7 @@ export async function getProducts(storeId: string): Promise<Product[]> {
       images:product_images(id, url, position),
       variants:product_variants(
         id, name, position,
-        options:variant_options(id, name, price, position)
+        options:variant_options(id, name, price, position, is_active)
       )
     `)
     .eq('store_id', storeId)
@@ -43,7 +43,7 @@ export async function getProduct(id: string): Promise<Product | null> {
       images:product_images(id, url, position),
       variants:product_variants(
         id, name, position,
-        options:variant_options(id, name, price, position)
+        options:variant_options(id, name, price, position, is_active)
       )
     `)
     .eq('id', id)
