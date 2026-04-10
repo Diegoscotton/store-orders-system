@@ -21,18 +21,6 @@ export default function ProductsPage() {
     if (store) loadProducts()
   }, [store])
 
-  // Reload products when page becomes visible (when coming back from edit)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && store) {
-        loadProducts()
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [store])
-
   async function loadProducts() {
     if (!store) return
     try {
@@ -272,7 +260,7 @@ export default function ProductsPage() {
                                     {variant.options?.map((option) => (
                                       <button
                                         key={option.id}
-                                        onClick={() => handleToggleOption(product.id, variant.id, option.id, option.is_active)}
+                                        onClick={() => handleToggleOption(product.id, variant.id, option.id, option.is_active !== false)}
                                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                                           option.is_active === false
                                             ? 'bg-gray-100 text-gray-400 hover:bg-gray-200 border border-gray-200'
