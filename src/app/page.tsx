@@ -234,12 +234,12 @@ function HeroMockup() {
         </svg>
       </div>
 
-      {/* Card "47 Pedidos hoje" — top-left, ajustado para mobile */}
+      {/* Card "47 Pedidos hoje" — top-left, deslocado para a esquerda até a margem */}
       <motion.div
         initial={{ opacity: 0, y: 12, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.6, ease: E, delay: 0.3 }}
-        className="absolute top-4 -left-2 lg:top-8 lg:-left-32 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-2.5 lg:p-3 w-28 lg:w-36"
+        className="absolute top-4 -left-20 lg:top-8 lg:-left-32 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-2.5 lg:p-3 w-28 lg:w-36"
       >
         <div className="flex items-center gap-1.5 lg:gap-2 mb-0.5 lg:mb-1">
           <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-[#639922] animate-pulse" />
@@ -248,7 +248,7 @@ function HeroMockup() {
         <p className="text-2xl lg:text-3xl font-black text-slate-900 leading-none">47</p>
       </motion.div>
 
-      {/* Card de notificação — top-right, ajustado para mobile, phase 1, alterna conteúdo */}
+      {/* Card de notificação — top-right, deslocado para a direita até a margem, phase 1, alterna conteúdo */}
       <AnimatePresence mode="wait">
         {phase >= 1 && (
           <motion.div
@@ -257,7 +257,7 @@ function HeroMockup() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.4, ease: E }}
-            className="absolute -top-2 -right-2 lg:-top-4 lg:-right-28 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-2.5 lg:p-3 w-40 lg:w-48"
+            className="absolute -top-2 -right-20 lg:-top-4 lg:-right-28 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-2.5 lg:p-3 w-40 lg:w-48"
           >
             <div className="flex items-start gap-1.5 lg:gap-2">
               <div className="w-7 h-7 lg:w-8 lg:h-8 bg-[#639922]/15 rounded-full flex items-center justify-center text-[10px] lg:text-[11px] font-black text-[#639922] flex-shrink-0">
@@ -276,14 +276,14 @@ function HeroMockup() {
         )}
       </AnimatePresence>
 
-      {/* Card WhatsApp — bottom-left, ajustado para mobile, phase 2 */}
+      {/* Card WhatsApp — bottom-left, deslocado para a esquerda até a margem, phase 2 */}
       <AnimatePresence>
         {phase >= 2 && (
           <motion.div
             initial={{ opacity: 0, y: 12, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.55, ease: E }}
-            className="absolute bottom-12 -left-2 lg:bottom-16 lg:-left-24 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-2.5 lg:p-3 w-48 lg:w-56"
+            className="absolute bottom-12 -left-20 lg:bottom-16 lg:-left-24 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-2.5 lg:p-3 w-48 lg:w-56"
           >
             <div className="flex items-center gap-1.5 lg:gap-2 mb-1.5 lg:mb-2">
               <div className="w-5 h-5 lg:w-6 lg:h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
