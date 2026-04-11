@@ -198,7 +198,7 @@ function HeroMockup() {
   const currentCard = cardContents[cardIndex];
 
   return (
-    <div className="relative w-full max-w-[280px] mx-auto lg:mx-0">
+    <div className="relative w-full max-w-[280px] lg:max-w-[280px] mx-auto lg:mx-0">
       {/* Background decorativo com blur e elementos flutuantes */}
       <div className="absolute inset-0 -m-32 pointer-events-none overflow-visible">
         {/* Círculos decorativos com blur */}
@@ -234,21 +234,21 @@ function HeroMockup() {
         </svg>
       </div>
 
-      {/* Card "47 Pedidos hoje" — top-left, bem afastado */}
+      {/* Card "47 Pedidos hoje" — top-left, ajustado para mobile */}
       <motion.div
         initial={{ opacity: 0, y: 12, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.6, ease: E, delay: 0.3 }}
-        className="absolute top-8 -left-32 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-3 w-36"
+        className="absolute top-4 -left-2 lg:top-8 lg:-left-32 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-2.5 lg:p-3 w-28 lg:w-36"
       >
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-2 h-2 rounded-full bg-[#639922] animate-pulse" />
-          <span className="text-[9px] font-semibold text-slate-600">Pedidos hoje</span>
+        <div className="flex items-center gap-1.5 lg:gap-2 mb-0.5 lg:mb-1">
+          <div className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-[#639922] animate-pulse" />
+          <span className="text-[8px] lg:text-[9px] font-semibold text-slate-600">Pedidos hoje</span>
         </div>
-        <p className="text-3xl font-black text-slate-900 leading-none">47</p>
+        <p className="text-2xl lg:text-3xl font-black text-slate-900 leading-none">47</p>
       </motion.div>
 
-      {/* Card de notificação — top-right, mais à direita e acima, phase 1, alterna conteúdo */}
+      {/* Card de notificação — top-right, ajustado para mobile, phase 1, alterna conteúdo */}
       <AnimatePresence mode="wait">
         {phase >= 1 && (
           <motion.div
@@ -257,66 +257,66 @@ function HeroMockup() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.4, ease: E }}
-            className="absolute -top-4 -right-28 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-3 w-48"
+            className="absolute -top-2 -right-2 lg:-top-4 lg:-right-28 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-2.5 lg:p-3 w-40 lg:w-48"
           >
-            <div className="flex items-start gap-2">
-              <div className="w-8 h-8 bg-[#639922]/15 rounded-full flex items-center justify-center text-[11px] font-black text-[#639922] flex-shrink-0">
+            <div className="flex items-start gap-1.5 lg:gap-2">
+              <div className="w-7 h-7 lg:w-8 lg:h-8 bg-[#639922]/15 rounded-full flex items-center justify-center text-[10px] lg:text-[11px] font-black text-[#639922] flex-shrink-0">
                 {currentCard.initials}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1 mb-0.5">
-                  <span className="text-[11px] font-bold text-slate-800">{currentCard.name}</span>
-                  <span className="text-[9px] text-slate-400 flex-shrink-0">agora</span>
+                  <span className="text-[10px] lg:text-[11px] font-bold text-slate-800">{currentCard.name}</span>
+                  <span className="text-[8px] lg:text-[9px] text-slate-400 flex-shrink-0">agora</span>
                 </div>
-                <p className="text-[10px] text-slate-500">{currentCard.item}</p>
-                <p className="text-[11px] font-bold text-[#639922] mt-1">{currentCard.price}</p>
+                <p className="text-[9px] lg:text-[10px] text-slate-500 line-clamp-1">{currentCard.item}</p>
+                <p className="text-[10px] lg:text-[11px] font-bold text-[#639922] mt-0.5 lg:mt-1">{currentCard.price}</p>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Card WhatsApp — bottom-left, mais afastado, phase 2 */}
+      {/* Card WhatsApp — bottom-left, ajustado para mobile, phase 2 */}
       <AnimatePresence>
         {phase >= 2 && (
           <motion.div
             initial={{ opacity: 0, y: 12, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.55, ease: E }}
-            className="absolute bottom-16 -left-24 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-3 w-56"
+            className="absolute bottom-12 -left-2 lg:bottom-16 lg:-left-24 z-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-2.5 lg:p-3 w-48 lg:w-56"
           >
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <MessageCircle className="w-3.5 h-3.5 text-white" />
+            <div className="flex items-center gap-1.5 lg:gap-2 mb-1.5 lg:mb-2">
+              <div className="w-5 h-5 lg:w-6 lg:h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <MessageCircle className="w-3 h-3 lg:w-3.5 lg:h-3.5 text-white" />
               </div>
-              <span className="text-[11px] font-semibold text-slate-700">WhatsApp</span>
-              <span className="text-[9px] text-slate-400 ml-auto">Mensagem automática</span>
+              <span className="text-[10px] lg:text-[11px] font-semibold text-slate-700">WhatsApp</span>
+              <span className="text-[8px] lg:text-[9px] text-slate-400 ml-auto hidden lg:inline">Mensagem automática</span>
             </div>
-            <div className="bg-[#dcf8c6] rounded-xl px-3 py-2.5 text-[10px] leading-relaxed text-slate-700 space-y-1">
+            <div className="bg-[#dcf8c6] rounded-xl px-2.5 lg:px-3 py-2 lg:py-2.5 text-[9px] lg:text-[10px] leading-relaxed text-slate-700 space-y-0.5 lg:space-y-1">
               <p>🧾 <strong>Novo Pedido #047</strong></p>
-              <p>👤 Ana Lima · (51) 99999-8888</p>
-              <p className="pt-1">• 1× Açaí 500ml — R$22,00</p>
+              <p className="truncate">👤 Ana Lima · (51) 99999-8888</p>
+              <p className="pt-0.5 lg:pt-1">• 1× Açaí 500ml — R$22,00</p>
               <p>• 1× Granola extra — R$6,00</p>
-              <p className="pt-1">💰 <strong>Total: R$ 28,00</strong></p>
+              <p className="pt-0.5 lg:pt-1">💰 <strong>Total: R$ 28,00</strong></p>
             </div>
-            <div className="flex justify-end mt-1.5">
-              <span className="text-[9px] text-slate-400">✓✓ Entregue</span>
+            <div className="flex justify-end mt-1 lg:mt-1.5">
+              <span className="text-[8px] lg:text-[9px] text-slate-400">✓✓ Entregue</span>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Device frame (celular) - proporções realistas de smartphone */}
+      {/* Device frame (celular) - proporções realistas de smartphone, reduzido no mobile */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: E, delay: 0.1 }}
         className="relative z-10 w-full"
       >
-        {/* Shell do device - aspect ratio 9:19.5 típico de smartphones */}
-        <div className="relative bg-slate-900 rounded-[2.5rem] shadow-2xl p-2.5 mx-auto" style={{ width: '280px', height: '580px' }}>
-          {/* Notch */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 bg-slate-900 rounded-b-2xl z-10" />
+        {/* Shell do device - aspect ratio 9:19.5 típico de smartphones, menor no mobile */}
+        <div className="relative bg-slate-900 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl p-2 lg:p-2.5 mx-auto w-[220px] h-[455px] lg:w-[280px] lg:h-[580px]">
+          {/* Notch - menor no mobile */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 lg:w-28 lg:h-5 bg-slate-900 rounded-b-2xl z-10" />
           
           {/* Tela interna */}
           <div className="relative bg-white rounded-[2rem] overflow-hidden h-full">
